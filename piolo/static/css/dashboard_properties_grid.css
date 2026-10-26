@@ -1,0 +1,226 @@
+/* static/css/dashboard_properties_grid.css
+   ============================================================
+   Cartes d'annonces — dashboard locataire
+   Reprend le style "listing_bien" : badges flottants sur l'image,
+   badge transaction doré, pictos en pilule, footer prix/réf.
+   ============================================================ */
+
+.props-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.prop-card {
+  background: var(--blanc, #fff);
+  border-radius: var(--radius-lg, 18px);
+  border: 1px solid var(--gris-b, #E8E4DC);
+  overflow: hidden;
+  transition: transform .2s ease, box-shadow .2s ease;
+  display: flex;
+  flex-direction: column;
+}
+.prop-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,.10);
+}
+
+.prop-img-link,
+.prop-body-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+/* ── Zone image ── */
+.prop-img {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background: var(--gris-b, #E8E4DC);
+  overflow: hidden;
+}
+
+.prop-img-real {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .35s ease;
+}
+.prop-card:hover .prop-img-real {
+  transform: scale(1.04);
+}
+
+.prop-img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #B8B2A6;
+  background: linear-gradient(135deg, #F0EDE5, #E8E4DC);
+}
+
+/* ── Badges flottants haut (photos count + favoris) ── */
+.prop-top-pictos {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 2;
+}
+
+.ptag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(20,20,20,.6);
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+}
+.ptag svg { width: 15px; height: 15px; fill: none; stroke: #fff; }
+
+.fav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(20,20,20,.55);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background .2s ease, transform .15s ease;
+  padding: 0;
+}
+.fav-btn:hover { background: rgba(20,20,20,.75); transform: scale(1.08); }
+.fav-btn svg { width: 17px; height: 17px; stroke: #fff; }
+
+/* ── Badge transaction (bas-gauche) ── */
+.pbadge {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 2;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+  color: #1A1A1A;
+  background: linear-gradient(135deg, #D4AF37, #F6D365);
+  box-shadow: 0 3px 10px rgba(212,175,55,.4);
+}
+.pbadge.vente { background: linear-gradient(135deg, #2C3E7A, #4A5FA8); color: #fff; box-shadow: 0 3px 10px rgba(44,62,122,.4); }
+
+/* ── Badge vérifié (haut-droit, optionnel) ── */
+.pverifie {
+  position: absolute;
+  top: auto;
+  bottom: 12px;
+  right: 12px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: rgba(30,132,73,.92);
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  height: auto;
+}
+.pverifie svg { width: 12px; height: 12px; fill: #fff; }
+
+/* ── Corps de la carte ── */
+.prop-body { padding: 16px 16px 14px; }
+
+.pname {
+  font-family: 'Poppins', sans-serif;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #1A1A1A;
+  line-height: 1.4;
+  margin-bottom: 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ploc {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  color: var(--gris, #888);
+  margin-bottom: 12px;
+}
+.ploc svg { width: 14px; height: 14px; fill: var(--or-d, #B8962A); flex-shrink: 0; }
+
+/* ── Pictos pièces / chambres / sdb (pilules) ── */
+.product-bulles {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.bulle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: #F8F9FA;
+  border: 1px solid var(--gris-b, #E8E4DC);
+}
+.bulle .picto { width: 14px; height: 14px; display: flex; align-items: center; color: #666; }
+.bulle .picto svg { width: 100%; height: 100%; }
+.bulle .value {
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* ── Footer prix + référence ── */
+.product-bottom-infos {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 12px;
+  border-top: 1px solid var(--gris-b, #E8E4DC);
+}
+.product-price {
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--or-d, #B8962A);
+}
+.pprice-sub { font-size: 11.5px; font-weight: 600; color: var(--gris, #888); }
+.product-ref {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #AAA;
+  font-family: 'Poppins', sans-serif;
+}
+
+@media (max-width: 500px) {
+  .props-grid { grid-template-columns: 1fr; gap: 16px; }
+  .prop-img { height: 180px; }
+}

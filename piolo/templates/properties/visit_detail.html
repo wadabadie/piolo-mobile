@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Demande de visite — {{ visit.property.title }}{% endblock %}
+
+{% block content %}
+<div class="detail-shell" style="max-width:760px;margin:40px auto;padding:0 20px;">
+
+  <a href="{% url 'accounts:bailleur_dashboard' %}" style="display:inline-flex;align-items:center;gap:8px;font-family:Poppins,sans-serif;font-size:13px;font-weight:600;color:#64605A;margin-bottom:24px;">
+    ← Retour au dashboard
+  </a>
+
+  <!-- En-tête -->
+  <div style="background:#fff;border-radius:20px;border:1px solid #E8E3DA;padding:28px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,.06);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h1 style="font-family:Poppins,sans-serif;font-size:20px;font-weight:800;color:#0F0D09;">
+        Demande de visite
+      </h1>
+      <span style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;font-family:Poppins,sans-serif;
+        {% if visit.status == 'CONFIRMED' %}background:rgba(30,122,71,.1);color:#1E7A47;
+        {% elif visit.status == 'REFUSED' %}background:rgba(184,50,50,.1);color:#B83232;
+        {% elif visit.status == 'CANCELLED' %}background:#F7F5F1;color:#9B9690;
+        {% else %}background:rgba(212,175,55,.1);color:#A8891C;{% endif %}">
+        {{ visit.get_status_display }}
+      </span>
+    </div>
+
+    <!-- Bien concerné -->
+    <div style="display:flex;gap:16px;padding:16px;background:#F7F5F1;border-radius:14px;margin-bottom:20px;">
+      {% if visit.property.main_image %}
+      <img src="{{ visit.property.main_image.url }}" alt="{{ visit.property.title }}"
+           style="width:90px;height:70px;object-fit:cover;border-radius:10px;flex-shrink:0;">
+      {% endif %}
+      <div>
+        <div style="font-family:Poppins,sans-serif;font-size:14px;font-weight:700;color:#0F0D09;">{{ visit.property.title }}</div>
+        <div style="font-size:12px;color:#64605A;margin-top:3px;">{{ visit.property.city }}{% if visit.property.neighborhood %}, {{ visit.property.neighborhood }}{% endif %}</div>
+        <div style="font-family:Poppins,sans-serif;font-size:13px;font-weight:800;color:#A8891C;margin-top:5px;">{{ visit.property.price|floatformat:0 }} FCFA/mois</div>
+      </div>
+    </div>
+
+    <!-- Infos locataire -->
+    <h3 style="font-family:Poppins,sans-serif;font-size:14px;font-weight:700;color:#0F0D09;margin-bottom:14px;">Locataire</h3>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+      <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#1E3A6E,#3A6EA5);display:flex;align-items:center;justify-content:center;font-family:Poppins,sans-serif;font-size:18px;font-weight:800;color:#fff;flex-shrink:0;">
+        {{ visit.tenant.first_name|first|upper }}{{ visit.tenant.last_name|first|upper }}
+      </div>
+      <div>
+        <div style="font-family:Poppins,sans-serif;font-size:15px;font-weight:700;color:#0F0D09;">{{ visit.tenant.get_full_name }}</div>
+        <div style="font-size:12px;color:#9B9690;">{{ visit.tenant.email }}</div>
+        {% if visit.tenant.phone %}<div style="font-size:12px;color:#9B9690;">{{ visit.tenant.phone }}</div>{% endif %}
+      </div>
+    </div>
+
+    <!-- Détails de la demande -->
+    <h3 style="font-family:Poppins,sans-serif;font-size:14px;font-weight:700;color:#0F0D09;margin-bottom:14px;">Détails de la visite</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div style="padding:14px;background:#F7F5F1;border-radius:12px;border:1px solid #E8E3DA;">
+        <div style="font-size:10.5px;color:#9B9690;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Date souhaitée</div>
+        <div style="font-family:Poppins,sans-serif;font-size:14px;font-weight:700;color:#0F0D09;">
+          {{ visit.requested_date|date:"l d M Y" }}
+          {% if visit.requested_time %} à {{ visit.requested_time|time:"H\hi" }}{% endif %}
+        </div>
+      </div>
+      <div style="padding:14px;background:#F7F5F1;border-radius:12px;border:1px solid #E8E3DA;">
+        <div style="font-size:10.5px;color:#9B9690;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Demande créée le</div>
+        <div style="font-family:Poppins,sans-serif;font-size:14px;font-weight:700;color:#0F0D09;">{{ visit.created_at|date:"d M Y" }}</div>
+      </div>
+    </div>
+
+    {% if visit.message %}
+    <div style="padding:14px;background:#F7F5F1;border-radius:12px;border:1px solid #E8E3DA;margin-bottom:16px;">
+      <div style="font-size:10.5px;color:#9B9690;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">Message du locataire</div>
+      <p style="font-size:14px;color:#0F0D09;line-height:1.6;">{{ visit.message }}</p>
+    </div>
+    {% endif %}
+
+    {% if visit.status == 'CONFIRMED' and visit.confirmed_date %}
+    <div style="padding:14px;background:rgba(30,122,71,.07);border-radius:12px;border:1px solid rgba(30,122,71,.2);margin-bottom:16px;">
+      <div style="font-size:10.5px;color:#1E7A47;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">✓ Visite confirmée pour le</div>
+      <div style="font-family:Poppins,sans-serif;font-size:15px;font-weight:800;color:#1E7A47;">
+        {{ visit.confirmed_date|date:"l d M Y" }}
+        {% if visit.confirmed_time %} à {{ visit.confirmed_time|time:"H\hi" }}{% endif %}
+      </div>
+      {% if visit.bailleur_note %}
+      <p style="font-size:13px;color:#1E7A47;margin-top:7px;">Note : {{ visit.bailleur_note }}</p>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Actions bailleur -->
+    {% if is_bailleur and visit.status == 'PENDING' %}
+    <div style="border-top:1px solid #F7F5F1;padding-top:20px;margin-top:10px;">
+      <h3 style="font-family:Poppins,sans-serif;font-size:14px;font-weight:700;color:#0F0D09;margin-bottom:14px;">Confirmer ou refuser</h3>
+      <form id="visit-action-form">
+        {% csrf_token %}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div>
+            <label style="font-size:12px;font-weight:600;color:#64605A;display:block;margin-bottom:5px;">Date confirmée</label>
+            <input type="date" name="confirmed_date" value="{{ visit.requested_date|date:'Y-m-d' }}"
+                   style="width:100%;border:1.5px solid #E8E3DA;border-radius:10px;padding:9px 13px;font-size:14px;outline:none;">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:600;color:#64605A;display:block;margin-bottom:5px;">Heure confirmée</label>
+            <input type="time" name="confirmed_time" value="{{ visit.requested_time|default:'' }}"
+                   style="width:100%;border:1.5px solid #E8E3DA;border-radius:10px;padding:9px 13px;font-size:14px;outline:none;">
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="font-size:12px;font-weight:600;color:#64605A;display:block;margin-bottom:5px;">Note pour le locataire</label>
+          <textarea name="note" rows="3" placeholder="Instructions de rendez-vous, code d'entrée…"
+                    style="width:100%;border:1.5px solid #E8E3DA;border-radius:10px;padding:10px 13px;font-size:14px;outline:none;resize:vertical;font-family:DM Sans,sans-serif;"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button type="button" onclick="submitVisitAction('confirm')"
+                  style="flex:1;padding:12px;border-radius:11px;background:linear-gradient(135deg,#D4AF37,#F6D365);border:none;font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#0F0D09;cursor:pointer;">
+            ✓ Confirmer la visite
+          </button>
+          <button type="button" onclick="submitVisitAction('refuse')"
+                  style="padding:12px 20px;border-radius:11px;background:rgba(184,50,50,.08);border:1px solid rgba(184,50,50,.2);font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#B83232;cursor:pointer;">
+            ✕ Refuser
+          </button>
+        </div>
+        <div id="action-result" style="display:none;margin-top:12px;padding:12px;border-radius:10px;font-size:13px;font-weight:600;"></div>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+function submitVisitAction(action) {
+  const form = document.getElementById('visit-action-form');
+  const fd = new FormData(form);
+  fd.append('action', action);
+
+  const btn = form.querySelector(`button[onclick="submitVisitAction('${action}')"]`);
+  btn.disabled = true;
+  btn.textContent = '⏳…';
+
+  fetch("{% url 'properties:visit_action' visit.pk %}", {
+    method: 'POST', body: fd,
+    headers: { 'X-CSRFToken': fd.get('csrfmiddlewaretoken') },
+    credentials: 'same-origin'
+  })
+  .then(r => r.json())
+  .then(data => {
+    const result = document.getElementById('action-result');
+    result.style.display = 'block';
+    if (data.ok) {
+      result.style.background = 'rgba(30,122,71,.08)';
+      result.style.color = '#1E7A47';
+      result.textContent = data.message;
+      setTimeout(() => window.location.href = "{% url 'accounts:bailleur_dashboard' %}", 1500);
+    } else {
+      result.style.background = 'rgba(184,50,50,.08)';
+      result.style.color = '#B83232';
+      result.textContent = data.error || 'Erreur.';
+      btn.disabled = false;
+    }
+  })
+  .catch(() => {
+    btn.disabled = false;
+    btn.textContent = action === 'confirm' ? '✓ Confirmer' : '✕ Refuser';
+  });
+}
+</script>
+{% endblock %}

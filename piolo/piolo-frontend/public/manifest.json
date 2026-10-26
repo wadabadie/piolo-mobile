@@ -1,0 +1,32 @@
+{
+  "name": "Piolo — Immobilier Haut Standing Cameroun",
+  "short_name": "Piolo",
+  "description": "Trouvez, visitez et louez votre bien immobilier au Cameroun en toute sécurité. Bailleurs vérifiés, visites 3D, estimation IA.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0C0A08",
+  "theme_color": "#0C0A08",
+  "orientation": "portrait-primary",
+  "lang": "fr-CM",
+  "categories": ["lifestyle", "real estate", "business"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

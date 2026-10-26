@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Piolo — Plateforme Immobilière{% endblock %}</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+  <!-- Data Saver & Fast Navigation Engine -->
+  <script src="{% static 'js/data_saver.js' %}"></script>
+
+  <!-- CSS global -->
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <script>
+    // Ajout immédiat de la classe de chargement
+    document.body.classList.add('is-loading');
+    window.addEventListener('load', function() {
+      // Retrait après un petit délai pour l'effet visuel premium
+      setTimeout(function() {
+        document.body.classList.remove('is-loading');
+      }, 800);
+    });
+  </script>
+  {% block content %}{% endblock %}
+
+  <!-- JS global -->
+  {% block extra_js %}{% endblock %}
+
+  <!-- Bottom Navbar Mobile (PWA) -->
+  {% block bottom_nav %}
+  {% include 'includes/bottom_navbar.html' %}
+  {% endblock %}
+</body>
+</html>

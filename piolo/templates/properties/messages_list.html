@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mes Messages — Piolo{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="layout">
+  {% include "includes/sidebar.html" %}
+
+  <div class="main">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-title">Mes <span>Messages</span></div>
+      <div class="tb-search" style="visibility:hidden;"></div>
+      <div class="tb-actions">
+        <div class="tb-pts-badge">
+          <svg width="15" height="15" fill="var(--or)" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+          <span class="tb-pts-val">{{ user.points }} Points</span>
+        </div>
+        <a class="tb-icon-btn" href="#" title="Notifications">
+          <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+          <div class="tb-notif-dot"></div>
+        </a>
+        <div class="tb-av">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- FIL D'ARIANE -->
+      <div style="margin-bottom:20px;">
+        <a href="{% url 'accounts:dashboard_redirect' %}" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--gris);text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          Retour au dashboard
+        </a>
+      </div>
+
+      <div style="text-align:center;padding:80px 20px;background:var(--blanc);border-radius:var(--radius-lg);border:1px solid var(--gris-b);margin-top:20px;">
+        <svg viewBox="0 0 24 24" width="80" height="80" fill="var(--or-d)" style="margin-bottom:20px; opacity: 0.8;"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+        <h2 style="font-family:Poppins,sans-serif;font-weight:700;font-size:24px;color:var(--noir);margin-bottom:12px;">Messagerie bientôt disponible !</h2>
+        <p style="font-size:15px;color:var(--gris-m);max-width:500px;margin:0 auto 24px;">Nous développons actuellement un système de chat en direct pour vous permettre d'échanger directement avec les propriétaires depuis la plateforme. Restez à l'écoute !</p>
+        <a href="{% url 'properties:list' %}" style="display:inline-block;padding:12px 24px;border-radius:12px;background:linear-gradient(135deg,var(--or),var(--or-l));color:var(--noir);font-family:Poppins,sans-serif;font-weight:700;text-decoration:none;font-size:14px;box-shadow:0 4px 14px rgba(212,175,55,.3);">Explorer les biens</a>
+      </div>
+
+    </main>
+  </div>
+</div>
+{% endblock %}

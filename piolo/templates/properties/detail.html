@@ -1,0 +1,986 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ property.property_type }} {{ property.bedrooms }} pièces à {{ property.city }} | Piolo{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/property_detail.css' %}">
+  <link rel="stylesheet" href="{% static 'css/dashboard_properties_grid.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="detail-shell">
+
+  <!-- Fil d'Ariane -->
+  <div class="detail-breadcrumb">
+    {% comment %} <a href="{% url 'accounts:locataire' %}"> {% endcomment %}
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      Accueil
+    </a>
+    <span class="sep">/</span>
+    {% comment %} <a href="{% url 'properties_list' %}">{{ property.property_type }}</a> {% endcomment %}
+    <a href="#">{{ property.property_type }}</a>
+    <span class="sep">/</span>
+    <span class="current">{{ property.bedrooms }} pièce(s) à {{ property.city }}</span>
+  </div>
+
+  <div class="detail-grid">
+
+    <!-- ═══════════ COLONNE PRINCIPALE ═══════════ -->
+    <div class="detail-main">
+
+      <!-- Galerie -->
+      <div class="gallery">
+        <div class="gallery-thumbs" id="gallery-thumbs">
+          <div class="thumb active" data-full="{{ property.main_image.url }}">
+            <img src="{{ property.main_image.url }}" alt="Photo principale">
+          </div>
+          {% for image in property.images.all %}
+          <div class="thumb" data-full="{{ image.image.url }}">
+            <img src="{{ image.image.url }}" alt="Photo {{ forloop.counter }}" loading="lazy">
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="gallery-main">
+          <button type="button" class="gallery-nav prev" id="gallery-prev" aria-label="Image précédente">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <img id="gallery-main-img" src="{{ property.main_image.url }}" alt="{{ property.property_type }}">
+          <button type="button" class="gallery-nav next" id="gallery-next" aria-label="Image suivante">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <span class="gallery-counter"><span id="gallery-pos">1</span> / <span id="gallery-total">1</span></span>
+        </div>
+      </div>
+
+
+      <!-- Bloc titre + pictos + prix -->
+      <div class="detail-card">
+        <div class="detail-top-row">
+          <div class="detail-titleblock">
+            <span class="dbadge {{ property.transaction_type|default:'location'|lower }}">À louer</span>
+            <h1 class="detail-title">{{ property.property_type }} {{ property.bedrooms }} pièces à {{ property.neighborhood }}</h1>
+            <div class="detail-sub">{{ property.area }} m² &middot; {{ property.city }}</div>
+          </div>
+          <div class="detail-price-block">
+            <div class="dprice">{{ property.price|floatformat:0 }} <span class="dcurrency">FCFA</span><span class="dperiod">/mois</span></div>
+            <div class="dprice-sub">charges non comprises</div>
+          </div>
+        </div>
+
+        <!-- Pictos clés -->
+        <div class="dbulles">
+          <div class="dbulle">
+            <svg viewBox="0 0 16 17" fill="currentColor"><path d="M1.132 2.538h12.993v-1.43H1.132zm1.033 6.06h10.927v-4.96H2.165zm0 6.07h10.927v-4.96H2.165zM.034 0h15.19v3.639H14.19v12.137H12.3V17H11.2v-1.224H4.056V17H2.957v-1.224h-1.89V3.64H.034zm8.144 6.119a.552.552 0 0 1-.55.554.552.552 0 0 1-.549-.554c0-.307.246-.555.55-.555.303 0 .549.248.549.555zm0 6.068a.552.552 0 0 1-.55.555.552.552 0 0 1-.549-.555c0-.306.246-.554.55-.554.303 0 .549.248.549.554z"/></svg>
+            <span>{{ property.bedrooms }} pièce(s)</span>
+          </div>
+          <div class="dbulle">
+            <svg viewBox="0 0 17 9" fill="currentColor"><path d="M1.074 5.244H15.39v1.677H1.074zm0-1.955a.9.9 0 0 1 .908-.888h2.03a.9.9 0 0 1 .909.888.9.9 0 0 1-.909.888H1.074zM15.39 1.835v2.36H5.764c.146-.27.23-.579.23-.906 0-1.068-.89-1.937-1.982-1.937h-2.03c-.327 0-.636.078-.908.216V0H0v9h1.074V7.963H15.39V9h1.073V1.835z"/></svg>
+            <span>{{ property.bedrooms }} chambre(s)</span>
+          </div>
+          <div class="dbulle">
+            <svg viewBox="0 0 924.7 746.62" fill="currentColor"><path d="m924.6,436.52h-45.2v10.4c0,29.5.1,59,0,88.5-.3,71.5-45.9,126.6-116.2,140.2-1.7.3-3.4.9-6.1,1.7,5.7,16.3,11.2,32.3,17.1,49.3-19,6.7-37.5,13.2-56.8,20-7.1-20.3-14.3-39.7-20.6-59.4-2.3-7.2-5.7-9.6-13.4-9.6-147.5.2-295,.2-442.6,0-7.5,0-11.1,2.1-13.5,9.4-6.3,19.7-13.5,39.1-20.6,59.5-19-6.7-37.4-13.1-56.8-19.9,5.7-16.5,11.2-32.6,17-49.4-6.3-1.4-12.4-2.6-18.4-4.2-59.5-15.5-102.2-68.8-103.6-130.4-.8-34.9-.1-69.8-.1-105.7H0v-158.7h106.4c.2-4.3.5-7.8.5-11.2,0-57.8.1-115.6,0-173.4,0-24.3,5.8-46.5,22.7-64.8C151.6,5.02,179.2-4.28,210.5,1.82c32.1,6.3,54.4,26,65.1,57.3,2.8,8.3,3.7,17.3,5.7,26.9h-59.8c-2-4.9-3.3-9.9-5.9-14.1-6-9.7-18.5-13.8-29.3-10.6-11.7,3.6-18.8,13.3-18.8,26.7-.1,57.8,0,115.6,0,173.4v15.9c3.6.2,6.5.5,9.4.5h739.7c2.7,0,5.4-.3,8.1-.5-.1,53.2-.1,106.2-.1,159.2Zm-105.5.4H105.9c-.3,2-.9,3.7-.9,5.5,0,31.3-.8,62.7.3,93.9.4,12.3,3,25.4,8.3,36.5,14.8,31.1,41.3,44.6,75.3,44.6h546.4c3.6,0,7.2-.1,10.8-.4,39.4-3.6,69.1-32.7,71.9-71.8,1.4-19.8.9-39.7,1-59.6.2-16,.1-31.9.1-48.7Zm44.7-97.5H60.4v36.5h803.4v-36.5Z"/></svg>
+            <span>{{ property.bathrooms }} salle(s) de bain</span>
+          </div>
+          <div class="dbulle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"/><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"/></svg>
+            <span>{{ property.area }} m²</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="dactions">
+          <button type="button" class="dact-btn fav" onclick="toggleFavoriteDetail({{ property.id }}, this)" title="Ajouter aux favoris">
+            <svg viewBox="0 0 24 24" fill="{% if property.id in favoris_ids %}#D4AF37{% else %}none{% endif %}" stroke="{% if property.id in favoris_ids %}#D4AF37{% else %}currentColor{% endif %}" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            Favoris
+          </button>
+          <button type="button" class="dact-btn" onclick="window.print()" title="Imprimer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Imprimer
+          </button>
+          <a href="{% url 'messaging:start_conversation' property.id %}" class="dact-btn" style="text-decoration:none;" title="Contacter le bailleur par message">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Contacter
+          </a>
+          <span class="dref">Réf : {{ property.id|stringformat:"s"|slice:":8"|upper }}</span>
+        </div>
+      </div>
+
+      {% if property.virtual_tours.all and property.virtual_tours.all.0.scenes.all %}
+      <!-- BOUTON VISITE 360 -->
+      <div class="virtual-tour-cta" style="margin-bottom:24px; display:flex; justify-content:center;">
+        <a href="{% url 'properties:tour_viewer' property.slug %}" class="btn-360-shake">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12A10 10 0 0 0 15 21.54A10 10 0 0 1 15 2.46A10 10 0 0 0 2 12Z"></path><path d="M15 2.46A10 10 0 0 0 22 12a10 10 0 0 0-7-9.54"></path><path d="M2 12h20"></path></svg>
+          Effectuer la visite 360° interactive
+        </a>
+      </div>
+      <style>
+      @keyframes bell-shake {
+        0% { transform: rotate(0); }
+        15% { transform: rotate(5deg); }
+        30% { transform: rotate(-5deg); }
+        45% { transform: rotate(4deg); }
+        60% { transform: rotate(-4deg); }
+        75% { transform: rotate(2deg); }
+        85% { transform: rotate(-2deg); }
+        92% { transform: rotate(1deg); }
+        100% { transform: rotate(0); }
+      }
+      .btn-360-shake {
+        background: linear-gradient(135deg, var(--or, #D4AF37), var(--or-l, #f3d46a));
+        color: #000;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        padding: 16px 32px;
+        border-radius: 12px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 8px 24px rgba(212,175,55,0.4);
+        transition: all 0.3s ease;
+        animation: bell-shake 3s infinite;
+        transform-origin: center top;
+      }
+      .btn-360-shake:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 12px 32px rgba(212,175,55,0.5);
+        animation: none;
+      }
+      .btn-360-shake svg {
+        width: 24px;
+        height: 24px;
+      }
+      </style>
+      {% endif %}
+
+      <!-- Description -->
+      <div class="detail-card">
+        <h2 class="dsection-title">Description</h2>
+        <div class="ddescription">{{ property.description|linebreaks }}</div>
+      </div>
+
+      <!-- Aspects financiers détaillés -->
+      <div class="detail-card">
+        <h2 class="dsection-title">Aspects financiers</h2>
+        <div class="dfinance-grid">
+          <div class="dfin-item">
+            <span class="dfin-label">Loyer de base</span>
+            <span class="dfin-value">{{ property.price|floatformat:0 }} FCFA</span>
+          </div>
+          {% if property.avance_mois %}
+          <div class="dfin-item">
+            <span class="dfin-label">Avance exigée</span>
+            <span class="dfin-value">{{ property.avance_mois }} mois</span>
+          </div>
+          {% endif %}
+          
+          {% if property.caution_mois %}
+          <div class="dfin-item">
+            <span class="dfin-label">Dépôt de garantie (Caution)</span>
+            <span class="dfin-value">{{ property.caution_mois }} mois</span>
+          </div>
+          {% endif %}
+          
+          {% if property.tax_regime %}
+          <div class="dfin-item">
+            <span class="dfin-label">Régime fiscal</span>
+            <span class="dfin-value">{{ property.tax_regime }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Caractéristiques (grille type fiche.css mais propre) -->
+      <div class="detail-card">
+        <h2 class="dsection-title">Caractéristiques</h2>
+        <div class="dcriteria-grid">
+
+          <div class="dcrit-block">
+            <h3>Général</h3>
+            <ul>
+              <li><span>Type de bien</span><b>{{ property.property_type }}</b></li>
+              <li><span>Type de transaction</span><b>À louer</b></li>
+            </ul>
+          </div>
+
+          <div class="dcrit-block">
+            <h3>Localisation</h3>
+            <ul>
+              <li><span>Pays</span><b>{{ property.pays|default:"Cameroun" }}</b></li>
+              <li><span>Ville</span><b>{{ property.city }}</b></li>
+              <li><span>Quartier</span><b>{{ property.neighborhood }}</b></li>
+              {% if property.nombre_etages %}<li><span>Nombre d'étages</span><b>{{ property.nombre_etages }}</b></li>{% endif %}
+            </ul>
+          </div>
+
+          <div class="dcrit-block">
+            <h3>Surfaces</h3>
+            <ul>
+              <li><span>Surface</span><b>{{ property.area }} m²</b></li>
+              {% if property.surface_sejour %}<li><span>Surface séjour</span><b>{{ property.surface_sejour }} m²</b></li>{% endif %}
+              {% if property.surface_terrain %}<li><span>Surface terrain</span><b>{{ property.surface_terrain }} m²</b></li>{% endif %}
+              {% if property.surface_terrasse %}<li><span>Surface terrasse</span><b>{{ property.surface_terrasse }} m²</b></li>{% endif %}
+            </ul>
+          </div>
+
+          <div class="dcrit-block">
+            <h3>Intérieur</h3>
+            <ul>
+              <li><span>Pièces</span><b>{{ property.bedrooms }}</b></li>
+              <li><span>Chambres</span><b>{{ property.bedrooms }}</b></li>
+              <li><span>Salle(s) de bain</span><b>{{ property.bathrooms }}</b></li>
+              {% if property.wc %}<li><span>WC</span><b>{{ property.wc }}</b></li>{% endif %}
+              {% if property.cuisine %}<li><span>Cuisine</span><b>{{ property.cuisine }}</b></li>{% endif %}
+            </ul>
+          </div>
+
+          {% if property.jardin or property.annee_construction or property.standing %}
+          <div class="dcrit-block">
+            <h3>Extérieur</h3>
+            <ul>
+              {% if property.jardin %}<li><span>Jardin</span><b>{{ property.jardin }}</b></li>{% endif %}
+              {% if property.annee_construction %}<li><span>Année construction</span><b>{{ property.annee_construction }}</b></li>{% endif %}
+              {% if property.standing %}<li><span>Standing</span><b>{{ property.standing }}</b></li>{% endif %}
+              {% if property.etat_general %}<li><span>État général</span><b>{{ property.etat_general }}</b></li>{% endif %}
+            </ul>
+          </div>
+          {% endif %}
+
+          {% if property.type_stationnement or property.ascenseur %}
+          <div class="dcrit-block">
+            <h3>Autres</h3>
+            <ul>
+              {% if property.ascenseur %}<li><span>Ascenseur</span><b>{{ property.ascenseur }}</b></li>{% endif %}
+              {% if property.type_stationnement %}<li><span>Stationnement</span><b>{{ property.type_stationnement }}</b></li>{% endif %}
+              {% if property.nombre_places_parking %}<li><span>Places parking</span><b>{{ property.nombre_places_parking }}</b></li>{% endif %}
+            </ul>
+          </div>
+          {% endif %}
+
+          {% if property.furnished or property.balcony or property.parking or property.security or property.water or property.electricity %}
+          <div class="dcrit-block">
+            <h3>Équipements</h3>
+            <ul>
+              {% if property.furnished %}<li><span>Meublé</span><b>Oui</b></li>{% endif %}
+              {% if property.balcony %}<li><span>Balcon / Terrasse</span><b>Oui</b></li>{% endif %}
+              {% if property.parking %}<li><span>Parking privatif</span><b>Oui</b></li>{% endif %}
+              {% if property.security %}<li><span>Sécurité 24/7</span><b>Oui</b></li>{% endif %}
+              {% if property.water %}<li><span>Eau courante</span><b>Oui</b></li>{% endif %}
+              {% if property.electricity %}<li><span>Électricité incluse</span><b>Oui</b></li>{% endif %}
+            </ul>
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+
+      <!-- Localisation / Carte Google Maps -->
+      {% comment %} <div class="detail-card">
+        <h2 class="dsection-title">Localisation</h2>
+        <p class="dmap-sub">{{ property.neighborhood }}, {{ property.city }} — la position exacte est communiquée après confirmation de la demande de visite.</p>
+        <div id="detail-map" class="detail-map"></div>
+      </div> {% endcomment %}
+
+      <!-- Localisation / Carte Google Maps -->
+      <div class="detail-card">
+        <h2 class="dsection-title">Localisation</h2>
+        <p class="dmap-sub">{{ property.neighborhood }}, {{ property.city }} — la position exacte est communiquée après confirmation de la demande de visite.</p>
+
+        <button type="button" id="btn-itineraire" class="dact-btn itineraire-btn" style="display:inline-flex; align-items:center; justify-content:center; gap:8px;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+          </svg>
+          <span>Itinéraire depuis ma position</span>
+        </button>
+
+        <div id="itineraire-info" class="itineraire-info" style="display:none;"></div>
+
+        <div id="detail-map" class="detail-map"></div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════ COLONNE CONTACT (sticky) ═══════════ -->
+    <div class="detail-sidebar">
+      <div class="contact-card">
+        <div class="contact-agence">
+          <img src="{% static 'img/piol.png' %}" alt="Piolo" class="contact-logo">
+          <div class="contact-name">PIOLO</div>
+          <div class="contact-role">Plateforme immobilière vérifiée</div>
+        </div>
+
+        {% if property.owner.verification_level == 3 %}
+        <div class="contact-verified" style="background:#2C3E7A; color:#D4AF37; border: 1px solid #D4AF37;">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21L12 17.77L5.82 21L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+          Bailleur Premium
+        </div>
+        {% elif property.owner.verification_level == 2 %}
+        <div class="contact-verified">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+          Bailleur vérifié
+        </div>
+        {% else %}
+        <div class="contact-verified" style="background:#FFF3CD; color:#856404; border: 1px solid #FFEEBA;">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+          Bailleur non vérifié
+        </div>
+        {% endif %}
+        {% comment %} {% url 'chat_locataire' %} {% endcomment %}
+        {% if request.user == property.owner %}
+        <!-- Panneau de Gestion Bailleur -->
+        <div style="background:#F7F5F1; border-radius:12px; padding:16px; margin-bottom:16px;">
+          <h3 style="font-family:'Poppins', sans-serif; font-size:16px; margin-bottom:12px; margin-top:0;">Gestion de l'annonce</h3>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px;">
+            <span style="color:#64605A;">Statut :</span>
+            <span style="font-weight:600; color:{% if property.status == 'PUBLISHED' %}#1E8449{% elif property.status == 'ARCHIVED' %}#64605A{% else %}#D4AF37{% endif %};">
+              {{ property.get_status_display }}
+            </span>
+          </div>
+        </div>
+
+        <a href="{% url 'properties:update' property.slug %}" class="cbtn cbtn-primary" style="margin-bottom:12px; display:flex; justify-content:center;">
+          Modifier l'annonce
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:8px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+        </a>
+
+        <form action="{% url 'properties:archive' property.slug %}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir archiver cette annonce ? Elle ne sera plus visible par les locataires.');">
+          {% csrf_token %}
+          <button type="submit" class="cbtn cbtn-outline" style="width:100%; border-color:#C0392B; color:#C0392B;">
+            {% if property.status == 'ARCHIVED' %}Désarchiver l'annonce{% else %}Archiver l'annonce{% endif %}
+          </button>
+        </form>
+
+        {% elif request.user.is_authenticated and request.user.role != 'BAILLEUR' %}
+        <!-- Actions pour Locataire -->
+        <a href="{% url 'messaging:start_conversation' property.id %}"
+           class="cbtn cbtn-primary">
+          Contacter le bailleur
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </a>
+
+        <button type="button" class="cbtn cbtn-outline" onclick="openModal('visiteModal')">
+          Demander une visite
+        </button>
+        <button type="button" class="cbtn cbtn-ghost" onclick="openModal('locationModal')">
+          Faire une demande de location
+        </button>
+        {% elif not request.user.is_authenticated %}
+        <!-- Non connecté (redirige vers auth) -->
+        <a href="{% url 'accounts:auth' %}"
+           class="cbtn cbtn-primary">
+          Contacter le bailleur
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </a>
+
+        <a href="{% url 'accounts:auth' %}" class="cbtn cbtn-outline">
+          Demander une visite
+        </a>
+        <a href="{% url 'accounts:auth' %}" class="cbtn cbtn-ghost">
+          Faire une demande de location
+        </a>
+        {% endif %}
+
+        <div class="contact-share">
+          <span>Partager :</span>
+          <a href="http://www.facebook.com/share.php?u={{ request.build_absolute_uri }}" target="_blank" rel="noopener nofollow" title="Facebook">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>
+          </a>
+          <a href="http://twitter.com/home?status={{ request.build_absolute_uri }}" target="_blank" rel="noopener nofollow" title="Twitter">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 2.94 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71-.02-1.37-.22-1.96-.54v.05c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% if similar_properties and request.user != property.owner %}
+<div class="similar-properties-section" style="margin-top: 60px; border-top: 1px solid #E8E3DA; padding-top: 40px; margin-bottom: 60px;">
+  <div style="display:flex; align-items:center; gap:12px; margin-bottom: 32px;">
+    <div style="width: 4px; height: 32px; background: #D4AF37; border-radius: 4px;"></div>
+    <h2 style="font-family: 'Poppins', sans-serif; font-size: 26px; font-weight: 800; color: #0F0D09; letter-spacing: -0.5px; margin: 0;">Biens similaires qui pourraient vous intéresser</h2>
+  </div>
+  <div class="props-grid">
+    {% for prop in similar_properties %}
+    <div class="prop-card" data-type="{% if prop.transaction_type == 'LOCATION' %}louer{% elif prop.transaction_type == 'VENTE' %}vendre{% else %}{{ prop.transaction_type|lower }}{% endif %}" data-proptype="{{ prop.property_type|lower }}">
+
+      <a href="{% url 'properties:detail' prop.slug %}" class="prop-img-link" onclick="if(event.target.closest('.fav-btn')) return false;">
+        <div class="prop-img">
+
+          {% if prop.main_image %}
+            <img src="{{ prop.main_image.url }}" alt="{{ prop.title }}" class="prop-img-real" loading="lazy">
+          {% else %}
+            <div class="prop-img-placeholder">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+              </svg>
+            </div>
+          {% endif %}
+
+          <div class="prop-top-pictos">
+            <span class="ptag ptag-photos">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+              </svg>
+              {{ prop.images.count|add:1 }}
+            </span>
+
+            <button type="button" class="fav-btn" onclick="toggleFav(event, this, '{{ prop.id }}')" title="Ajouter aux favoris">
+              {% if prop.id in favoris_ids %}
+                <svg viewBox="0 0 24 24" fill="#D4AF37"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg>
+              {% else %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg>
+              {% endif %}
+            </button>
+          </div>
+
+          <span class="pbadge {{ prop.transaction_type|lower }}">{{ prop.get_transaction_type_display }}</span>
+
+          {% if prop.owner.verification_level == 3 %}
+          <span class="pverifie" style="background:#2C3E7A; color:#D4AF37; border: 1px solid #D4AF37;"><svg viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21L12 17.77L5.82 21L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg> Premium</span>
+          {% elif prop.owner.verification_level == 2 %}
+          <span class="pverifie"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Vérifié</span>
+          {% else %}
+          <span class="pverifie" style="background:#FFF3CD; color:#856404; border: 1px solid #FFEEBA;"><svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg> Non vérifié</span>
+          {% endif %}
+        </div>
+      </a>
+
+      <a href="{% url 'properties:detail' prop.slug %}" class="prop-body-link">
+        <div class="prop-body">
+          <div class="pname text-capitalize">{{ prop.property_type }} à {{ prop.transaction_type|lower }} à {{ prop.city }} &middot; {{ prop.bedrooms }} pièce(s) sur {{ prop.area }} m²</div>
+          <div class="ploc">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            {{ prop.city }}{% if prop.neighborhood %}, {{ prop.neighborhood }}{% endif %}
+          </div>
+
+          <div class="product-bulles">
+            <div class="bulle">
+              <div class="picto">
+                <svg viewBox="0 0 16 17" fill="currentColor" stroke="none"><path d="M1.132 2.538h12.993v-1.43H1.132zm1.033 6.06h10.927v-4.96H2.165zm0 6.07h10.927v-4.96H2.165zM.034 0h15.19v3.639H14.19v12.137H12.3V17H11.2v-1.224H4.056V17H2.957v-1.224h-1.89V3.64H.034zm8.144 6.119a.552.552 0 0 1-.55.554.552.552 0 0 1-.549-.554c0-.307.246-.555.55-.555.303 0 .549.248.549.555zm0 6.068a.552.552 0 0 1-.55.555.552.552 0 0 1-.549-.555c0-.306.246-.554.55-.554.303 0 .549.248.549.554z"/></svg>
+              </div>
+              <span class="value">x {{ prop.bedrooms }}</span>
+            </div>
+            <div class="bulle">
+              <div class="picto">
+                <svg viewBox="0 0 17 9" fill="currentColor" stroke="none"><path d="M1.074 5.244H15.39v1.677H1.074zm0-1.955a.9.9 0 0 1 .908-.888h2.03a.9.9 0 0 1 .909.888.9.9 0 0 1-.909.888H1.074zM15.39 1.835v2.36H5.764c.146-.27.23-.579.23-.906 0-1.068-.89-1.937-1.982-1.937h-2.03c-.327 0-.636.078-.908.216V0H0v9h1.074V7.963H15.39V9h1.073V1.835z"/></svg>
+              </div>
+              <span class="value">x {{ prop.bathrooms|default:prop.bedrooms }}</span>
+            </div>
+            <div class="bulle">
+              <div class="picto">
+                <svg viewBox="0 0 924.7 746.62" fill="currentColor"><path d="m924.6,436.52h-45.2v10.4c0,29.5.1,59,0,88.5-.3,71.5-45.9,126.6-116.2,140.2-1.7.3-3.4.9-6.1,1.7,5.7,16.3,11.2,32.3,17.1,49.3-19,6.7-37.5,13.2-56.8,20-7.1-20.3-14.3-39.7-20.6-59.4-2.3-7.2-5.7-9.6-13.4-9.6-147.5.2-295,.2-442.6,0-7.5,0-11.1,2.1-13.5,9.4-6.3,19.7-13.5,39.1-20.6,59.5-19-6.7-37.4-13.1-56.8-19.9,5.7-16.5,11.2-32.6,17-49.4-6.3-1.4-12.4-2.6-18.4-4.2-59.5-15.5-102.2-68.8-103.6-130.4-.8-34.9-.1-69.8-.1-105.7H0v-158.7h106.4c.2-4.3.5-7.8.5-11.2,0-57.8.1-115.6,0-173.4,0-24.3,5.8-46.5,22.7-64.8C151.6,5.02,179.2-4.28,210.5,1.82c32.1,6.3,54.4,26,65.1,57.3,2.8,8.3,3.7,17.3,5.7,26.9h-59.8c-2-4.9-3.3-9.9-5.9-14.1-6-9.7-18.5-13.8-29.3-10.6-11.7,3.6-18.8,13.3-18.8,26.7-.1,57.8,0,115.6,0,173.4v15.9c3.6.2,6.5.5,9.4.5h739.7c2.7,0,5.4-.3,8.1-.5-.1,53.2-.1,106.2-.1,159.2Zm-105.5.4H105.9c-.3,2-.9,3.7-.9,5.5,0,31.3-.8,62.7.3,93.9.4,12.3,3,25.4,8.3,36.5,14.8,31.1,41.3,44.6,75.3,44.6h546.4c3.6,0,7.2-.1,10.8-.4,39.4-3.6,69.1-32.7,71.9-71.8,1.4-19.8.9-39.7,1-59.6.2-16,.1-31.9.1-48.7Zm44.7-97.5H60.4v36.5h803.4v-36.5Z"/></svg>
+              </div>
+              <span class="value">x 1</span>
+            </div>
+          </div>
+
+          <div class="product-bottom-infos">
+            <div class="product-price">
+              Loyer : {{ prop.price|floatformat:0 }} FCFA{% if prop.transaction_type == 'LOCATION' %}<span class="pprice-sub">/mois</span>{% endif %}
+            </div>
+            <div class="product-ref">Réf : {{ prop.id|stringformat:"s"|slice:":8"|upper }}</div>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Modal Demande de Visite — PIOLO -->
+<div id="visiteModal" class="dmodal" role="dialog" aria-modal="true" aria-labelledby="visite-modal-title">
+  <div class="dmodal-content dmodal-lg">
+    <button class="dmodal-close" onclick="closeModal('visiteModal')" aria-label="Fermer">&times;</button>
+
+    <div class="dmodal-header">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/>
+      </svg>
+      <span id="visite-modal-title">Demander une visite</span>
+    </div>
+
+    <div class="dmodal-pts-notice">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+      </svg>
+      Cette demande déduira <strong>20 points</strong> de votre solde.
+      Solde actuel : <strong id="modal-pts-balance">{{ request.user.points }} pts</strong>
+    </div>
+
+    <form id="visit-form" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="dmodal-row">
+        <div class="dmodal-field">
+          <label for="visit-date">Date souhaitée *</label>
+          <input type="date" id="visit-date" name="requested_date" required
+                 min="{{ today_date }}" class="dmodal-input">
+        </div>
+        <div class="dmodal-field">
+          <label for="visit-time">Heure souhaitée</label>
+          <input type="time" id="visit-time" name="requested_time" class="dmodal-input">
+        </div>
+      </div>
+
+      <div class="dmodal-field">
+        <label for="visit-message">Message au bailleur</label>
+        <textarea id="visit-message" name="message" rows="3"
+                  placeholder="Présentez-vous brièvement, précisez vos disponibilités…"
+                  class="dmodal-input dmodal-textarea"></textarea>
+      </div>
+
+      <div id="visit-form-error" class="dmodal-error" style="display:none;"></div>
+
+      <div class="dmodal-footer">
+        <button type="button" class="dmodal-btn-cancel" onclick="closeModal('visiteModal')">Annuler</button>
+        <button type="submit" class="dmodal-btn-submit" id="visit-submit-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+          </svg>
+          Envoyer la demande (−20 pts)
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Demande de Location — PIOLO -->
+<div id="locationModal" class="dmodal" role="dialog" aria-modal="true" aria-labelledby="location-modal-title">
+  <div class="dmodal-content dmodal-xl">
+    <button class="dmodal-close" onclick="closeModal('locationModal')" aria-label="Fermer">&times;</button>
+
+    <div class="dmodal-header">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+      <span id="location-modal-title">Dossier de location</span>
+    </div>
+
+    <div class="dmodal-pts-notice">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+      </svg>
+      Cette demande déduira <strong>20 points</strong> de votre solde.
+      Solde actuel : <strong>{{ request.user.points }} pts</strong>
+    </div>
+
+    <!-- Progress steps -->
+    <div class="loc-steps">
+      <div class="loc-step active" data-step="1">
+        <span class="ls-num">1</span><span class="ls-lbl">Infos</span>
+      </div>
+      <div class="loc-step-line"></div>
+      <div class="loc-step" data-step="2">
+        <span class="ls-num">2</span><span class="ls-lbl">Pièces</span>
+      </div>
+      <div class="loc-step-line"></div>
+      <div class="loc-step" data-step="3">
+        <span class="ls-num">3</span><span class="ls-lbl">Garant</span>
+      </div>
+    </div>
+
+    <form id="location-form" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <!-- Étape 1 — Informations personnelles -->
+      <div class="loc-panel active" data-panel="1">
+        <div class="dmodal-row">
+          <div class="dmodal-field">
+            <label for="loc-movein">Date d'entrée souhaitée *</label>
+            <input type="date" id="loc-movein" name="move_in_date" required
+                   min="{{ today_date }}" class="dmodal-input">
+          </div>
+          <div class="dmodal-field">
+            <label for="loc-duration">Durée (mois)</label>
+            <select id="loc-duration" name="lease_duration" class="dmodal-input">
+              <option value="6">6 mois</option>
+              <option value="12" selected>12 mois</option>
+              <option value="24">24 mois</option>
+              <option value="36">36 mois</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="dmodal-row">
+          <div class="dmodal-field">
+            <label for="loc-occupants">Nombre d'occupants</label>
+            <input type="number" id="loc-occupants" name="tenant_count"
+                   min="1" max="10" value="1" class="dmodal-input">
+          </div>
+          <div class="dmodal-field">
+            <label for="loc-income">Revenus mensuels (FCFA)</label>
+            <input type="number" id="loc-income" name="monthly_income"
+                   placeholder="Ex: 250000" class="dmodal-input">
+          </div>
+        </div>
+
+        <div class="dmodal-row">
+          <div class="dmodal-field">
+            <label for="loc-profession">Profession</label>
+            <input type="text" id="loc-profession" name="profession"
+                   placeholder="Ex: Ingénieur, Commerçant…" class="dmodal-input">
+          </div>
+          <div class="dmodal-field">
+            <label for="loc-employer">Employeur</label>
+            <input type="text" id="loc-employer" name="employer"
+                   placeholder="Ex: Orange Cameroun" class="dmodal-input">
+          </div>
+        </div>
+
+        <div class="dmodal-field">
+          <label for="loc-message">Lettre de motivation</label>
+          <textarea id="loc-message" name="message" rows="3"
+                    placeholder="Présentez-vous, expliquez votre projet de location…"
+                    class="dmodal-input dmodal-textarea"></textarea>
+        </div>
+      </div>
+
+      <!-- Étape 2 — Pièces justificatives -->
+      <div class="loc-panel" data-panel="2">
+        <p class="dmodal-hint">📎 Formats acceptés : JPG, PNG, PDF — max 5 Mo chacun</p>
+
+        <div class="dmodal-upload-row">
+          <div class="dmodal-upload-zone">
+            <label for="loc-cni-front">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 2.75c1.24 0 2.25 1.01 2.25 2.25S13.24 11.25 12 11.25 9.75 10.24 9.75 9s1.01-2.25 2.25-2.25zM20 18H4v-.57c0-.81.48-1.53 1.22-1.85C6.88 14.71 9.36 14 12 14s5.12.71 6.78 1.58c.74.32 1.22 1.04 1.22 1.85V18z"/>
+              </svg>
+              <span>CNI recto *</span>
+              <small>Recto de votre carte nationale d'identité</small>
+            </label>
+            <input type="file" id="loc-cni-front" name="cni_front"
+                   accept=".jpg,.jpeg,.png,.pdf" class="visually-hidden">
+            <div class="upload-filename" id="cni-front-name">Aucun fichier</div>
+          </div>
+
+          <div class="dmodal-upload-zone">
+            <label for="loc-cni-back">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 2.75c1.24 0 2.25 1.01 2.25 2.25S13.24 11.25 12 11.25 9.75 10.24 9.75 9s1.01-2.25 2.25-2.25zM20 18H4v-.57c0-.81.48-1.53 1.22-1.85C6.88 14.71 9.36 14 12 14s5.12.71 6.78 1.58c.74.32 1.22 1.04 1.22 1.85V18z"/>
+              </svg>
+              <span>CNI verso</span>
+              <small>Verso de votre carte nationale d'identité</small>
+            </label>
+            <input type="file" id="loc-cni-back" name="cni_back"
+                   accept=".jpg,.jpeg,.png,.pdf" class="visually-hidden">
+            <div class="upload-filename" id="cni-back-name">Aucun fichier</div>
+          </div>
+
+          <div class="dmodal-upload-zone">
+            <label for="loc-income-proof">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+              </svg>
+              <span>Justificatif de revenus</span>
+              <small>Fiche de paie, contrat, relevé bancaire…</small>
+            </label>
+            <input type="file" id="loc-income-proof" name="income_proof"
+                   accept=".jpg,.jpeg,.png,.pdf" class="visually-hidden">
+            <div class="upload-filename" id="income-proof-name">Aucun fichier</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Étape 3 — Garant -->
+      <div class="loc-panel" data-panel="3">
+        <label class="dmodal-toggle">
+          <input type="checkbox" id="loc-has-guarantor" name="has_guarantor"
+                 onchange="toggleGuarantor(this)">
+          <span>J'ai un garant</span>
+        </label>
+
+        <div id="guarantor-fields" style="display:none;">
+          <div class="dmodal-row" style="margin-top:14px;">
+            <div class="dmodal-field">
+              <label for="guar-name">Nom complet *</label>
+              <input type="text" id="guar-name" name="guarantor_name" class="dmodal-input">
+            </div>
+            <div class="dmodal-field">
+              <label for="guar-phone">Téléphone</label>
+              <input type="tel" id="guar-phone" name="guarantor_phone"
+                     placeholder="+237 6XX XXX XXX" class="dmodal-input">
+            </div>
+          </div>
+          <div class="dmodal-row">
+            <div class="dmodal-field">
+              <label for="guar-relation">Lien avec le garant</label>
+              <select id="guar-relation" name="guarantor_relation" class="dmodal-input">
+                <option value="">Sélectionner...</option>
+                <option value="parent">Parent</option>
+                <option value="frere_soeur">Frère / Sœur</option>
+                <option value="conjoint">Conjoint(e)</option>
+                <option value="collegue">Collègue</option>
+                <option value="ami">Ami(e)</option>
+                <option value="autre">Autre</option>
+              </select>
+            </div>
+            <div class="dmodal-field">
+              <label for="guar-income">Revenus mensuels (FCFA)</label>
+              <input type="number" id="guar-income" name="guarantor_income"
+                     placeholder="Ex: 300000" class="dmodal-input">
+            </div>
+          </div>
+          <div class="dmodal-upload-zone" style="margin-top:10px;">
+            <label for="guar-cni">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6z"/>
+              </svg>
+              <span>CNI du garant</span>
+            </label>
+            <input type="file" id="guar-cni" name="guarantor_cni"
+                   accept=".jpg,.jpeg,.png,.pdf" class="visually-hidden">
+            <div class="upload-filename" id="guar-cni-name">Aucun fichier</div>
+          </div>
+        </div>
+
+        <!-- Complétion du dossier -->
+        <div class="dossier-completion" id="dossier-completion">
+          <div class="dc-label">Complétude du dossier</div>
+          <div class="dc-bar"><div class="dc-fill" id="dc-fill" style="width:0%;"></div></div>
+          <div class="dc-pct" id="dc-pct">0%</div>
+        </div>
+      </div>
+
+      <div id="location-form-error" class="dmodal-error" style="display:none;"></div>
+
+      <!-- Navigation entre étapes -->
+      <div class="dmodal-footer">
+        <button type="button" class="dmodal-btn-cancel" id="loc-btn-prev"
+                onclick="locStep(-1)" style="display:none;">← Précédent</button>
+        <button type="button" class="dmodal-btn-cancel" onclick="closeModal('locationModal')">Annuler</button>
+        <button type="button" class="dmodal-btn-next" id="loc-btn-next"
+                onclick="locStep(1)">Suivant →</button>
+        <button type="submit" class="dmodal-btn-submit" id="loc-btn-submit"
+                style="display:none;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+          </svg>
+          Envoyer le dossier (−20 pts)
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/property_detail.js' %}?v=1.1"></script>
+<script>
+  // Vérifie si les coordonnées existent VRAIMENT
+  const latRaw = "{{ property.latitude|default:'' }}";
+  const lngRaw = "{{ property.longitude|default:'' }}";
+  
+  // Vérifie si on a de vraies coordonnées (pas vide, pas null)
+  if (latRaw && lngRaw && latRaw !== 'None' && lngRaw !== 'None') {
+    window.PIOLO_DETAIL_COORDS = {
+      lat: parseFloat(latRaw.replace(',', '.')),
+      lng: parseFloat(lngRaw.replace(',', '.')),
+      label: "{{ property.property_type|escapejs }} - {{ property.neighborhood|escapejs }}",
+      hasValidCoords: true
+    };
+  } else {
+    window.PIOLO_DETAIL_COORDS = {
+      lat: 3.8480,
+      lng: 11.5021,
+      label: "Coordonnées non disponibles",
+      hasValidCoords: false
+    };
+  }
+
+  
+</script>
+<script
+  src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&callback=initDetailMap"
+  async defer></script>
+
+<script>
+    const PROPERTY_ID = "{{ property.id }}";
+    const TODAY_DATE  = new Date().toISOString().split('T')[0];
+
+
+    // Initialiser la date min
+    document.getElementById('visit-date').min = TODAY_DATE;
+
+    // ─── Modale Visite ────────────────────────────────────────────
+
+    document.getElementById('visit-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('visit-submit-btn');
+      const err = document.getElementById('visit-form-error');
+      err.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = '⏳ Envoi…';
+
+      const fd = new FormData(e.target);
+      try {
+        const r = await fetch(`/properties/visit/create/${PROPERTY_ID}/`, {
+          method: 'POST', body: fd,
+          headers: { 'X-CSRFToken': getCsrfCookie() },
+          credentials: 'same-origin'
+        });
+        const data = await r.json();
+
+        if (data.ok) {
+          closeModal('visiteModal');
+          showDetailToast('Demande de visite envoyée ! Le bailleur vous contactera bientôt.', 'success');
+          document.getElementById('modal-pts-balance').textContent = data.points_remaining + ' pts';
+        } else {
+          err.textContent = data.error || 'Une erreur est survenue.';
+          err.style.display = 'block';
+        }
+      } catch {
+        err.textContent = 'Erreur réseau. Réessayez.';
+        err.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+        </svg> Envoyer la demande (−20 pts)`;
+      }
+    });
+
+    // ─── Modale Location (multi-étapes) ───────────────────────────
+
+    let locCurrentStep = 1;
+    const LOC_TOTAL_STEPS = 3;
+
+    function locStep(dir) {
+      const newStep = locCurrentStep + dir;
+      if (newStep < 1 || newStep > LOC_TOTAL_STEPS) return;
+
+      document.querySelector(`.loc-panel[data-panel="${locCurrentStep}"]`).classList.remove('active');
+      document.querySelector(`.loc-step[data-step="${locCurrentStep}"]`).classList.remove('active');
+      document.querySelector(`.loc-step[data-step="${locCurrentStep}"]`).classList.add('completed');
+
+      locCurrentStep = newStep;
+
+      document.querySelector(`.loc-panel[data-panel="${locCurrentStep}"]`).classList.add('active');
+      document.querySelector(`.loc-step[data-step="${locCurrentStep}"]`).classList.add('active');
+
+      document.getElementById('loc-btn-prev').style.display = locCurrentStep > 1 ? 'inline-flex' : 'none';
+      document.getElementById('loc-btn-next').style.display = locCurrentStep < LOC_TOTAL_STEPS ? 'inline-flex' : 'none';
+      document.getElementById('loc-btn-submit').style.display = locCurrentStep === LOC_TOTAL_STEPS ? 'inline-flex' : 'none';
+
+      if (locCurrentStep === LOC_TOTAL_STEPS) updateDossierCompletion();
+    }
+
+    function toggleGuarantor(cb) {
+      document.getElementById('guarantor-fields').style.display = cb.checked ? 'block' : 'none';
+      updateDossierCompletion();
+    }
+
+    function updateDossierCompletion() {
+      const fields = [
+        document.getElementById('loc-cni-front').files.length > 0,
+        document.getElementById('loc-income-proof').files.length > 0,
+        !!document.getElementById('loc-income').value,
+        !!document.getElementById('loc-profession').value,
+        !!document.getElementById('loc-movein').value,
+        !!document.getElementById('loc-cni-back').files.length > 0,
+      ];
+      const pct = Math.round(fields.filter(Boolean).length / fields.length * 100);
+      document.getElementById('dc-fill').style.width = pct + '%';
+      document.getElementById('dc-pct').textContent = pct + '%';
+    }
+
+    // Afficher le nom des fichiers uploadés
+    ['loc-cni-front','loc-cni-back','loc-income-proof','guar-cni'].forEach(id => {
+      const input = document.getElementById(id);
+      if (!input) return;
+      input.addEventListener('change', () => {
+        const nameEl = document.getElementById(id.replace('loc-','').replace('guar-','guar-') + '-name')
+                    || document.getElementById(id + '-name');
+        if (nameEl) nameEl.textContent = input.files[0]?.name || 'Aucun fichier';
+        updateDossierCompletion();
+      });
+    });
+
+    document.getElementById('location-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('loc-btn-submit');
+      const err = document.getElementById('location-form-error');
+      err.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = '⏳ Envoi…';
+
+      const fd = new FormData(e.target);
+      try {
+        const r = await fetch(`/properties/location/create/${PROPERTY_ID}/`, {
+          method: 'POST', body: fd,
+          headers: { 'X-CSRFToken': getCsrfCookie() },
+          credentials: 'same-origin'
+        });
+        const data = await r.json();
+
+        if (data.ok) {
+          closeModal('locationModal');
+          showDetailToast(`Dossier envoyé ! Complétude : ${data.dossier_completion}%. Le bailleur vous répondra bientôt.`, 'success');
+        } else {
+          err.textContent = data.error || 'Une erreur est survenue.';
+          err.style.display = 'block';
+        }
+      } catch {
+        err.textContent = 'Erreur réseau. Réessayez.';
+        err.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+        </svg> Envoyer le dossier (−20 pts)`;
+      }
+    });
+
+    // ─── Toast de la page détail ──────────────────────────────────
+    function showDetailToast(msg, type = 'success') {
+      let toast = document.getElementById('detail-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'detail-toast';
+        toast.style.cssText = `
+          position:fixed;bottom:28px;right:28px;
+          background:#0F0D09;color:#fff;
+          padding:14px 20px;border-radius:13px;
+          box-shadow:0 8px 30px rgba(0,0,0,.22);
+          display:flex;align-items:center;gap:12px;
+          font-family:Poppins,sans-serif;font-size:13px;font-weight:500;
+          z-index:9999;
+          transform:translateY(80px);opacity:0;
+          transition:all .35s cubic-bezier(.34,1.56,.64,1);
+          border-left:4px solid #1E7A47;
+          max-width:360px;
+        `;
+        document.body.appendChild(toast);
+      }
+      toast.innerHTML = `<svg width="18" height="18" fill="#1E7A47" viewBox="0 0 24 24">
+        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+      </svg><span>${msg}</span>`;
+      requestAnimationFrame(() => {
+        toast.style.transform = 'translateY(0)';
+        toast.style.opacity = '1';
+      });
+      setTimeout(() => {
+        toast.style.transform = 'translateY(80px)';
+        toast.style.opacity = '0';
+      }, 4500);
+    }
+
+    function getCsrfCookie() {
+      for (const c of document.cookie.split(';')) {
+        const [k, v] = c.trim().split('=');
+        if (k === 'csrftoken') return decodeURIComponent(v);
+      }
+      return '';
+    }
+</script>
+{% endblock %}

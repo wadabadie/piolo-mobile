@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Visite 360° - {{ property.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
+
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Empêche le défilement */
+}
+
+/* On cache la topbar et le footer pour un effet full screen */
+.topbar, footer { display: none !important; }
+
+#panorama-container {
+    width: 100vw;
+    height: 100dvh; /* Prise en compte de la barre d'adresse mobile */
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    background: #000;
+}
+
+.tour-header {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 20px) + 10px); /* Gère l'encoche de l'iPhone */
+    left: 15px;
+    right: 15px;
+    z-index: 20;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    pointer-events: none; /* Laisse le clic passer à travers s'il n'est pas sur un bouton */
+}
+
+.tour-info {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    padding: 12px 15px;
+    border-radius: 12px;
+    color: #fff;
+    pointer-events: auto;
+    max-width: 75%;
+}
+
+.tour-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+}
+
+.tour-subtitle {
+    font-size: 12px;
+    color: #ccc;
+    margin: 0;
+}
+
+.btn-close {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    pointer-events: auto;
+    flex-shrink: 0;
+}
+
+.btn-close:hover {
+    background: var(--or, #d4af37);
+    color: #000;
+}
+
+.room-selector {
+    position: fixed;
+    bottom: calc(env(safe-area-inset-bottom, 20px) + 20px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    padding: 8px;
+    border-radius: 16px;
+    display: flex;
+    gap: 8px;
+    pointer-events: auto;
+    max-width: 95vw;
+    overflow-x: auto;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.room-selector::-webkit-scrollbar {
+    display: none;
+}
+
+.room-thumb {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.room-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.room-thumb.active {
+    border-color: var(--or, #d4af37);
+    transform: translateY(-4px);
+}
+
+.room-thumb-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    font-size: 10px;
+    text-align: center;
+    padding: 2px 0;
+    font-weight: 600;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="panorama-container"></div>
+
+<div class="tour-header">
+    <div class="tour-info">
+        <h1 class="tour-title">{{ property.title }}</h1>
+        <p class="tour-subtitle">{{ property.city }} • {{ property.property_type }}</p>
+    </div>
+    
+    <a href="{% url 'properties:detail' property.slug %}" class="btn-close" title="Quitter la visite">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+    </a>
+</div>
+
+<div class="room-selector">
+    {% for scene in scenes %}
+    <div class="room-thumb {% if forloop.first %}active{% endif %}" id="thumb-{{ scene.id }}" onclick="loadScene('{{ scene.id }}')">
+        {% if scene.image %}
+        <img src="{{ scene.image.url }}" alt="{{ scene.name }}">
+        {% endif %}
+        <div class="room-thumb-label">{{ scene.name }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+
+<script>
+let viewer = null;
+
+const scenesData = {
+    {% for scene in scenes %}
+    "{{ scene.id }}": {
+        title: "{{ scene.name|escapejs }}",
+        type: "equirectangular",
+        panorama: "{{ scene.image.url }}",
+        autoLoad: true,
+        hotSpots: [
+            {% for hs in scene.hotspots.all %}
+            {
+                pitch: {{ hs.pitch|stringformat:"f" }},
+                yaw: {{ hs.yaw|stringformat:"f" }},
+                type: "scene",
+                text: "{{ hs.label|escapejs }}",
+                sceneId: "{{ hs.target_scene.id }}"
+            },
+            {% endfor %}
+        ]
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+};
+
+function initPannellum(firstSceneId) {
+    viewer = pannellum.viewer('panorama-container', {
+        default: {
+            firstScene: firstSceneId,
+            sceneFadeDuration: 1000,
+            autoLoad: true
+        },
+        scenes: scenesData
+    });
+    
+    // Écouter les changements de scène pour mettre à jour les miniatures
+    viewer.on('scenechange', function(sceneId) {
+        document.querySelectorAll('.room-thumb').forEach(el => el.classList.remove('active'));
+        const thumb = document.getElementById('thumb-' + sceneId);
+        if(thumb) thumb.classList.add('active');
+    });
+}
+
+function loadScene(sceneId) {
+    if(viewer) {
+        viewer.loadScene(sceneId);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    {% if scenes %}
+        initPannellum("{{ scenes.0.id }}");
+    {% endif %}
+});
+</script>
+{% endblock %}

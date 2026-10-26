@@ -1,0 +1,41 @@
+# Robots.txt officiel Piolo SAS
+User-agent: *
+Allow: /
+Allow: /properties/
+Allow: /recherche/
+Allow: /about/
+Allow: /contact/
+Allow: /privacy/
+Allow: /terms/
+
+# Interdire le crawl des zones privées, de l'API et de l'administration
+Disallow: /admin/
+Disallow: /api/
+Disallow: /accounts/
+Disallow: /dashboard/
+Disallow: /messages/
+Disallow: /social/
+Disallow: /media/avatars/
+Disallow: /media/dossiers/
+
+# Bloquer les outils d'aspiration de site agressifs
+User-agent: HTTrack
+Disallow: /
+
+User-agent: HTTrack 3.0
+Disallow: /
+
+User-agent: WebReaper
+Disallow: /
+
+User-agent: WebCopier
+Disallow: /
+
+User-agent: TeleportPro
+Disallow: /
+
+User-agent: EmailCollector
+Disallow: /
+
+# Plan du site XML officiel
+Sitemap: https://piolo-immo.tech/sitemap.xml

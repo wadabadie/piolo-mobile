@@ -1,0 +1,10 @@
+Bonjour {{ recipient.get_full_name|default:recipient.email }},
+
+{{ headline }}
+
+{{ body }}
+{% if action_url %}
+{{ action_label }} : {{ action_url }}
+{% endif %}
+
+L'équipe Piolo Immobilier

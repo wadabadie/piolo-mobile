@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mes Alertes — Piolo{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="layout">
+  {% include "includes/sidebar.html" %}
+
+  <div class="main">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-title">Mes <span>Alertes</span></div>
+      <div class="tb-search" style="visibility:hidden;"></div>
+      <div class="tb-actions">
+        <div class="tb-pts-badge">
+          <svg width="15" height="15" fill="var(--or)" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+          <span class="tb-pts-val">{{ user.points }} Points</span>
+        </div>
+        <a class="tb-icon-btn" href="#" title="Notifications">
+          <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+          <div class="tb-notif-dot"></div>
+        </a>
+        <div class="tb-av">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- FIL D'ARIANE -->
+      <div style="margin-bottom:20px;">
+        <a href="{% url 'accounts:dashboard_redirect' %}" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--gris);text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          Retour au dashboard
+        </a>
+      </div>
+
+      <!-- HERO -->
+      <div class="hero-banner" style="margin-bottom:24px;">
+        <div class="hero-content">
+          <p class="hero-greet">Ne manquez plus aucune opportunité</p>
+          <h1 class="hero-name">Mes <span>Alertes</span></h1>
+          <p class="hero-sub">{{ alerts|length }} alerte{{ alerts|length|pluralize:"s" }} active{{ alerts|length|pluralize:"s" }}</p>
+        </div>
+        <div class="hero-actions">
+          <button class="btn-primary" onclick="document.getElementById('alert-modal').style.display='flex'" style="padding:12px 24px; border-radius:12px; background:linear-gradient(135deg, #D4AF37, #F6D365); color:#0F0D09; font-family:Poppins,sans-serif; font-weight:700; border:none; cursor:pointer; box-shadow:0 4px 14px rgba(212,175,55,.3);">Créer une alerte</button>
+        </div>
+      </div>
+
+      {% if alerts %}
+      <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:16px;">
+        {% for alert in alerts %}
+        <div style="padding:20px; background:#fff; border-radius:16px; border:1px solid var(--gris-b); box-shadow:0 4px 15px rgba(0,0,0,0.03); position:relative;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+            <h3 style="font-family:Poppins,sans-serif; font-size:16px; font-weight:700; color:var(--noir); margin:0;">
+              {{ alert.title }}
+            </h3>
+            <span style="font-size:10px; font-weight:700; padding:4px 8px; border-radius:20px; background:rgba(30,122,71,.1); color:#1E7A47;">Active</span>
+          </div>
+
+          <div style="font-size:13px; color:var(--gris-m); margin-bottom:16px; display:flex; flex-direction:column; gap:6px;">
+            {% if alert.city %}
+            <div style="display:flex; align-items:center; gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              {{ alert.city }}
+            </div>
+            {% endif %}
+            
+            {% if alert.property_type or alert.transaction_type %}
+            <div style="display:flex; align-items:center; gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+              {{ alert.get_property_type_display|default:"Tous types" }} &middot; {{ alert.get_transaction_type_display }}
+            </div>
+            {% endif %}
+            
+            {% if alert.max_price %}
+            <div style="display:flex; align-items:center; gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+              Max: {{ alert.max_price|floatformat:0 }} FCFA
+            </div>
+            {% endif %}
+          </div>
+          
+          <div style="display:flex; gap:10px; margin-top:16px;">
+            <a href="{% url 'properties:list' %}?city={{ alert.city|urlencode }}&type={{ alert.property_type|urlencode }}&transaction={{ alert.transaction_type|urlencode }}{% if alert.max_price %}&max_price={{ alert.max_price }}{% endif %}" 
+               style="flex:1; text-align:center; padding:10px; border-radius:10px; background:var(--or-bg); border:1px solid rgba(212,175,55,.25); color:var(--or-d); font-family:Poppins,sans-serif; font-size:12px; font-weight:700; text-decoration:none;">
+              Voir les résultats
+            </a>
+            <form method="POST" action="{% url 'properties:alert_delete' alert.id %}" onsubmit="return confirm('Supprimer cette alerte ?');" style="flex:1;">
+              {% csrf_token %}
+              <button type="submit" style="width:100%; padding:10px; border-radius:10px; background:rgba(184,50,50,.05); border:1px solid rgba(184,50,50,.1); color:var(--rouge); font-family:Poppins,sans-serif; font-size:12px; font-weight:700; cursor:pointer;">
+                Supprimer
+              </button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="text-align:center;padding:48px;background:var(--blanc);border-radius:var(--radius-lg);border:1px solid var(--gris-b);margin-bottom:32px;">
+        <svg viewBox="0 0 24 24" fill="var(--gris-b)" width="52" height="52" style="margin:0 auto 14px;display:block;"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+        <p style="font-family:Poppins,sans-serif;font-weight:700;font-size:16px;color:var(--gris);margin-bottom:10px;">Vous n'avez aucune alerte active</p>
+        <button class="btn-primary" onclick="document.getElementById('alert-modal').style.display='flex'">Créer ma première alerte</button>
+      </div>
+      {% endif %}
+
+    </main>
+  </div>
+</div>
+
+<!-- Modal Création Alerte -->
+<div id="alert-modal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(15,13,9,0.7); backdrop-filter:blur(5px); z-index:9999; align-items:center; justify-content:center; padding:20px; animation:fadeIn 0.3s ease;">
+  <div style="background:#fff; border-radius:24px; width:100%; max-width:480px; position:relative; box-shadow:0 24px 60px rgba(0,0,0,0.2); overflow:hidden; animation:slideUp 0.4s ease cubic-bezier(0.16, 1, 0.3, 1);">
+    
+    <!-- Modal Header -->
+    <div style="background:var(--gris-f); padding:24px 30px; border-bottom:1px solid var(--gris-b); display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <h2 style="font-family:Poppins,sans-serif; font-size:22px; font-weight:800; color:var(--noir); margin:0;">Créer une alerte</h2>
+        <p style="font-size:13px; color:var(--gris-m); margin:4px 0 0 0;">Soyez averti dès qu'un bien correspond</p>
+      </div>
+      <button onclick="document.getElementById('alert-modal').style.display='none'" style="width:36px; height:36px; border-radius:50%; background:#fff; border:1px solid var(--gris-b); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--gris); transition:all 0.2s; box-shadow:0 2px 8px rgba(0,0,0,0.05);" onmouseover="this.style.background='var(--gris-f)'" onmouseout="this.style.background='#fff'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
+    </div>
+    
+    <!-- Modal Body -->
+    <form method="POST" action="{% url 'properties:alert_create' %}" style="padding:30px;">
+      {% csrf_token %}
+      
+      <div style="margin-bottom:20px;">
+        <label style="display:block; font-family:Poppins,sans-serif; font-size:13px; font-weight:700; color:var(--noir); margin-bottom:8px;">Nom de l'alerte</label>
+        <div style="position:relative;">
+          <div style="position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--gris-m);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+          </div>
+          <input type="text" name="title" required placeholder="Ex: Mon futur studio à Bastos" style="width:100%; padding:14px 16px 14px 44px; border:2px solid var(--gris-b); border-radius:12px; font-family:inherit; font-size:14px; outline:none; transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--or)'" onblur="this.style.borderColor='var(--gris-b)'">
+        </div>
+      </div>
+      
+      <div style="margin-bottom:24px;">
+        <label style="display:block; font-family:Poppins,sans-serif; font-size:13px; font-weight:700; color:var(--noir); margin-bottom:8px;">Ville ou quartier</label>
+        <div style="position:relative;">
+          <div style="position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--gris-m);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          </div>
+          <input type="text" name="city" placeholder="Ex: Yaoundé" style="width:100%; padding:14px 16px 14px 44px; border:2px solid var(--gris-b); border-radius:12px; font-family:inherit; font-size:14px; outline:none; transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--or)'" onblur="this.style.borderColor='var(--gris-b)'">
+        </div>
+      </div>
+      
+      <div style="display:flex; gap:20px; margin-bottom:24px;">
+        <div style="flex:1;">
+          <label style="display:block; font-family:Poppins,sans-serif; font-size:13px; font-weight:700; color:var(--noir); margin-bottom:8px;">Transaction</label>
+          <div style="position:relative;">
+            <select name="transaction_type" style="width:100%; padding:14px 16px; border:2px solid var(--gris-b); border-radius:12px; font-family:inherit; font-size:14px; outline:none; background:#fff; cursor:pointer; appearance:none; transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--or)'" onblur="this.style.borderColor='var(--gris-b)'">
+              {% for value, label in transaction_types %}
+              <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+            <svg style="position:absolute; right:16px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--gris-m);" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+          </div>
+        </div>
+        <div style="flex:1;">
+          <label style="display:block; font-family:Poppins,sans-serif; font-size:13px; font-weight:700; color:var(--noir); margin-bottom:8px;">Type de bien</label>
+          <div style="position:relative;">
+            <select name="property_type" style="width:100%; padding:14px 16px; border:2px solid var(--gris-b); border-radius:12px; font-family:inherit; font-size:14px; outline:none; background:#fff; cursor:pointer; appearance:none; transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--or)'" onblur="this.style.borderColor='var(--gris-b)'">
+              <option value="">Tous les types</option>
+              {% for value, label in property_types %}
+              <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+            <svg style="position:absolute; right:16px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--gris-m);" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+          </div>
+        </div>
+      </div>
+      
+      <div style="display:flex; gap:20px; margin-bottom:32px;">
+        <div style="flex:1;">
+          <label style="display:block; font-family:Poppins,sans-serif; font-size:13px; font-weight:700; color:var(--noir); margin-bottom:8px;">Budget Min</label>
+          <div style="position:relative;">
+            <input type="number" name="min_price" placeholder="FCFA" style="width:100%; padding:14px 16px; border:2px solid var(--gris-b); border-radius:12px; font-family:inherit; font-size:14px; outline:none; transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--or)'" onblur="this.style.borderColor='var(--gris-b)'">
+          </div>
+        </div>
+        <div style="flex:1;">
+          <label style="display:block; font-family:Poppins,sans-serif; font-size:13px; font-weight:700; color:var(--noir); margin-bottom:8px;">Budget Max</label>
+          <div style="position:relative;">
+            <input type="number" name="max_price" placeholder="FCFA" style="width:100%; padding:14px 16px; border:2px solid var(--gris-b); border-radius:12px; font-family:inherit; font-size:14px; outline:none; transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--or)'" onblur="this.style.borderColor='var(--gris-b)'">
+          </div>
+        </div>
+      </div>
+      
+      <button type="submit" style="width:100%; padding:16px; border-radius:14px; background:linear-gradient(135deg, #D4AF37, #F6D365); color:#0F0D09; font-family:Poppins,sans-serif; font-size:16px; font-weight:800; border:none; cursor:pointer; box-shadow:0 8px 24px rgba(212,175,55,.3); transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:8px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 12px 28px rgba(212,175,55,.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(212,175,55,.3)';">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+        Activer l'alerte
+      </button>
+    </form>
+  </div>
+</div>
+
+<style>
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+</style>
+{% endblock %}

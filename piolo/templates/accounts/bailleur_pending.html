@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Piolo — Dossier en attente de validation{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}"/>
+{% endblock %}
+
+{% block content %}
+<div class="auth-bg"></div>
+<div id="app">
+  <div class="screen active" id="s-pending">
+    <div class="success-wrap" style="text-align:center;">
+
+      <!-- Icône horloge -->
+      <div class="success-circle" style="background:linear-gradient(135deg,#A8891C,#D4AF37);margin-bottom:22px;">
+        <svg viewBox="0 0 24 24" style="width:42px;height:42px;fill:var(--noir);">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 5h2v6l4.25 2.52-.75 1.23L11 13.5V7z"/>
+        </svg>
+      </div>
+
+      <h2 class="success-title">Dossier en cours d'examen</h2>
+
+      {% if dossier and dossier.status == 'REJECTED' %}
+        <!-- Dossier rejeté → l'utilisateur peut re-soumettre -->
+        <p class="success-sub">
+          Votre dossier a été <strong style="color:var(--rouge)">rejeté</strong>.
+          Vous pouvez corriger votre dossier et le soumettre à nouveau.
+          {% if rejection_count >= 2 %}
+            <br><strong style="color:var(--rouge);">Attention : il vous reste {{ 3|add:"-"|add:rejection_count }} tentative(s) avant le blocage définitif.</strong>
+          {% endif %}
+        </p>
+
+        {% if dossier.rejection_reason %}
+          <div class="info-box rd" style="text-align:left;margin-bottom:20px;">
+            <div class="ib-ico">
+              <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+            </div>
+            <p class="ib-txt"><strong>Motif de rejet :</strong> {{ dossier.rejection_reason }}</p>
+          </div>
+        {% endif %}
+
+        <a href="{% url 'accounts:auth' %}?tab=bailleur" class="btn-primary" style="max-width:340px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+          Corriger et re-soumettre mon dossier
+        </a>
+
+      {% else %}
+        <!-- Dossier en attente -->
+        <p class="success-sub">
+          Votre dossier est entre les mains de l'équipe Piolo.
+          Vous recevrez une réponse par <strong>SMS et email</strong> dans
+          <strong style="color:var(--or-d)">24 à 48 heures</strong>.
+        </p>
+
+        <div class="success-badge pending-badge" style="margin-bottom:24px;">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          Statut : En attente de validation
+        </div>
+
+        <!-- Étapes du processus -->
+        <div class="success-card" style="text-align:left;">
+          <div class="sc-row">
+            <div class="sc-ico gn">
+              <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+            </div>
+            <div class="sc-body">
+              <strong>Vérification en cours</strong>
+              <p>L'équipe Piolo examine votre CNI et votre selfie de vérification.</p>
+            </div>
+          </div>
+          <div class="sc-row">
+            <div class="sc-ico or">
+              <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+            </div>
+            <div class="sc-body">
+              <strong>Si votre dossier est approuvé</strong>
+              <p>Badge Bailleur Vérifié + 30 points de bienvenue + accès à la publication d'annonces.</p>
+            </div>
+          </div>
+          <div class="sc-row">
+            <div class="sc-ico rd">
+              <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </div>
+            <div class="sc-body">
+              <strong>Si votre dossier est rejeté</strong>
+              <p>Motif détaillé communiqué + possibilité de re-soumettre (3 tentatives maximum).</p>
+            </div>
+          </div>
+          <div class="sc-row">
+            <div class="sc-ico bl">
+              <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+            </div>
+            <div class="sc-body">
+              <strong>Notification immédiate</strong>
+              <p>SMS et email dès la décision de l'équipe de validation.</p>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Infos du compte -->
+      <div style="background:var(--gris-f);border-radius:12px;padding:14px 16px;margin-bottom:20px;text-align:left;">
+        <div style="font-family:Poppins,sans-serif;font-size:10px;font-weight:700;color:var(--or-d);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--gris-b);">
+          Votre compte
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(232,227,218,.5);">
+          <span style="font-size:12px;color:var(--gris);">Nom</span>
+          <span style="font-family:Poppins,sans-serif;font-size:12px;font-weight:700;color:var(--noir);">{{ user.get_full_name }}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;">
+          <span style="font-size:12px;color:var(--gris);">Email</span>
+          <span style="font-family:Poppins,sans-serif;font-size:12px;font-weight:700;color:var(--noir);">{{ user.email }}</span>
+        </div>
+      </div>
+
+      <a href="{% url 'accounts:logout' %}" class="btn-outline" style="max-width:340px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;">
+        Se déconnecter
+      </a>
+
+      <div class="card-footer" style="border-top:none;margin-top:16px;">
+        © 2025 Piolo
+        <a href="#">Confidentialité</a>
+        <a href="#">Support</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

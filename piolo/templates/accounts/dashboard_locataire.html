@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piolo — Espace Locataire</title>
+{% load static %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script src="{% static 'js/data_saver.js' %}"></script>
+</head>
+<body>
+  <!-- Page Loader -->
+  <div id="page-loader-overlay" class="page-loader-overlay">
+    <div class="piolo-loader"></div>
+  </div>
+  <script>
+    function showPioloLoader() {
+      let loader = document.getElementById('page-loader-overlay');
+      if (!loader) {
+        loader = document.createElement('div');
+        loader.id = 'page-loader-overlay';
+        loader.className = 'page-loader-overlay';
+        loader.innerHTML = '<div class="piolo-loader"></div>';
+        document.body.appendChild(loader);
+      } else {
+        document.body.appendChild(loader);
+      }
+      loader.style.opacity = '1';
+      loader.style.visibility = 'visible';
+    }
+
+    // Cache le loader au chargement ET au retour en arrière (BFCache)
+    window.addEventListener('pageshow', function(event) {
+      const loader = document.getElementById('page-loader-overlay');
+      if (loader) {
+        const delay = event.persisted ? 0 : 250;
+        setTimeout(() => {
+          loader.style.opacity = '0';
+          loader.style.visibility = 'hidden';
+        }, delay);
+      }
+    });
+
+    window.addEventListener('beforeunload', showPioloLoader);
+
+    document.addEventListener('click', function(e) {
+      const link = e.target.closest('a');
+      if (link) {
+        const href = link.getAttribute('href');
+        if (href && !href.startsWith('#') && !href.startsWith('javascript:') && link.target !== '_blank') {
+          showPioloLoader();
+        }
+      }
+    });
+  </script>
+<div class="layout">
+
+{% include "includes/sidebar.html" %}
+
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-title">Tableau de <span>Bord</span></div>
+    <div class="tb-search">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input type="text" placeholder="Rechercher un bien, un quartier, un architecte…"/>
+    </div>
+    <div class="tb-actions">
+      <div class="tb-pts-badge">
+        <svg width="15" height="15" fill="var(--or)" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+        <span class="tb-pts-val">{{ user.points }} Points</span>
+      </div>
+      <a class="tb-icon-btn" href="#" title="Notifications">
+        <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+        <div class="tb-notif-dot"></div>
+      </a>
+      <div class="tb-av">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+    </div>
+  </header>
+
+  <main class="content">
+
+    {% if is_new_user %}
+    <div class="welcome-banner" id="welcome-banner">
+      <div class="wb-ico"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>
+      <div class="wb-txt">
+        <h4>Bienvenue sur Piolo, {{ user.first_name }} !</h4>
+        <p>Votre compte est actif. {{ user.points }} points de bienvenue ont été crédités.</p>
+      </div>
+      <div class="wb-pts">
+        <div class="wb-pts-val">{{ user.points }}</div>
+        <div class="wb-pts-lbl">pts offerts</div>
+      </div>
+      <button class="wb-close" onclick="closeWelcome()" title="Fermer">✕</button>
+    </div>
+    {% endif %}
+
+    <!-- HERO -->
+    <div class="hero-banner">
+      <div class="hero-content">
+        <p class="hero-greet">Bonjour, bienvenue sur votre espace</p>
+        <h1 class="hero-name skeleton-load">{{ user.first_name }} <span>{{ user.last_name }}</span></h1>
+        <p class="hero-sub">Plateforme Immobilière Numérique du Cameroun</p>
+      </div>
+      <div class="hero-chips">
+        <span class="hero-chip">Locataire</span>
+        <span class="hero-chip">{{ user.city|default:"Cameroun" }}</span>
+      </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="kpi-grid">
+      <div class="kpi-card c-or">
+        <div class="kpi-top">
+          <div class="kpi-ico bg-or"><svg viewBox="0 0 24 24"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg></div>
+          <span class="kpi-trend new">Favoris</span>
+        </div>
+        <div class="kpi-val skeleton-load" id="kpi-fav-val">{{ saved_count|default:"0" }}</div>
+        <div class="kpi-lbl">Biens favoris</div>
+      </div>
+      <div class="kpi-card c-gn">
+        <div class="kpi-top">
+          <div class="kpi-ico bg-gn"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>
+          <span class="kpi-trend up">Bronze</span>
+        </div>
+        <div class="kpi-val skeleton-load">{{ user.points }}</div>
+        <div class="kpi-lbl">Points fidélité</div>
+      </div>
+      <div class="kpi-card c-bl">
+        <div class="kpi-top">
+          <div class="kpi-ico bg-bl"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div>
+          <span class="kpi-trend new">{{ unread_messages|default:"0" }} non lus</span>
+        </div>
+        <div class="kpi-val skeleton-load">{{ unread_messages|default:"0" }}</div>
+        <div class="kpi-lbl">Messages reçus</div>
+      </div>
+      <div class="kpi-card c-rd">
+        <div class="kpi-top">
+          <div class="kpi-ico bg-rd"><svg viewBox="0 0 24 24"><path d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg></div>
+          <span class="kpi-trend new">À venir</span>
+        </div>
+        <div class="kpi-val skeleton-load" id="kpi-visit-val">{{ upcoming_visits|length|default:"0" }}</div>
+        <div class="kpi-lbl">Visites programmées</div>
+      </div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="main-grid">
+      <div style="display:flex;flex-direction:column;gap:22px;">
+
+        <!-- ALERTES -->
+        <div class="card">
+          <div class="card-header">
+            <span class="ch-title">Alertes de Recherche</span>
+            <button onclick="openAlertModal()"
+                    style="margin-left:auto;padding:6px 14px;border-radius:9px;background:linear-gradient(135deg,var(--or),var(--or-l));border:none;font-family:Poppins,sans-serif;font-size:12px;font-weight:700;color:var(--noir);cursor:pointer;">
+              + Créer une alerte
+            </button>
+          </div>
+          <div class="alert-list">
+            {% if search_alerts %}
+              {% for alert in search_alerts %}
+              <div class="alert-row" id="alert-{{ alert.id }}">
+                <div class="al-ico or">
+                  <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                </div>
+                <div class="al-body">
+                  <div class="al-title">{{ alert.title }}</div>
+                  <div class="al-sub">{{ alert.subtitle }}</div>
+                </div>
+                <a href="{{ alert.url }}"
+                  style="display:inline-block;padding:3px 11px;border-radius:20px;background:rgba(212,175,55,.15);color:#A8891C;font-family:Poppins,sans-serif;font-size:10.5px;font-weight:700;text-decoration:none;">
+                  {{ alert.count }} bien{{ alert.count|pluralize:"s" }} →
+                </a>
+                <button onclick="deleteAlert(this, {{ alert.id }})"
+                        style="background:none;border:none;cursor:pointer;color:var(--gris-m);font-size:16px;padding:4px 8px;"
+                        title="Supprimer">✕</button>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="al-empty">
+                <svg width="34" height="34" fill="var(--gris-b)" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                Aucune alerte configurée.<br>
+                <button onclick="openAlertModal()" style="background:none;border:none;color:var(--or-d);font-weight:600;cursor:pointer;margin-top:6px;">
+                  Créer ma première alerte →
+                </button>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Modal création alerte -->
+        <div id="alertModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px;">
+          <div style="background:#fff;border-radius:20px;width:100%;max-width:480px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+              <h3 style="font-family:Poppins,sans-serif;font-size:17px;font-weight:800;color:#0F0D09;">Nouvelle alerte</h3>
+              <button onclick="closeAlertModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#64605A;">✕</button>
+            </div>
+            <form id="alert-form">
+              {% csrf_token %}
+              <div style="margin-bottom:14px;">
+                <label style="font-size:12px;font-weight:600;color:#64605A;display:block;margin-bottom:5px;">Nom de l'alerte *</label>
+                <input type="text" name="title" placeholder="Ex: Appartement Bastos" required
+                      style="width:100%;border:1.5px solid #E8E3DA;border-radius:10px;padding:10px 13px;font-size:14px;outline:none;font-family:DM Sans,sans-serif;">
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#64605A;display:block;margin-bottom:5px;">Ville</label>
+                  <select name="city" style="width:100%;border:1.5px solid #E8E3DA;border-radius:10px;padding:10px 13px;font-size:14px;outline:none;background:#fff;">
+                    <option value="">Toutes</option>
+                    <option value="Yaoundé">Yaoundé</option>
+                    <option value="Douala">Douala</option>
+                    <option value="Bafoussam">Bafoussam</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#64605A;display:block;margin-bottom:5px;">Type de transaction</label>
+                  <select name="transaction_type" style="width:100%;border:1.5px solid #E8E3DA;border-radius:10px;padding:10px 13px;font-size:14px;outline:none;background:#fff;">
+                    <option value="LOCATION">Location</option>
+                    <option value="VENTE">Vente</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin-bottom:14px;">
+                <label style="font-size:12px;font-weight:600;color:#64605A;display:block;margin-bottom:5px;">Type de bien</label>
+                <select name="property_type" style="width:100%;border:1.5px solid #E8E3DA;border-radius:10px;padding:10px 13px;font-size:14px;outline:none;background:#fff;">
+                  <option value="">Tous</option>
+                  <option value="APPARTEMENT">Appartement</option>
+                  <option value="VILLA">Villa</option>
+                  <option value="STUDIO">Studio</option>
+                  <option value="BUREAU">Bureau</option>
+                  <option value="BOUTIQUE">Boutique</option>
+                </select>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#64605A;display:block;margin-bottom:5px;">Prix max (FCFA)</label>
+                  <input type="number" name="max_price" placeholder="Ex: 200000"
+                        style="width:100%;border:1.5px solid #E8E3DA;border-radius:10px;padding:10px 13px;font-size:14px;outline:none;">
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#64605A;display:block;margin-bottom:5px;">Surface min (m²)</label>
+                  <input type="number" name="min_area" placeholder="Ex: 30"
+                        style="width:100%;border:1.5px solid #E8E3DA;border-radius:10px;padding:10px 13px;font-size:14px;outline:none;">
+                </div>
+              </div>
+              <div id="alert-error" style="display:none;color:#B83232;font-size:13px;margin-bottom:12px;"></div>
+              <div style="display:flex;gap:10px;">
+                <button type="button" onclick="closeAlertModal()"
+                        style="flex:1;padding:12px;border-radius:11px;background:#F7F5F1;border:1px solid #E8E3DA;font-family:Poppins,sans-serif;font-size:13px;font-weight:600;color:#64605A;cursor:pointer;">
+                  Annuler
+                </button>
+                <button type="submit"
+                        style="flex:2;padding:12px;border-radius:11px;background:linear-gradient(135deg,#D4AF37,#F6D365);border:none;font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#0F0D09;cursor:pointer;">
+                  Créer l'alerte
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- VISITES -->
+        <div class="card">
+          <div class="card-header">
+            <span class="ch-title">Mes Visites</span>
+            <span class="ch-badge">{{ my_visits|length|default:"0" }} demande(s)</span>
+            <a class="ch-link" href="{% url 'properties:visits_list' %}" style="margin-left:auto;">Voir toutes →</a>
+          </div>
+          {% if my_visits %}
+            {% for visit in my_visits %}
+            <div class="visite-item" style="margin-top:12px;display:flex;gap:14px;padding:14px;border:1px solid var(--gris-b);border-radius:14px;">
+              
+              {% if visit.property.main_image %}
+                <div style="width:80px;height:65px;border-radius:10px;background-image:url('{{ visit.property.main_image.url }}');background-size:cover;background-position:center;flex-shrink:0;"></div>
+              {% else %}
+                <div style="width:80px;height:65px;border-radius:10px;background:var(--gris-b);flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                  <svg width="24" height="24" fill="var(--gris-m)" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                </div>
+              {% endif %}
+
+              <div style="flex:1;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                  {% if visit.status == 'CONFIRMED' %}
+                    <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(30,122,71,.1);color:#1E7A47;font-family:Poppins,sans-serif;">
+                      ✓ Confirmée
+                    </span>
+                    <span style="font-size:11px;color:var(--gris-m);">
+                      {{ visit.confirmed_date|date:"l d M Y" }}{% if visit.confirmed_time %} à {{ visit.confirmed_time|time:"H\hi" }}{% endif %}
+                    </span>
+                  {% elif visit.status == 'PENDING' %}
+                    <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(212,175,55,.1);color:var(--or-d);font-family:Poppins,sans-serif;">
+                      En attente
+                    </span>
+                    <span style="font-size:11px;color:var(--gris-m);">Demandée pour le {{ visit.preferred_date|date:"d M" }}</span>
+                  {% else %}
+                    <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(184,50,50,.1);color:var(--rouge);font-family:Poppins,sans-serif;">
+                      ✕ Annulée
+                    </span>
+                  {% endif %}
+                </div>
+                <div style="font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:var(--noir);margin-bottom:2px;">
+                  {{ visit.property.title }}
+                </div>
+                <div style="font-size:12px;color:var(--gris-m);">
+                  {{ visit.property.city }}{% if visit.property.neighborhood %}, {{ visit.property.neighborhood }}{% endif %}
+                </div>
+                <div style="display:flex;gap:8px;margin-top:10px;">
+                  <a href="{% url 'properties:visit_detail' visit.pk %}"
+                    style="padding:6px 14px;border-radius:9px;background:var(--or-bg);border:1px solid rgba(212,175,55,.25);font-family:Poppins,sans-serif;font-size:12px;font-weight:700;color:var(--or-d);text-decoration:none;">
+                    Voir détails
+                  </a>
+                  <button onclick="cancelMyVisit(this, {{ visit.pk }})"
+                          style="padding:6px 14px;border-radius:9px;background:rgba(184,50,50,.07);border:1px solid rgba(184,50,50,.15);font-family:Poppins,sans-serif;font-size:12px;font-weight:700;color:var(--rouge);cursor:pointer;">
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="vi-empty">
+              <svg width="34" height="34" fill="var(--gris-b)" viewBox="0 0 24 24" style="display:block;margin:0 auto 10px;"><path d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>
+              Aucune visite programmée.<br>
+              <a href="/properties/" style="color:var(--or-d);font-weight:600;margin-top:6px;display:inline-block;">Explorer les biens →</a>
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- DOSSIERS DE LOCATION -->
+        <div class="card">
+          <div class="card-header">
+            <span class="ch-title">Mes dossiers de location</span>
+            <span class="ch-badge">{{ my_locations|length }} dossier{{ my_locations|length|pluralize:"s" }}</span>
+          </div>
+          <div style="padding:10px 14px;display:flex;flex-direction:column;gap:10px;">
+            {% for loc in my_locations %}
+            <div style="display:flex;align-items:flex-start;gap:14px;padding:14px;border:1px solid var(--gris-b);border-radius:12px;
+              {% if loc.status == 'ACCEPTED' %}border-color:rgba(30,122,71,.3);background:rgba(30,122,71,.03);
+              {% elif loc.status == 'REFUSED' %}border-color:rgba(184,50,50,.2);background:rgba(184,50,50,.02);{% endif %}">
+
+              {% if loc.property.main_image %}
+              <img src="{{ loc.property.main_image.url }}" alt="{{ loc.property.title }}"
+                  style="width:70px;height:55px;object-fit:cover;border-radius:9px;flex-shrink:0;">
+              {% endif %}
+
+              <div style="flex:1;">
+                <div style="font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:var(--noir);">
+                  {{ loc.property.title }}
+                </div>
+                <div style="font-size:12px;color:var(--gris-m);margin-top:2px;">
+                  {{ loc.property.price|floatformat:0 }} FCFA/mois · Entrée : {{ loc.move_in_date|date:"d M Y" }}
+                </div>
+
+                {# Badge statut avec message #}
+                <div style="margin-top:8px;">
+                  {% if loc.status == 'PENDING' %}
+                    <span style="font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(212,175,55,.1);color:#A8891C;font-family:Poppins,sans-serif;">
+                      ⏳ En attente de réponse
+                    </span>
+                  {% elif loc.status == 'REVIEWING' %}
+                    <span style="font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(30,58,110,.1);color:#1E3A6E;font-family:Poppins,sans-serif;">
+                      🔍 Dossier en cours d'examen
+                    </span>
+                  {% elif loc.status == 'ACCEPTED' %}
+                    <span style="font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(30,122,71,.1);color:#1E7A47;font-family:Poppins,sans-serif;">
+                      ✓ Dossier accepté ! Contactez le bailleur.
+                    </span>
+                  {% elif loc.status == 'REFUSED' %}
+                    <span style="font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(184,50,50,.1);color:#B83232;font-family:Poppins,sans-serif;">
+                      ✕ Dossier refusé{% if loc.bailleur_note %} — {{ loc.bailleur_note|truncatechars:40 }}{% endif %}
+                    </span>
+                  {% elif loc.status == 'CANCELLED' %}
+                    <span style="font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--gris-f);color:var(--gris-m);font-family:Poppins,sans-serif;">
+                      Annulé
+                    </span>
+                  {% endif %}
+                </div>
+
+                <div style="display:flex;gap:8px;margin-top:10px;">
+                  <a href="{% url 'properties:location_detail' loc.pk %}"
+                    style="padding:6px 14px;border-radius:9px;background:var(--or-bg);border:1px solid rgba(212,175,55,.25);font-family:Poppins,sans-serif;font-size:12px;font-weight:700;color:var(--or-d);text-decoration:none;">
+                    Voir dossier
+                  </a>
+                  {% if loc.status == 'PENDING' %}
+                  <button onclick="cancelMyLocation(this, {{ loc.pk }})"
+                          style="padding:6px 14px;border-radius:9px;background:rgba(184,50,50,.07);border:1px solid rgba(184,50,50,.15);font-family:Poppins,sans-serif;font-size:12px;font-weight:700;color:var(--rouge);cursor:pointer;">
+                    Retirer
+                  </button>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            {% empty %}
+            <div style="text-align:center;padding:28px;">
+              <svg width="36" height="36" fill="var(--gris-b)" viewBox="0 0 24 24" style="display:block;margin:0 auto 10px;">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+              </svg>
+              <p style="font-size:13px;color:var(--gris-m);">Aucun dossier de location en cours.</p>
+              <a href="/properties/" style="font-size:13px;color:var(--or-d);font-weight:600;">Explorer les biens →</a>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- COLONNE DROITE -->
+      <div style="display:flex;flex-direction:column;gap:22px;">
+        <div class="points-widget">
+          <div class="pw-glow"></div>
+          <div class="pw-label">Points Fidélité Piolo</div>
+          <div class="pw-val">{{ user.points }} <span>pts</span></div>
+          <div class="pw-sub">Niveau Bronze · Prochain : Argent (500 pts)</div>
+          <div class="pw-prog"><div class="pw-prog-fill" style="width:{{ points_pct }}%;"></div></div>
+          <div class="pw-prog-info">
+            <span>0 pts</span>
+            <span class="hl">{{ user.points }} / 500</span>
+            <span>500 pts</span>
+          </div>
+          <div class="pw-row">
+            <button class="pw-btn pw-btn-g">Recharger</button>
+            <button class="pw-btn pw-btn-o">Historique</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="profil-card">
+            <div class="pc-top">
+              <div class="pc-av">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+              <div>
+                <div class="pc-name">{{ user.get_full_name }}</div>
+                <span class="pc-role-badge">Locataire Vérifié</span>
+              </div>
+              <a class="pc-edit" href="{% url 'accounts:profile_complete' %}" title="Modifier mon profil"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a>
+            </div>
+            <div class="comp-label">Profil complété à <span>{{ profile_completion }}%</span></div>
+            {% if profile_completion < 100 %}
+            <a href="{% url 'accounts:profile_complete' %}" class="btn-primary" style="font-size: 13px; padding: 6px 12px; margin-left: 10px; text-decoration: none;">Compléter</a>
+            {% endif %}
+            <div class="comp-bar"><div class="comp-fill" style="width:{{ profile_completion }}%;"></div></div>
+          </div>
+          <div class="quick-menu">
+            <a class="qm-item" href="{% url 'properties:favorites_list' %}">
+              <div class="qm-ico i1"><svg viewBox="0 0 24 24"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg></div>
+              <div class="qm-txt"><h5>Favoris</h5><p>{{ saved_count|default:"0" }} biens</p></div>
+            </a>
+            <a class="qm-item" href="{% url 'messaging:list' %}">
+              <div class="qm-ico i2"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div>
+              <div class="qm-txt"><h5>Messages</h5><p>{{ unread_messages|default:"0" }} non lus</p></div>
+              {% if unread_messages %}<div class="qm-notif">{{ unread_messages }}</div>{% endif %}
+            </a>
+            <a class="qm-item" href="{% url 'properties:visits_list' %}">
+              <div class="qm-ico i3"><svg viewBox="0 0 24 24"><path d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg></div>
+              <div class="qm-txt"><h5>Visites</h5><p>{{ upcoming_visits|length|default:"0" }} prévues</p></div>
+            </a>
+            <a class="qm-item" href="{% url 'properties:search_alerts' %}">
+              <div class="qm-ico i4"><svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg></div>
+              <div class="qm-txt"><h5>Alertes</h5><p>{{ search_alerts|length|default:"0" }} actives</p></div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BIENS DISPONIBLES -->
+    <div class="sec-hd">
+      <div>
+        <div class="sec-label">Recommandations</div>
+        <div class="sec-title">Biens <span>Disponibles</span></div>
+      </div>
+      <a class="see-all" href="/properties/">Voir tous →</a>
+    </div>
+
+    <div class="filter-chips">
+      <span class="fchip active" data-filter="all">Tous</span>
+      <span class="fchip" data-filter="louer">À louer</span>
+      <span class="fchip" data-filter="vendre">À vendre</span>
+      <span class="fchip" data-filter="appartement">Appartements</span>
+      <span class="fchip" data-filter="villa">Villas</span>
+      <span class="fchip" data-filter="studio">Studios</span>
+    </div>
+
+    {% comment %} {% if recent_properties %}
+    <div class="props-grid">
+      {% for prop in recent_properties %}
+      <div class="prop-card" data-type="{{ prop.listing_type|lower }}">
+        <div class="prop-img">
+          <div class="prop-img-bg" style="background-image:url('{{ prop.main_photo_url }}');background-color:var(--gris-b);"></div>
+          <span class="pbadge {{ prop.listing_type|lower }}">{{ prop.get_listing_type_display }}</span>
+          <button class="fav-btn" onclick="toggleFav(this,'{{ prop.title|escapejs }}')" title="Ajouter aux favoris">
+            <svg viewBox="0 0 24 24"><path class="heart-outline" d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg>
+          </button>
+          <span class="pverifie"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Vérifié</span>
+        </div>
+        <div class="prop-body">
+          <div class="pprice">{{ prop.price|floatformat:0 }} <span class="pprice-sub">FCFA{% if prop.listing_type == 'LOUER' %}/mois{% endif %}</span></div>
+          <div class="pname">{{ prop.title }}</div>
+          <div class="ploc"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> {{ prop.neighborhood }}, {{ prop.city }}</div>
+          <div class="pmeta">
+            <span class="pm"><svg viewBox="0 0 24 24"><path d="M7 13c1.66 0 3-1.34 3-3S8.66 7 7 7s-3 1.34-3 3 1.34 3 3 3zm12-6h-8v7H3V5H1v15h2v-3h18v3h2v-9c0-2.21-1.79-4-4-4z"/></svg> {{ prop.bedrooms }} ch.</span>
+            <span class="pm"><svg viewBox="0 0 24 24"><path d="M10.5 2h3l.5 4h-4l.5-4zm5.5 4l-.5-4H19c1.1 0 2 .9 2 2v6h-4l-1-4zM5 2h3.5L9 6H5V4c0-1.1.9-2 2-2zm-2 4v6H3V4l2 2zm14 6v10H7V12H3v10H1V10h22v2h-4V12h-2zm-6 8h-2v-4h2v4z"/></svg> {{ prop.area }} m²</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:48px;background:var(--blanc);border-radius:var(--radius-lg);border:1px solid var(--gris-b);margin-bottom:32px;">
+      <svg width="52" height="52" fill="var(--gris-b)" viewBox="0 0 24 24" style="margin:0 auto 14px;display:block;"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <p style="font-family:Poppins,sans-serif;font-weight:700;font-size:16px;color:var(--gris);margin-bottom:10px;">Aucun bien disponible pour le moment</p>
+      <a href="/properties/" style="color:var(--or-d);font-weight:600;font-family:Poppins,sans-serif;font-size:15px;">Explorer toutes les annonces →</a>
+    </div>
+    {% endif %} {% endcomment %}
+
+
+    
+    <!-- BARRE DE RECHERCHE LOGEMENTS -->
+    <div style="background:#fff;border-radius:16px;border:1px solid var(--gris-b);padding:20px;margin-bottom:20px;box-shadow:var(--shadow-sm);">
+      <form action="{% url 'properties:list' %}" method="GET" style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;align-items:end;">
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--gris-m);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:5px;">Ville ou quartier</label>
+          <input type="text" name="city" placeholder="Yaoundé, Douala…"
+                style="width:100%;border:1.5px solid var(--gris-b);border-radius:10px;padding:10px 14px;font-size:14px;outline:none;font-family:DM Sans,sans-serif;transition:border-color .2s;"
+                onfocus="this.style.borderColor='#D4AF37'" onblur="this.style.borderColor='#E8E3DA'">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--gris-m);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:5px;">Type</label>
+          <select name="type" style="width:100%;border:1.5px solid var(--gris-b);border-radius:10px;padding:10px 14px;font-size:14px;outline:none;background:#fff;font-family:DM Sans,sans-serif;">
+            <option value="">Tous</option>
+            <option value="APPARTEMENT">Appartement</option>
+            <option value="VILLA">Villa</option>
+            <option value="STUDIO">Studio</option>
+            <option value="BUREAU">Bureau</option>
+            <option value="BOUTIQUE">Boutique</option>
+            <option value="TERRAIN">Terrain</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--gris-m);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:5px;">Prix max</label>
+          <input type="number" name="max_price" placeholder="FCFA"
+                style="width:100%;border:1.5px solid var(--gris-b);border-radius:10px;padding:10px 14px;font-size:14px;outline:none;font-family:DM Sans,sans-serif;"
+                onfocus="this.style.borderColor='#D4AF37'" onblur="this.style.borderColor='#E8E3DA'">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--gris-m);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:5px;">Transaction</label>
+          <select name="transaction" style="width:100%;border:1.5px solid var(--gris-b);border-radius:10px;padding:10px 14px;font-size:14px;outline:none;background:#fff;font-family:DM Sans,sans-serif;">
+            <option value="">Tous</option>
+            <option value="LOCATION">Location</option>
+            <option value="VENTE">Vente</option>
+          </select>
+        </div>
+        <button type="submit"
+                style="padding:11px 22px;border-radius:11px;background:linear-gradient(135deg,#D4AF37,#F6D365);border:none;font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#0F0D09;cursor:pointer;white-space:nowrap;box-shadow:0 3px 12px rgba(212,175,55,.3); display:flex; align-items:center; gap:8px; justify-content:center;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          Rechercher
+        </button>
+      </form>
+    </div>  
+
+
+    {% if recent_properties %}
+    <div class="props-grid">
+      {% for prop in recent_properties %}
+      <div class="prop-card" data-type="{% if prop.transaction_type == 'LOCATION' %}louer{% elif prop.transaction_type == 'VENTE' %}vendre{% else %}{{ prop.transaction_type|lower }}{% endif %}" data-proptype="{{ prop.property_type|lower }}">
+
+        <a href="{% url 'properties:detail' prop.slug %}" class="prop-img-link" onclick="if(event.target.closest('.fav-btn')) return false;">
+          <div class="prop-img">
+
+            {% if prop.main_image %}
+              <img src="{{ prop.main_image.url }}" alt="{{ prop.title }}" class="prop-img-real" loading="lazy">
+            {% else %}
+              <div class="prop-img-placeholder">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                </svg>
+              </div>
+            {% endif %}
+
+            <!-- Badges flottants haut (photos + favoris) -->
+            <div class="prop-top-pictos">
+              <span class="ptag ptag-photos">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                  <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+                {{ prop.images.count|add:1 }}
+              </span>
+
+              <button type="button" class="fav-btn" onclick="toggleFav(event, this, '{{ prop.id }}')" title="Ajouter aux favoris">
+                {% if prop.id in favoris_ids %}
+                  <svg viewBox="0 0 24 24" fill="#D4AF37"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg>
+                {% else %}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg>
+                {% endif %}
+              </button>
+            </div>
+
+            <!-- Badge transaction (bas-gauche, doré) -->
+            <span class="pbadge {{ prop.transaction_type|lower }}">{{ prop.get_transaction_type_display }}</span>
+
+            {% if prop.virtual_tours.all %}
+            <span class="pbadge" style="bottom: 12px; left: 100px; background: rgba(212,175,55,.95); color: #000; box-shadow: 0 2px 10px rgba(0,0,0,.2);">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:2px; vertical-align:middle; margin-top:-2px;"><path d="M2 12A10 10 0 0 0 15 21.54A10 10 0 0 1 15 2.46A10 10 0 0 0 2 12Z"></path><path d="M15 2.46A10 10 0 0 0 22 12a10 10 0 0 0-7-9.54"></path><path d="M2 12h20"></path></svg>
+              360°
+            </span>
+            {% endif %}
+
+            {% if prop.owner.verification_level == 3 %}
+            <span class="pverifie" style="background:#2C3E7A; color:#D4AF37; border: 1px solid #D4AF37;"><svg viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21L12 17.77L5.82 21L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg> Premium</span>
+            {% elif prop.owner.verification_level == 2 %}
+            <span class="pverifie"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Vérifié</span>
+            {% else %}
+            <span class="pverifie" style="background:#FFF3CD; color:#856404; border: 1px solid #FFEEBA;"><svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg> Non vérifié</span>
+            {% endif %}
+          </div>
+        </a>
+
+        <a href="{% url 'properties:detail' prop.slug %}" class="prop-body-link">
+          <div class="prop-body">
+            <div class="pname text-capitalize">{{ prop.property_type }} à {{ prop.transaction_type|lower }} à {{ prop.city }} &middot; {{ prop.bedrooms }} pièce(s) sur {{ prop.area }} m²</div>
+            <div class="ploc">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              {{ prop.city }}{% if prop.neighborhood %}, {{ prop.neighborhood }}{% endif %}
+            </div>
+
+            <div class="product-bulles">
+              <div class="bulle">
+                <div class="picto">
+                  <svg viewBox="0 0 16 17" fill="currentColor" stroke="none"><path d="M1.132 2.538h12.993v-1.43H1.132zm1.033 6.06h10.927v-4.96H2.165zm0 6.07h10.927v-4.96H2.165zM.034 0h15.19v3.639H14.19v12.137H12.3V17H11.2v-1.224H4.056V17H2.957v-1.224h-1.89V3.64H.034zm8.144 6.119a.552.552 0 0 1-.55.554.552.552 0 0 1-.549-.554c0-.307.246-.555.55-.555.303 0 .549.248.549.555zm0 6.068a.552.552 0 0 1-.55.555.552.552 0 0 1-.549-.555c0-.306.246-.554.55-.554.303 0 .549.248.549.554z"/></svg>
+                </div>
+                <span class="value">x {{ prop.bedrooms }}</span>
+              </div>
+              <div class="bulle">
+                <div class="picto">
+                  <svg viewBox="0 0 17 9" fill="currentColor" stroke="none"><path d="M1.074 5.244H15.39v1.677H1.074zm0-1.955a.9.9 0 0 1 .908-.888h2.03a.9.9 0 0 1 .909.888.9.9 0 0 1-.909.888H1.074zM15.39 1.835v2.36H5.764c.146-.27.23-.579.23-.906 0-1.068-.89-1.937-1.982-1.937h-2.03c-.327 0-.636.078-.908.216V0H0v9h1.074V7.963H15.39V9h1.073V1.835z"/></svg>
+                </div>
+                <span class="value">x {{ prop.bedrooms }}</span>
+              </div>
+              <div class="bulle">
+                <div class="picto">
+                  <svg viewBox="0 0 924.7 746.62" fill="currentColor"><path d="m924.6,436.52h-45.2v10.4c0,29.5.1,59,0,88.5-.3,71.5-45.9,126.6-116.2,140.2-1.7.3-3.4.9-6.1,1.7,5.7,16.3,11.2,32.3,17.1,49.3-19,6.7-37.5,13.2-56.8,20-7.1-20.3-14.3-39.7-20.6-59.4-2.3-7.2-5.7-9.6-13.4-9.6-147.5.2-295,.2-442.6,0-7.5,0-11.1,2.1-13.5,9.4-6.3,19.7-13.5,39.1-20.6,59.5-19-6.7-37.4-13.1-56.8-19.9,5.7-16.5,11.2-32.6,17-49.4-6.3-1.4-12.4-2.6-18.4-4.2-59.5-15.5-102.2-68.8-103.6-130.4-.8-34.9-.1-69.8-.1-105.7H0v-158.7h106.4c.2-4.3.5-7.8.5-11.2,0-57.8.1-115.6,0-173.4,0-24.3,5.8-46.5,22.7-64.8C151.6,5.02,179.2-4.28,210.5,1.82c32.1,6.3,54.4,26,65.1,57.3,2.8,8.3,3.7,17.3,5.7,26.9h-59.8c-2-4.9-3.3-9.9-5.9-14.1-6-9.7-18.5-13.8-29.3-10.6-11.7,3.6-18.8,13.3-18.8,26.7-.1,57.8,0,115.6,0,173.4v15.9c3.6.2,6.5.5,9.4.5h739.7c2.7,0,5.4-.3,8.1-.5-.1,53.2-.1,106.2-.1,159.2Zm-105.5.4H105.9c-.3,2-.9,3.7-.9,5.5,0,31.3-.8,62.7.3,93.9.4,12.3,3,25.4,8.3,36.5,14.8,31.1,41.3,44.6,75.3,44.6h546.4c3.6,0,7.2-.1,10.8-.4,39.4-3.6,69.1-32.7,71.9-71.8,1.4-19.8.9-39.7,1-59.6.2-16,.1-31.9.1-48.7Zm44.7-97.5H60.4v36.5h803.4v-36.5Z"/></svg>
+                </div>
+                <span class="value">x 1</span>
+              </div>
+            </div>
+
+            <div class="product-bottom-infos">
+              <div class="product-price">
+                Loyer : {{ prop.price|floatformat:0 }} FCFA{% if prop.transaction_type == 'LOCATION' %}<span class="pprice-sub">/mois</span>{% endif %}
+              </div>
+              <div class="product-ref">Réf : {{ prop.id|stringformat:"s"|slice:":8"|upper }}</div>
+            </div>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if recent_properties.has_other_pages %}
+    <div style="display:flex; justify-content:center; gap:8px; margin-top:30px; margin-bottom: 20px;">
+      {% if recent_properties.has_previous %}
+      <a href="?page={{ recent_properties.previous_page_number }}" style="width:36px; height:36px; border-radius:50%; background:var(--blanc); border:1px solid var(--gris-b); display:flex; align-items:center; justify-content:center; color:var(--noir); text-decoration:none; transition:all 0.2s;">&laquo;</a>
+      {% endif %}
+
+      {% for i in recent_properties.paginator.page_range %}
+        {% if recent_properties.number == i %}
+          <span style="width:36px; height:36px; border-radius:50%; background:var(--or); color:#fff; display:flex; align-items:center; justify-content:center; font-family:Poppins,sans-serif; font-weight:700; box-shadow:0 4px 10px rgba(212,175,55,0.3);">{{ i }}</span>
+        {% else %}
+          <a href="?page={{ i }}" style="width:36px; height:36px; border-radius:50%; background:var(--blanc); border:1px solid var(--gris-b); display:flex; align-items:center; justify-content:center; color:var(--noir); text-decoration:none; font-family:Poppins,sans-serif; font-weight:500; transition:all 0.2s;" onmouseover="this.style.borderColor='var(--or)'" onmouseout="this.style.borderColor='var(--gris-b)'">{{ i }}</a>
+        {% endif %}
+      {% endfor %}
+
+      {% if recent_properties.has_next %}
+      <a href="?page={{ recent_properties.next_page_number }}" style="width:36px; height:36px; border-radius:50%; background:var(--blanc); border:1px solid var(--gris-b); display:flex; align-items:center; justify-content:center; color:var(--noir); text-decoration:none; transition:all 0.2s;">&raquo;</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div style="text-align:center;padding:48px;background:var(--blanc);border-radius:var(--radius-lg);border:1px solid var(--gris-b);margin-bottom:32px;">
+      <svg width="52" height="52" fill="var(--gris-b)" viewBox="0 0 24 24" style="margin:0 auto 14px;display:block;"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <p style="font-family:Poppins,sans-serif;font-weight:700;font-size:16px;color:var(--gris);margin-bottom:10px;">Aucun bien disponible pour le moment</p>
+      <a href="/properties/" style="color:var(--or-d);font-weight:600;font-family:Poppins,sans-serif;font-size:15px;">Explorer toutes les annonces →</a>
+    </div>
+    {% endif %}
+
+    <script>
+    function toggleFav(e, btn, propertyId) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      fetch(`/properties/favorite/${propertyId}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCsrfCookie() },
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok) {
+          const svg = btn.querySelector('svg');
+          if (data.is_favorite) {
+            svg.setAttribute('fill', '#D4AF37');
+            svg.removeAttribute('stroke');
+          } else {
+            svg.setAttribute('fill', 'none');
+            svg.setAttribute('stroke', 'currentColor');
+            svg.setAttribute('stroke-width', '2');
+          }
+          // Mettre à jour le KPI favoris
+          const kpiFav = document.getElementById('kpi-fav-val');
+          if (kpiFav) {
+            const count = parseInt(kpiFav.textContent || '0');
+            kpiFav.textContent = data.is_favorite ? count + 1 : Math.max(0, count - 1);
+          }
+        }
+      })
+      .catch(err => console.error('Erreur favoris :', err));
+    }
+
+    function getCsrfCookie() {
+      const token = document.querySelector('input[name=csrfmiddlewaretoken]');
+      if (token) return token.value;
+      const name = 'csrftoken';
+      for (const cookie of document.cookie.split(';')) {
+        const [k, v] = cookie.trim().split('=');
+        if (k === name) return decodeURIComponent(v);
+      }
+      return '';
+    }
+
+    function cancelMyVisit(btn, visitId) {
+      if (!confirm('Annuler cette visite ?')) return;
+      btn.disabled = true;
+
+      const fd = new FormData();
+      fd.append('action', 'cancel');
+
+      fetch(`/properties/visit/action/${visitId}/`, {
+        method: 'POST',
+        body: fd,
+        headers: { 'X-CSRFToken': getCsrfCookie() },
+        credentials: 'same-origin'
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok) {
+          btn.closest('.visite-item').style.opacity = '0.4';
+          btn.closest('.visite-item').querySelector('div[style*="confirmée"]').textContent = '✕ Annulée';
+        }
+      });
+    }
+
+    function cancelMyLocation(btn, locId) {
+      if (!confirm('Retirer ce dossier de location ?')) return;
+      btn.disabled = true;
+
+      const fd = new FormData();
+      fd.append('action', 'cancel');
+
+      fetch(`/properties/location/action/${locId}/`, {
+        method: 'POST',
+        body: fd,
+        headers: { 'X-CSRFToken': getCsrfCookie() },
+        credentials: 'same-origin'
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok) {
+          btn.closest('[style*="border-radius:12px"]').style.opacity = '0.4';
+          btn.textContent = 'Retiré';
+        }
+      });
+    }
+
+    function openAlertModal() {
+      const m = document.getElementById('alertModal');
+      m.style.display = 'flex';
+    }
+
+    function closeAlertModal() {
+      document.getElementById('alertModal').style.display = 'none';
+    }
+
+    document.getElementById('alert-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const err = document.getElementById('alert-error');
+      err.style.display = 'none';
+
+      try {
+        const r = await fetch('{% url "properties:alert_create" %}', {
+          method: 'POST', body: fd,
+          headers: { 'X-CSRFToken': getCsrfCookie() },
+          credentials: 'same-origin'
+        });
+        const data = await r.json();
+        if (data.ok) {
+          closeAlertModal();
+          location.reload(); // Recharge pour afficher la nouvelle alerte
+        } else {
+          err.textContent = data.error;
+          err.style.display = 'block';
+        }
+      } catch {
+        err.textContent = 'Erreur réseau.';
+        err.style.display = 'block';
+      }
+    });
+
+    function deleteAlert(btn, alertId) {
+      if (!confirm('Supprimer cette alerte ?')) return;
+      const fd = new FormData();
+      fetch(`/properties/alerts/${alertId}/delete/`, {
+        method: 'POST',
+        body: fd,
+        headers: { 'X-CSRFToken': getCsrfCookie() },
+        credentials: 'same-origin'
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok) document.getElementById(`alert-${alertId}`)?.remove();
+      });
+    }
+    </script>
+
+    <!-- BONUS FIDÉLITÉ -->
+    <div class="sec-hd">
+      <div>
+        <div class="sec-label">Programme Fidélité</div>
+        <div class="sec-title">Gagnez des <span>Points</span></div>
+      </div>
+    </div>
+    <div class="bonus-row">
+      <div class="bonus-card">
+        <div class="bonus-ico"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div>
+        <div><div class="bonus-pts">+20 pts</div><div class="bonus-lbl">Par parrainage</div></div>
+      </div>
+      <div class="bonus-card">
+        <div class="bonus-ico"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>
+        <div><div class="bonus-pts">+5 pts</div><div class="bonus-lbl">Après une location</div></div>
+      </div>
+      <a href="{% url 'accounts:profile_complete' %}" style="text-decoration: none; color: inherit;" class="bonus-card">
+        <div class="bonus-ico"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg></div>
+        <div><div class="bonus-pts">+10 pts</div><div class="bonus-lbl">Profil complété</div></div>
+      </a>
+    </div>
+
+    <!-- ARCHITECTES -->
+    <div class="sec-hd">
+      <div>
+        <div class="sec-label">Professionnels Certifiés</div>
+        <div class="sec-title">Architectes & <span>Experts du Bâtiment</span></div>
+      </div>
+      <a class="see-all" href="#">Voir l'annuaire →</a>
+    </div>
+    <div class="architects-grid">
+
+      {% for arch in architects %}
+      <div class="arch-card">
+        <div class="arch-header">
+          <div class="arch-cover" style="background-image:url('{{ arch.cover_url }}');"></div>
+          <div class="arch-cover-overlay"></div>
+          <div class="arch-cert"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Certifié Piolo</div>
+          <div class="arch-av-wrap">
+            <div class="arch-av" style="background:{{ arch.avatar_bg }};">{{ arch.initials }}</div>
+          </div>
+        </div>
+        <div class="arch-body">
+          <div class="arch-avail"><div class="arch-avail-dot"></div>{{ arch.availability }}</div>
+          <div class="arch-name">{{ arch.name }}</div>
+          <div class="arch-location"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> {{ arch.location }}</div>
+          <div class="arch-specialty">{{ arch.specialty }}</div>
+          <div class="arch-stars">
+            {% for i in "12345" %}<div class="arch-star"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>{% endfor %}
+            <span class="arch-star-val">{{ arch.rating }}</span>
+            <span class="arch-star-cnt">({{ arch.reviews }} avis)</span>
+          </div>
+          <div class="arch-stats">
+            <div class="arch-stat"><div class="arch-stat-val">{{ arch.projects }}</div><div class="arch-stat-lbl">Projets</div></div>
+            <div class="arch-stat-sep"></div>
+            <div class="arch-stat"><div class="arch-stat-val">{{ arch.experience }}</div><div class="arch-stat-lbl">Expérience</div></div>
+            <div class="arch-stat-sep"></div>
+            <div class="arch-stat"><div class="arch-stat-val">2 pts</div><div class="arch-stat-lbl">Devis</div></div>
+          </div>
+          <div class="arch-tags">{% for tag in arch.tags %}<span class="arch-tag">{{ tag }}</span>{% endfor %}</div>
+          <div class="arch-footer">
+            <button class="arch-btn primary" onclick="demanderDevis('{{ arch.name|escapejs }}')">
+              <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+              Demander un devis
+            </button>
+            <button class="arch-btn outline">
+              <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+              Voir profil
+            </button>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <!-- Architectes statiques si aucun en base -->
+      <div class="arch-card">
+        <div class="arch-header">
+          <div class="arch-cover" style="background-image:url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=400&q=70');"></div>
+          <div class="arch-cover-overlay"></div>
+          <div class="arch-cert"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Certifié Piolo</div>
+          <div class="arch-av-wrap"><div class="arch-av">EK</div></div>
+        </div>
+        <div class="arch-body">
+          <div class="arch-avail"><div class="arch-avail-dot"></div>Disponible maintenant</div>
+          <div class="arch-name">Emmanuel Kouam</div>
+          <div class="arch-location"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> Bastos, Yaoundé</div>
+          <div class="arch-specialty">Architecte d'intérieur & Rénovation</div>
+          <div class="arch-stars">{% for i in "12345" %}<div class="arch-star"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>{% endfor %}<span class="arch-star-val">4.9</span><span class="arch-star-cnt">(38 avis)</span></div>
+          <div class="arch-stats">
+            <div class="arch-stat"><div class="arch-stat-val">12</div><div class="arch-stat-lbl">Projets</div></div>
+            <div class="arch-stat-sep"></div>
+            <div class="arch-stat"><div class="arch-stat-val">8 ans</div><div class="arch-stat-lbl">Expérience</div></div>
+            <div class="arch-stat-sep"></div>
+            <div class="arch-stat"><div class="arch-stat-val">2 pts</div><div class="arch-stat-lbl">Devis</div></div>
+          </div>
+          <div class="arch-tags"><span class="arch-tag">Rénovation</span><span class="arch-tag">Design int.</span><span class="arch-tag">Plans 3D</span></div>
+          <div class="arch-footer">
+            <button class="arch-btn primary" onclick="demanderDevis('Emmanuel Kouam')"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>Demander un devis</button>
+            <button class="arch-btn outline" onclick="voirProfilPro('Emmanuel Kouam', 'Architecte d\'intérieur & Rénovation', 'Bastos, Yaoundé', '4.9 (38 avis)', '8 ans', 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800&q=80', 'Spécialiste de l\'aménagement haut de gamme, rénovation complète de villas et fabrication de mobilier sur-mesure.', '+237699001122')"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>Voir profil</button>
+          </div>
+        </div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-header">
+          <div class="arch-cover" style="background-image:url('https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=70');"></div>
+          <div class="arch-cover-overlay"></div>
+          <div class="arch-cert"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Certifié Piolo</div>
+          <div class="arch-av-wrap"><div class="arch-av" style="background:linear-gradient(135deg,#2C3E7A,#4A6FA5);">AB</div></div>
+        </div>
+        <div class="arch-body">
+          <div class="arch-avail"><div class="arch-avail-dot"></div>Disponible cette semaine</div>
+          <div class="arch-name">Ange Beyala</div>
+          <div class="arch-location"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> Bonapriso, Douala</div>
+          <div class="arch-specialty">Architecte & Chef de Projet BTP</div>
+          <div class="arch-stars">{% for i in "1234" %}<div class="arch-star"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>{% endfor %}<span class="arch-star-val">4.7</span><span class="arch-star-cnt">(52 avis)</span></div>
+          <div class="arch-stats">
+            <div class="arch-stat"><div class="arch-stat-val">27</div><div class="arch-stat-lbl">Projets</div></div>
+            <div class="arch-stat-sep"></div>
+            <div class="arch-stat"><div class="arch-stat-val">12 ans</div><div class="arch-stat-lbl">Expérience</div></div>
+            <div class="arch-stat-sep"></div>
+            <div class="arch-stat"><div class="arch-stat-val">2 pts</div><div class="arch-stat-lbl">Devis</div></div>
+          </div>
+          <div class="arch-tags"><span class="arch-tag">Construction</span><span class="arch-tag">Supervision</span><span class="arch-tag">Béton armé</span></div>
+          <div class="arch-footer">
+            <button class="arch-btn primary" onclick="demanderDevis('Ange Beyala')"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>Demander un devis</button>
+            <button class="arch-btn outline" onclick="voirProfilPro('Ange Beyala', 'Architecte & Chef de Projet BTP', 'Bonapriso, Douala', '4.7 (52 avis)', '12 ans', 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&q=80', 'Conception de plans d\'immeubles, villas modernes, suivi de chantiers et gros œuvre certifié au Cameroun.', '+237677889900')"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>Voir profil</button>
+          </div>
+        </div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-header">
+          <div class="arch-cover" style="background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=70');"></div>
+          <div class="arch-cover-overlay"></div>
+          <div class="arch-cert"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Certifié Piolo</div>
+          <div class="arch-av-wrap"><div class="arch-av" style="background:linear-gradient(135deg,#1E7A47,#27AE60);">MN</div></div>
+        </div>
+        <div class="arch-body">
+          <div class="arch-avail" style="color:var(--or-d)"><div class="arch-avail-dot" style="background:var(--or)"></div>Sur rendez-vous</div>
+          <div class="arch-name">Martin Nkodo</div>
+          <div class="arch-location"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> Bonanjo, Douala</div>
+          <div class="arch-specialty">Entrepreneur BTP & Finition</div>
+          <div class="arch-stars">{% for i in "1234" %}<div class="arch-star"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>{% endfor %}<span class="arch-star-val">4.5</span><span class="arch-star-cnt">(21 avis)</span></div>
+          <div class="arch-stats">
+            <div class="arch-stat"><div class="arch-stat-val">18</div><div class="arch-stat-lbl">Projets</div></div>
+            <div class="arch-stat-sep"></div>
+            <div class="arch-stat"><div class="arch-stat-val">6 ans</div><div class="arch-stat-lbl">Expérience</div></div>
+            <div class="arch-stat-sep"></div>
+            <div class="arch-stat"><div class="arch-stat-val">2 pts</div><div class="arch-stat-lbl">Devis</div></div>
+          </div>
+          <div class="arch-tags"><span class="arch-tag">Carrelage</span><span class="arch-tag">Peinture</span><span class="arch-tag">Électricité</span></div>
+          <div class="arch-footer">
+            <button class="arch-btn primary" onclick="demanderDevis('Martin Nkodo')"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>Demander un devis</button>
+            <button class="arch-btn outline" onclick="voirProfilPro('Martin Nkodo', 'Entrepreneur BTP & Finition', 'Bonanjo, Douala', '4.5 (21 avis)', '6 ans', 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80', 'Pose de carrelage importé, peinture moderne, plomberie et électricité bâtiment.', '+237691234567')"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>Voir profil</button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </main>
+</div>
+</div>
+
+<script src="{% static 'js/dashboard.js' %}"></script>
+<script>
+  document.querySelectorAll('.fchip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      // Retirer la classe active de tous les chips
+      document.querySelectorAll('.fchip').forEach(c => c.classList.remove('active'));
+      // Ajouter la classe active au chip cliqué
+      chip.classList.add('active');
+
+      const filter = chip.getAttribute('data-filter');
+      const cards = document.querySelectorAll('.prop-card');
+
+      cards.forEach(card => {
+        if (filter === 'all') {
+          card.style.display = 'flex';
+        } else if (filter === 'louer' || filter === 'vendre') {
+          if (card.getAttribute('data-type') === filter) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        } else {
+          // Filtrage par type de bien (appartement, villa, studio)
+          if (card.getAttribute('data-proptype') === filter) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        }
+      });
+    });
+  });
+</script>
+<!-- Bottom Navbar Mobile (PWA) -->
+{% include 'includes/bottom_navbar.html' %}
+</body>
+</html>

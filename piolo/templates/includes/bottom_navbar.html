@@ -1,0 +1,373 @@
+{% if request.resolver_match.url_name != 'visit_create' and request.resolver_match.url_name != 'location_create' and request.resolver_match.url_name != 'tour_viewer' and request.resolver_match.url_name != 'home' and request.resolver_match.url_name != 'auth' and request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'choose_role' %}
+<style>
+  /* === PWA Bottom Navbar === */
+  .mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 15px; /* Floating from bottom */
+    left: 15px;
+    right: 15px;
+    background: #ffffff;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    z-index: 999999;
+    padding-bottom: env(safe-area-inset-bottom);
+    border-radius: 35px; /* Floating pill shape */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .bottom-nav-list {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0 10px;
+    height: 70px;
+  }
+
+  .bottom-nav-item {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    height: 100%;
+  }
+
+  .bottom-nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #a0a0a0; /* Gris clair pour inactifs */
+    text-decoration: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: color 0.3s ease;
+  }
+
+  .bottom-nav-icon {
+    width: 24px;
+    height: 24px;
+    margin-bottom: 4px;
+    fill: currentColor;
+    transition: transform 0.3s ease;
+  }
+
+  /* État actif (Ligne au-dessus et couleur dorée) */
+  .bottom-nav-link.active {
+    color: #D4AF37;
+  }
+  
+  .bottom-nav-link.active .bottom-nav-icon {
+    transform: translateY(-2px);
+  }
+
+  .bottom-nav-link.active::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    width: 18px;
+    height: 3px;
+    background: #D4AF37;
+    border-radius: 2px;
+  }
+
+  /* ── Bouton Central (Découverte) Pop-out ── */
+  .center-item .bottom-nav-link {
+    justify-content: flex-end;
+    padding-bottom: 8px;
+  }
+  .center-item .bottom-nav-link.active::before {
+    display: none; /* Pas de ligne au-dessus du bouton central */
+  }
+  
+  .center-icon-wrapper {
+    position: absolute;
+    top: -20px; /* Dépasse de la barre vers le haut */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 56px;
+    height: 56px;
+    background: #D4AF37; /* Couleur Or */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+    border: 4px solid #fff; /* Bordure blanche pour se détacher */
+    transition: transform 0.2s ease;
+  }
+  
+  .center-item .bottom-nav-link:active .center-icon-wrapper {
+    transform: translateX(-50%) scale(0.95);
+  }
+
+  .center-icon-wrapper .bottom-nav-icon {
+    fill: #fff; /* Icône blanche dans le cercle doré */
+    margin: 0;
+    width: 26px;
+    height: 26px;
+  }
+  
+  .center-item span {
+    color: #a0a0a0;
+    margin-top: 30px; /* Laisse l'espace pour le cercle */
+  }
+  .center-item .bottom-nav-link.active span {
+    color: #D4AF37;
+  }
+
+  /* Badges */
+  .bottom-nav-badge {
+    position: absolute;
+    top: 5px;
+    right: 25%;
+    background: #4caf50; /* WhatsApp green */
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border: 2px solid white;
+    pointer-events: none;
+  }
+
+  /* Cache le menu Plus par défaut */
+  #bottomNavMoreMenu {
+    display: none;
+    position: fixed;
+    bottom: 95px;
+    right: 25px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    padding: 10px 0;
+    z-index: 9998;
+    min-width: 180px;
+    animation: slideUpNav 0.3s ease;
+  }
+
+  #bottomNavMoreMenu a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: #333;
+    text-decoration: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  #bottomNavMoreMenu a:hover {
+    background: #f9f9f9;
+    color: #D4AF37;
+  }
+
+  #bottomNavMoreMenu svg {
+    margin-right: 12px;
+  }
+
+  @keyframes slideUpNav {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  /* Affichage uniquement sur Mobile */
+  @media (max-width: 768px) {
+    .mobile-bottom-nav {
+      display: block;
+    }
+    
+    /* Espacement pour le footer afin de ne pas être caché par la navbar flottante */
+    body {
+      padding-bottom: 90px; 
+    }
+
+    /* Réduction de la hauteur des layouts full-screen */
+    .layout {
+      height: calc(100vh - 90px) !important;
+    }
+  }
+</style>
+
+{% if request.user.is_authenticated and request.user.is_bailleur %}
+<!-- ============================================== -->
+<!-- 📱 BOTTOM NAV : BAILLEUR -->
+<!-- ============================================== -->
+<nav class="mobile-bottom-nav">
+  <ul class="bottom-nav-list">
+    <!-- Tableau de bord -->
+    <li class="bottom-nav-item">
+      <a href="{% url 'accounts:bailleur_dashboard' %}" class="bottom-nav-link {% if 'dashboard' in request.path %}active{% endif %}">
+        <svg class="bottom-nav-icon" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+        <span>Accueil</span>
+      </a>
+    </li>
+    
+    <!-- Demandes -->
+    <li class="bottom-nav-item">
+      <a href="{% url 'properties:visits_list' %}" class="bottom-nav-link {% if 'visits' in request.path or 'location' in request.path %}active{% endif %}">
+        <svg class="bottom-nav-icon" viewBox="0 0 24 24"><path d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>
+        <span>Demandes</span>
+      </a>
+    </li>
+
+    <!-- Publier (Centre Pop-out) -->
+    <li class="bottom-nav-item center-item">
+      <a href="{% url 'properties:create' %}" class="bottom-nav-link {% if 'create' in request.path %}active{% endif %}">
+        <div class="center-icon-wrapper" style="background-color: #D4AF37;">
+          <svg class="bottom-nav-icon" viewBox="0 0 24 24" fill="#fff"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        </div>
+        <span>Publier</span>
+      </a>
+    </li>
+
+    <!-- Messages -->
+    <li class="bottom-nav-item">
+      <a href="{% url 'messaging:list' %}" class="bottom-nav-link {% if request.resolver_match.app_name == 'messaging' %}active{% endif %}">
+        <svg class="bottom-nav-icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        <span>Messages</span>
+        {% if unread_messages %}
+        <span class="bottom-nav-badge">{{ unread_messages }}</span>
+        {% endif %}
+      </a>
+    </li>
+
+    <!-- Plus / Profil -->
+    <li class="bottom-nav-item">
+      <a href="javascript:void(0)" class="bottom-nav-link" onclick="toggleBottomMoreMenu()">
+        <svg class="bottom-nav-icon" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+        <span>Plus</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+
+{% else %}
+<!-- ============================================== -->
+<!-- 📱 BOTTOM NAV : LOCATAIRE / PUBLIC -->
+<!-- ============================================== -->
+<nav class="mobile-bottom-nav">
+  <ul class="bottom-nav-list">
+    <!-- Home / Dashboard -->
+    <li class="bottom-nav-item">
+      <a href="{% if user.is_authenticated %}{% url 'accounts:dashboard_redirect' %}{% else %}{% url 'core:home' %}{% endif %}" class="bottom-nav-link {% if request.path == '/' or 'dashboard' in request.path or 'locataire' in request.path %}active{% endif %}">
+        <svg class="bottom-nav-icon" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span>Accueil</span>
+      </a>
+    </li>
+    
+    <!-- Rechercher -->
+    <li class="bottom-nav-item">
+      <a href="{% url 'properties:list' %}" class="bottom-nav-link {% if request.resolver_match.url_name == 'list' and 'properties' in request.path %}active{% endif %}">
+        <svg class="bottom-nav-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <span>Recherche</span>
+      </a>
+    </li>
+
+    <!-- Découverte (Centre Pop-out) -->
+    <li class="bottom-nav-item center-item">
+      <a href="{% url 'properties:decouverte' %}" class="bottom-nav-link {% if 'decouverte' in request.path %}active{% endif %}">
+        <div class="center-icon-wrapper">
+          <svg class="bottom-nav-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <span>Découverte</span>
+      </a>
+    </li>
+
+    <!-- Messages -->
+    <li class="bottom-nav-item">
+      <a href="{% url 'messaging:list' %}" class="bottom-nav-link {% if request.resolver_match.app_name == 'messaging' %}active{% endif %}">
+        <svg class="bottom-nav-icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        <span>Messages</span>
+        {% if unread_messages %}
+        <span class="bottom-nav-badge">{{ unread_messages }}</span>
+        {% endif %}
+      </a>
+    </li>
+
+    <!-- Plus / Profil -->
+    <li class="bottom-nav-item">
+      <a href="javascript:void(0)" class="bottom-nav-link" onclick="toggleBottomMoreMenu()">
+        <svg class="bottom-nav-icon" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+        <span>Plus</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+{% endif %}
+
+<!-- Menu Plus (Caché) -->
+<div id="bottomNavMoreMenu">
+  <a href="javascript:void(0)" class="data-saver-toggle-btn">
+    <svg width="20" height="20" fill="#D4AF37" viewBox="0 0 24 24"><path d="M11 15H6l7-14v8h5l-7 14v-8z"/></svg>
+    Mode Éco Données
+  </a>
+  {% if request.user.is_authenticated and request.user.is_bailleur %}
+  <!-- BAILLEUR OPTIONS -->
+  <a href="{% url 'properties:decouverte' %}" style="color: #D4AF37; font-weight:600;">
+    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    Mode Découverte
+  </a>
+  <a href="#">
+    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    Toutes mes annonces
+  </a>
+  <a href="#">
+    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z"/></svg>
+    Annonces archivées
+  </a>
+  <a href="#">
+    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+    Calendrier
+  </a>
+  {% else %}
+  <a href="{% url 'properties:favorites_list' %}">
+    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+    Biens Favoris
+  </a>
+  <a href="{% url 'properties:interactive_map' %}">
+    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+    Carte Interactive
+  </a>
+  <a href="#" onclick="alert('La section Architectes & Pros sera bientôt disponible !'); return false;">
+    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+    Architectes & Pros
+  </a>
+  {% endif %}
+  <a href="{% if user.is_authenticated %}{% url 'accounts:profile' %}{% else %}{% url 'accounts:login' %}{% endif %}">
+    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+    Mon Profil
+  </a>
+  {% if user.is_authenticated %}
+  <a href="{% url 'accounts:logout' %}" style="color: #d32f2f;">
+    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+    Déconnexion
+  </a>
+  {% endif %}
+</div>
+
+<script>
+  function toggleBottomMoreMenu() {
+    const menu = document.getElementById('bottomNavMoreMenu');
+    if (menu.style.display === 'block') {
+      menu.style.display = 'none';
+    } else {
+      menu.style.display = 'block';
+    }
+  }
+
+  // Fermer le menu si on clique ailleurs
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('bottomNavMoreMenu');
+    const plusBtn = e.target.closest('.bottom-nav-item:last-child');
+    if (!plusBtn && menu && menu.style.display === 'block') {
+      menu.style.display = 'none';
+    }
+  });
+</script>
+{% endif %}

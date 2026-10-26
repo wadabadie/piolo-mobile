@@ -1,0 +1,459 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mon Profil - Piolo{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<style>
+  .profile-header {
+    background: linear-gradient(135deg, rgba(212,175,55,0.1), rgba(212,175,55,0.02));
+    border-radius: 20px;
+    padding: 40px;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid rgba(212,175,55,0.2);
+  }
+  .profile-header::after {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .avatar-upload {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #fff;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    cursor: pointer;
+    background: var(--gris-b);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .avatar-upload img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .avatar-upload .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .avatar-upload:hover .overlay {
+    opacity: 1;
+  }
+  
+  .profile-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--noir);
+    margin-bottom: 5px;
+  }
+  .profile-subtitle {
+    font-size: 15px;
+    color: var(--gris-m);
+    margin-bottom: 15px;
+  }
+  
+  .stats-badges {
+    display: flex;
+    gap: 15px;
+  }
+  .stat-badge {
+    background: #fff;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .stat-badge.points { color: var(--or-d); border: 1px solid rgba(212,175,55,0.3); }
+  .stat-badge.role { color: var(--bleu); border: 1px solid rgba(30,58,110,0.2); }
+  
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 30px;
+  }
+  
+  .card-form {
+    background: #fff;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gris-b);
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gris-m);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Poppins', sans-serif;
+  }
+  .form-control {
+    width: 100%;
+    padding: 14px 18px;
+    border: 1.5px solid var(--gris-b);
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--noir);
+    background: #fff;
+    transition: all 0.2s;
+  }
+  .form-control:focus {
+    border-color: var(--or);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(212,175,55,0.1);
+  }
+  .form-control[readonly]:not(.is-editable) {
+    background: var(--gris-f);
+    color: var(--gris-m);
+    cursor: not-allowed;
+  }
+  
+  .editable-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .editable-wrapper .form-control.is-editable {
+    padding-right: 45px;
+    transition: all 0.2s;
+  }
+  .editable-wrapper .form-control.is-editable[readonly] {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    cursor: default;
+    color: var(--noir);
+  }
+  .editable-wrapper .edit-btn {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    color: var(--gris-m);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .editable-wrapper .edit-btn:hover {
+    background: rgba(212,175,55,0.1);
+    color: var(--or);
+  }
+  .editable-wrapper .form-control.is-editable:not([readonly]) + .edit-btn {
+    color: var(--or);
+  }
+  
+  .btn-submit {
+    background: linear-gradient(135deg, #D4AF37, #F6D365);
+    color: #0F0D09;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(212,175,55,0.3);
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(212,175,55,0.4);
+  }
+  
+  .completion-card {
+    background: var(--noir);
+    border-radius: 20px;
+    padding: 30px;
+    color: #fff;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .completion-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at top right, rgba(212,175,55,0.15), transparent 60%);
+    pointer-events: none;
+  }
+  .c-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 8px solid rgba(255,255,255,0.1);
+    border-top-color: var(--or);
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Poppins', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--or-l);
+  }
+  .c-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .c-desc {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+  }
+  
+  @media (max-width: 992px) {
+    .content-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 768px) {
+    .profile-header {
+      flex-direction: column;
+      text-align: center;
+      padding: 30px 20px;
+    }
+    .stats-badges {
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="layout">
+  {% include "includes/sidebar.html" %}
+
+  <div class="main" style="overflow-y:auto; padding:30px;">
+    
+    {% if messages %}
+    <div style="margin-bottom:20px;">
+      {% for message in messages %}
+      <div style="padding:15px 20px; border-radius:12px; font-family:'Poppins',sans-serif; font-size:14px; font-weight:600; display:flex; align-items:center; gap:10px;
+           {% if message.tags == 'success' %}background:rgba(30,122,71,0.1);color:#1E7A47;border:1px solid rgba(30,122,71,0.2);
+           {% else %}background:rgba(212,175,55,0.1);color:var(--or-d);border:1px solid rgba(212,175,55,0.2);{% endif %}">
+        ✓ {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Header Profil -->
+    <div class="profile-header">
+      <form id="avatarForm" method="POST" enctype="multipart/form-data" action="{% url 'accounts:profile' %}">
+        {% csrf_token %}
+        <label for="avatarInput" class="avatar-upload">
+          {% if user.avatar %}
+            <img id="avatarPreview" src="{{ user.avatar.url }}" alt="Avatar">
+          {% else %}
+            <span style="font-size:32px; font-weight:800; color:var(--gris-m); font-family:'Poppins',sans-serif;">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</span>
+          {% endif %}
+          <div class="overlay">
+            <svg width="24" height="24" fill="#fff" viewBox="0 0 24 24"><path d="M4 4h3l2-2h6l2 2h3c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM12 15c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0-2c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"/></svg>
+          </div>
+        </label>
+        <input type="file" id="avatarInput" name="avatar" style="display:none;" accept="image/*" onchange="document.getElementById('avatarForm').submit()">
+      </form>
+
+      <div class="profile-info">
+        <h1 class="profile-title">{{ user.first_name }} {{ user.last_name }}</h1>
+        <p class="profile-subtitle">{{ user.email }}</p>
+        <div class="stats-badges">
+          <div class="stat-badge points">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            {{ user.points }} Points
+          </div>
+          <div class="stat-badge role">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            {{ user.get_role_display }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <!-- Informations Personnelles -->
+      <div style="display:flex; flex-direction:column; gap:30px;">
+        <div class="card-form">
+          <h3 style="font-family:'Poppins',sans-serif; font-size:18px; font-weight:700; margin-bottom:25px; border-bottom:1px solid var(--gris-b); padding-bottom:15px;">Informations Personnelles</h3>
+          <form method="POST" action="{% url 'accounts:profile' %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="profile">
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+              <div class="form-group">
+                <label>Prénom</label>
+                <div class="editable-wrapper">
+                  <input type="text" id="first_name" name="first_name" class="form-control is-editable" value="{{ user.first_name }}" required readonly>
+                  <button type="button" class="edit-btn" onclick="toggleEdit('first_name')">
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Nom</label>
+                <div class="editable-wrapper">
+                  <input type="text" id="last_name" name="last_name" class="form-control is-editable" value="{{ user.last_name }}" required readonly>
+                  <button type="button" class="edit-btn" onclick="toggleEdit('last_name')">
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Adresse E-mail</label>
+              <input type="email" class="form-control" value="{{ user.email }}" readonly title="L'adresse e-mail ne peut pas être modifiée ici.">
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+              <div class="form-group">
+                <label>Téléphone</label>
+                <div class="editable-wrapper">
+                  <input type="tel" id="phone" name="phone" class="form-control is-editable" value="{{ user.phone|default:'' }}" placeholder="+237..." readonly>
+                  <button type="button" class="edit-btn" onclick="toggleEdit('phone')">
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Ville</label>
+                <div class="editable-wrapper">
+                  <input type="text" id="city" name="city" class="form-control is-editable" value="{{ user.city|default:'' }}" placeholder="Ex: Yaoundé" readonly>
+                  <button type="button" class="edit-btn" onclick="toggleEdit('city')">
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top:30px; text-align:right;">
+              <button type="submit" class="btn-submit">
+                Enregistrer les modifications
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Sécurité & Mot de passe -->
+        <div class="card-form">
+          <h3 style="font-family:'Poppins',sans-serif; font-size:18px; font-weight:700; margin-bottom:25px; border-bottom:1px solid var(--gris-b); padding-bottom:15px; display:flex; align-items:center; gap:10px;">
+            <svg width="20" height="20" fill="var(--or)" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+            Sécurité & Mot de passe
+          </h3>
+          <form method="POST" action="{% url 'accounts:profile' %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="password">
+            
+            <div class="form-group">
+              <label>Ancien mot de passe</label>
+              <input type="password" name="old_password" class="form-control" required>
+            </div>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+              <div class="form-group">
+                <label>Nouveau mot de passe</label>
+                <input type="password" name="new_password" class="form-control" required minlength="6">
+              </div>
+              <div class="form-group">
+                <label>Confirmer le mot de passe</label>
+                <input type="password" name="confirm_password" class="form-control" required minlength="6">
+              </div>
+            </div>
+
+            <div style="margin-top:20px; text-align:right;">
+              <button type="submit" class="btn-submit" style="background:var(--noir); color:#fff;">
+                Modifier mon mot de passe
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Barre latérale droite -->
+      <div>
+        <div class="completion-card">
+          <div class="c-circle" style="background: conic-gradient(var(--or) {{ profile_completion }}%, rgba(255,255,255,0.1) 0);">
+            <div style="background:var(--noir); width:100px; height:100px; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+              {{ profile_completion }}%
+            </div>
+          </div>
+          <div class="c-title">Complétion du Profil</div>
+          <div class="c-desc">
+            {% if profile_completion == 100 %}
+              Félicitations, votre profil est complet ! Cela inspire confiance aux propriétaires.
+            {% else %}
+              Remplissez toutes vos informations (téléphone, ville, photo) pour atteindre 100% et booster votre profil.
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% include "includes/bottom_navbar.html" %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function toggleEdit(inputId) {
+    const input = document.getElementById(inputId);
+    if (input.hasAttribute('readonly')) {
+      input.removeAttribute('readonly');
+      input.focus();
+      // Optionally select all text
+      input.setSelectionRange(0, input.value.length);
+    } else {
+      input.setAttribute('readonly', 'readonly');
+    }
+  }
+</script>
+{% endblock %}

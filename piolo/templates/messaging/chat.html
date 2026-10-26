@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Messages | Piolo{% endblock %}
+
+{% block content %}
+<!-- Use a full-width container for the chat interface -->
+<div class="chat-wrapper" id="chat-wrapper" data-conversation-id="{{ conversation.id|default:'' }}" data-user-id="{{ request.user.id }}">
+    <!-- LEFT PANE: CONVERSATIONS LIST -->
+    <div class="chat-sidebar {% if conversation %}hidden-on-mobile{% endif %}">
+        <div class="chat-sidebar-header">
+            <div class="chat-sidebar-header-profile">
+                <div class="chat-sidebar-my-avatar">
+                    {% if request.user.avatar %}
+                        <img src="{{ request.user.avatar.url }}" alt="Mon Avatar">
+                    {% else %}
+                        <div class="chat-avatar-placeholder">
+                            {{ request.user.first_name|first|default:request.user.email|first|upper }}
+                        </div>
+                    {% endif %}
+                </div>
+                <h2>Messages</h2>
+            </div>
+        </div>
+        
+        <div class="chat-sidebar-search">
+            <div class="search-input-wrapper">
+                <svg viewBox="0 0 24 24" width="24" height="24" class="search-icon"><path fill="currentColor" d="M15.009 13.805h-.636l-.22-.219a5.184 5.184 0 0 0 1.256-3.386 5.207 5.207 0 1 0-5.207 5.208 5.183 5.183 0 0 0 3.385-1.255l.221.22v.635l4.004 3.999 1.194-1.195-3.997-4.007zm-4.808 0a3.605 3.605 0 1 1 0-7.21 3.605 3.605 0 0 1 0 7.21z"></path></svg>
+                <input type="text" id="chat-search" placeholder="Rechercher ou démarrer une discussion">
+            </div>
+        </div>
+        
+        <div class="chat-sidebar-list">
+            {% for conv in conversations %}
+                <a href="{% url 'messaging:chat_room' conv.id %}" class="chat-list-item {% if conversation and conversation.id == conv.id %}active{% endif %}">
+                    <div class="chat-list-avatar">
+                        {% if conv.other_user.avatar %}
+                            <img src="{{ conv.other_user.avatar.url }}" alt="Avatar">
+                        {% else %}
+                            <div class="chat-avatar-placeholder">
+                                {{ conv.other_user.first_name|first|default:conv.other_user.email|first|upper }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="chat-list-info">
+                        <div class="chat-list-top">
+                            <span class="chat-list-name">{{ conv.other_user.first_name|default:conv.other_user.email }} {{ conv.other_user.last_name }}</span>
+                            <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                                <span class="chat-list-time">{{ conv.updated_at|date:"d M" }}</span>
+                                {% if conv.unread_count > 0 %}
+                                    <span class="chat-list-unread">{{ conv.unread_count }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="chat-list-preview">
+                            {% with last_msg=conv.messages.last %}
+                                {% if last_msg %}{{ last_msg.content }}{% else %}Nouvelle conversation{% endif %}
+                            {% endwith %}
+                        </div>
+                        {% if conv.property %}
+                            <div class="chat-list-prop">{{ conv.property.property_type }} - {{ conv.property.city }}</div>
+                        {% endif %}
+                    </div>
+                </a>
+            {% empty %}
+                <div class="chat-empty-list">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <p>Aucun message récent</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- RIGHT PANE: ACTIVE CHAT -->
+    <div class="chat-main {% if not conversation %}hidden-on-mobile{% endif %}">
+        {% if conversation %}
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <a href="{% url 'messaging:list' %}" class="chat-back-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </a>
+                <div class="chat-header-avatar">
+                    {% if other_user.avatar %}
+                        <img src="{{ other_user.avatar.url }}" alt="Avatar">
+                    {% else %}
+                        <div class="chat-avatar-placeholder">
+                            {{ other_user.first_name|first|default:other_user.email|first|upper }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="chat-header-info">
+                    <h2>{{ other_user.first_name|default:other_user.email }} {{ other_user.last_name }}</h2>
+                    {% if property %}
+                        <p>{{ property.property_type }} à {{ property.city }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Chat Messages -->
+            <div class="chat-messages" id="chat-messages">
+                {% for msg in messages %}
+                    <div class="chat-message {% if msg.sender == request.user %}sent{% else %}received{% endif %}" data-id="{{ msg.id }}">
+                        <div class="chat-msg-actions">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                            <div class="chat-msg-dropdown">
+                                <div class="action-reply">Répondre</div>
+                                {% if msg.sender == request.user %}
+                                <div class="action-delete" style="color: #ef5350;">Supprimer</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if msg.reply_to %}
+                            <div class="msg-reply-to" onclick="document.querySelector('.chat-message[data-id=\'{{ msg.reply_to.id }}\']').scrollIntoView({behavior: 'smooth', block: 'center'})">
+                                <strong>{{ msg.reply_to.sender.first_name|default:msg.reply_to.sender.email }}</strong><br>
+                                {{ msg.reply_to.content|truncatechars:50 }}
+                            </div>
+                        {% endif %}
+
+                        {% if msg.file %}
+                            {% if "image" in msg.file.url|lower or ".jpg" in msg.file.url|lower or ".png" in msg.file.url|lower %}
+                                <a href="{{ msg.file.url }}" target="_blank">
+                                    <img src="{{ msg.file.url }}" alt="Image attachée" style="max-width: 100%; border-radius: 8px; margin-bottom: 8px; cursor: pointer;">
+                                </a>
+                            {% else %}
+                                <a href="{{ msg.file.url }}" target="_blank" style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.05); padding: 8px; border-radius: 8px; text-decoration: none; color: inherit; margin-bottom: 8px;">
+                                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                                    <span style="font-size: 13px; word-break: break-all;">Fichier joint</span>
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                        {% if msg.voice %}
+                            <audio controls style="max-width: 250px; height: 40px; margin-bottom: 8px; outline: none;">
+                                <source src="{{ msg.voice.url }}" type="audio/webm">
+                                Votre navigateur ne supporte pas l'élément audio.
+                            </audio>
+                        {% endif %}
+                        {% if msg.content %}
+                            <div class="msg-content">{{ msg.content|linebreaksbr }}</div>
+                        {% endif %}
+                        <div class="msg-time">{{ msg.created_at|time:"H:i" }}</div>
+                    </div>
+                {% empty %}
+                    <div class="chat-empty-state" id="chat-empty">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <p>Démarrez la conversation avec {{ other_user.first_name|default:other_user.email }}.</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Chat Input -->
+            <div class="chat-reply-preview" id="reply-preview">
+                <div class="close-reply" id="close-reply">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </div>
+                <strong id="reply-preview-name">Nom</strong>
+                <div class="reply-text" id="reply-preview-text">Message preview...</div>
+                <input type="hidden" id="reply-to-id" value="">
+            </div>
+
+            <div class="chat-input-container">
+                <form id="chat-form" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <button type="button" class="chat-attach-btn" id="attach-btn" title="Joindre un fichier">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 0 1 5 0v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5a2.5 2.5 0 0 0 5 0V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/></svg>
+                    </button>
+                    <input type="file" id="chat-file-input" style="display: none;" accept="image/*,application/pdf">
+                    <textarea id="chat-input" placeholder="Écrivez votre message..." rows="1"></textarea>
+                    
+                    <button type="submit" class="chat-send-btn" id="send-btn" style="display: none;">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                    </button>
+                    <button type="button" class="chat-mic-btn" id="mic-btn" title="Message vocal">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+                    </button>
+                </form>
+            </div>
+        {% else %}
+            <!-- Empty State when no conversation is selected -->
+            <div class="chat-unselected-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <p>Sélectionnez une conversation pour commencer à discuter</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/chat.css' %}?v=1.10">
+{% endblock %}
+
+{% block extra_js %}
+{% if conversation %}
+<script>
+    window.CONVERSATION_ID = {{ conversation.id }};
+    window.CURRENT_USER_ID = {{ request.user.id }};
+</script>
+<script src="{% static 'js/chat.js' %}?v=1.9" defer></script>
+{% endif %}
+{% endblock %}
+
+{% block bottom_nav %}
+<!-- Bottom navbar intentionally hidden on chat page -->
+{% endblock %}

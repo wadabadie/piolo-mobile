@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Choisissez votre rôle | Piolo{% endblock %}
+
+{% block content %}
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; background-color: #F7F5F1; padding: 20px;">
+  <div style="background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); text-align: center; max-width: 600px; width: 100%;">
+    
+    <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(212, 175, 55, 0.15); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px auto; color: #D4AF37;">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+      </svg>
+    </div>
+
+    <h1 style="font-family: 'Poppins', sans-serif; font-size: 26px; font-weight: 800; color: #0F0D09; margin-bottom: 12px; letter-spacing: -0.5px;">
+      Finalisation de votre profil
+    </h1>
+
+    <p style="font-family: 'DM Sans', sans-serif; font-size: 15px; color: #64605A; margin-bottom: 32px; line-height: 1.6;">
+      Bienvenue sur Piolo ! Pour adapter votre expérience, veuillez nous indiquer quel type de compte vous souhaitez créer.
+    </p>
+
+    <form method="POST" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px;">
+      {% csrf_token %}
+      
+      <!-- Locataire -->
+      <button type="submit" name="role" value="LOCATAIRE" class="role-select-btn" style="background: white; border: 1.5px solid #E8E3DA; border-radius: 16px; padding: 24px 16px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; text-align: center;">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: #F7F5F1; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; color: #0F0D09;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        </div>
+        <div style="font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 700; color: #0F0D09; margin-bottom: 6px;">Locataire</div>
+        <div style="font-family: 'DM Sans', sans-serif; font-size: 13px; color: #64605A;">Je cherche un bien</div>
+      </button>
+
+      <!-- Bailleur -->
+      <button type="submit" name="role" value="BAILLEUR" class="role-select-btn" style="background: white; border: 1.5px solid #E8E3DA; border-radius: 16px; padding: 24px 16px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; text-align: center;">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: #F7F5F1; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; color: #0F0D09;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+        </div>
+        <div style="font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 700; color: #0F0D09; margin-bottom: 6px;">Bailleur</div>
+        <div style="font-family: 'DM Sans', sans-serif; font-size: 13px; color: #64605A;">Je publie des annonces</div>
+      </button>
+
+      <!-- Architecte -->
+      <button type="submit" name="role" value="ARCHITECTE" class="role-select-btn" style="background: white; border: 1.5px solid #E8E3DA; border-radius: 16px; padding: 24px 16px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; text-align: center;">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: #F7F5F1; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; color: #0F0D09;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+        </div>
+        <div style="font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 700; color: #0F0D09; margin-bottom: 6px;">Architecte</div>
+        <div style="font-family: 'DM Sans', sans-serif; font-size: 13px; color: #64605A;">Pro du Bâtiment</div>
+      </button>
+      
+    </form>
+    
+    <style>
+      .role-select-btn:hover {
+        border-color: #D4AF37 !important;
+        background-color: #FFF !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(212,175,55,0.15);
+      }
+      .role-select-btn:hover div:first-child {
+        background-color: #D4AF37 !important;
+        color: white !important;
+      }
+    </style>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,393 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block title %}Piolo — Publier une annonce{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/property_create.css' %}">
+  <link rel="stylesheet" href="{% static 'css/dashboard_bailleur.css' %}">
+{% endblock %}
+
+{% block content %}
+
+
+<div class="create-shell">
+
+
+  <!-- Header -->
+  <header class="create-header">
+    <div class="create-header-inner">
+      <a href="{% url 'accounts:bailleur_dashboard' %}" class="create-back">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+        Retour au dashboard
+      </a>
+
+      <div class="points-balance-badge" title="Solde de points fidélité">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+        </svg>
+        <span>Solde : <strong id="user-points">{{ request.user.points }}</strong> pts</span>
+      </div>
+
+      <h1 class="create-title">Modifier l'annonce</h1>
+      <p class="create-sub">Remplissez les informations ci-dessous pour publier votre bien sur Piolo &middot; Modification gratuite</p>
+    </div>
+  </header>
+
+  <!-- Progress Steps -->
+  <div class="create-progress">
+    <div class="progress-step active" data-step="1">
+      <span class="step-num">1</span>
+      <span class="step-label">Informations</span>
+    </div>
+    <div class="progress-line"></div>
+    <div class="progress-step" data-step="2">
+      <span class="step-num">2</span>
+      <span class="step-label">Localisation</span>
+    </div>
+    <div class="progress-line"></div>
+    <div class="progress-step" data-step="3">
+      <span class="step-num">3</span>
+      <span class="step-label">Caractéristiques</span>
+    </div>
+    <div class="progress-line"></div>
+    <div class="progress-step" data-step="4">
+      <span class="step-num">4</span>
+      <span class="step-label">Photos</span>
+    </div>
+    <div class="progress-line"></div>
+    <div class="progress-step" data-step="5">
+      <span class="step-num">5</span>
+      <span class="step-label">Publication</span>
+    </div>
+  </div>
+
+  <!-- Form Container -->
+  <form id="property-form" class="create-form" method="POST" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+
+    <!-- STEP 1: Informations de base -->
+    <fieldset class="form-step active" data-step="1">
+      <legend class="step-title">Informations de base</legend>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="id_title">Titre de l'annonce *</label>
+          <input type="text" id="id_title" name="title" required
+                 placeholder="Ex: Appartement 3 chambres à Bastos"
+                 class="form-input" maxlength="200" value="{{ property.title|default_if_none:'' }}">
+
+          <small class="form-help">Un titre clair attire plus de candidats</small>
+        </div>
+
+        <div class="form-group">
+          <label for="id_transaction_type">Type de transaction *</label>
+          <select id="id_transaction_type" name="transaction_type" class="form-select" required>
+            <option value="">Sélectionner...</option>
+            {% for value, label in form.transaction_type.field.choices %}
+              <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="id_property_type">Type de bien *</label>
+          <select id="id_property_type" name="property_type" class="form-select" required>
+            <option value="">Sélectionner...</option>
+            {% for value, label in form.property_type.field.choices %}
+              <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="id_price">Loyer / Prix (FCFA) *</label>
+          <input type="text" id="id_price" name="price" required
+                placeholder="Ex: 150000" 
+                class="form-input"
+                inputmode="numeric"
+                pattern="[0-9\s]+"
+                oninput="this.value = this.value.replace(/[^\d]/g, '')" value="{{ property.price|default_if_none:'' }}">
+
+          <label class="form-checkbox" style="margin-top:8px;">
+            <input type="checkbox" name="price_negotiable" id="id_price_negotiable" {% if property.price_negotiable %}checked{% endif %}>
+            <span>Prix négociable</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="id_avance_mois">Avance exigée (Mois)</label>
+          <input type="number" id="id_avance_mois" name="avance_mois" min="0" max="24"  value="{{ property.avance_mois|default_if_none:'0' }}" class="form-input">
+        </div>
+        <div class="form-group">
+          <label for="id_caution_mois">Caution (Mois)</label>
+          <input type="number" id="id_caution_mois" name="caution_mois" min="0" max="24"  value="{{ property.caution_mois|default_if_none:'0' }}" class="form-input">
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <label for="id_description">Description détaillée *</label>
+        <textarea id="id_description" name="description" rows="5" required
+                  placeholder="Décrivez votre bien : état, équipements, environnement..."
+                  class="form-textarea" maxlength="2000">{{ property.description|default_if_none:'' }}</textarea>
+        <small class="form-help">Soyez précis et honnête. Maximum 2000 caractères.</small>
+      </div>
+    </fieldset>
+
+    <!-- STEP 2: Localisation + Carte Google Maps -->
+    <fieldset class="form-step" data-step="2">
+      <legend class="step-title">Localisation du bien</legend>
+
+      <div class="location-info-box">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+          <circle cx="12" cy="9" r="2.5"/>
+        </svg>
+        <p><strong>Conseil :</strong> Autorisez l'accès à votre position pour placer le marqueur automatiquement, puis ajustez-le en le faisant glisser sur la carte si besoin.</p>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="id_address">Adresse complète *</label>
+          <input type="text" id="id_address" name="address" required
+                 placeholder="Saisissez l'adresse et cliquez sur Rechercher"
+                 class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label for="id_city">Ville *</label>
+          <select id="id_city" name="city" class="form-select" required>
+            <option value="">Sélectionner...</option>
+            <option value="Yaoundé">Yaoundé</option>
+            <option value="Douala">Douala</option>
+            <option value="Bafoussam">Bafoussam</option>
+            <option value="Garoua">Garoua</option>
+            <option value="Maroua">Maroua</option>
+            <option value="Kribi">Kribi</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="id_neighborhood">Quartier</label>
+        <input type="text" id="id_neighborhood" name="neighborhood"
+               placeholder="Ex: Bastos, Bonapriso, Odza..."
+               class="form-input">
+      </div>
+
+      <!-- Carte Google Maps -->
+      <div class="map-container">
+        <div id="property-map" class="property-map"></div>
+
+        <!-- Notice dynamique (statut géolocalisation) -->
+        <div id="map-notice" class="map-notice" style="display:none;"></div>
+
+        <div class="map-controls">
+          <button type="button" id="btn-geolocate" class="btn-geo">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
+            </svg>
+            Me géolocaliser
+          </button>
+          <button type="button" id="btn-manual" class="btn-manual">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+            </svg>
+            Saisir une adresse
+          </button>
+          <button type="button" id="btn-search-address" class="btn-search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </svg>
+            Rechercher
+          </button>
+        </div>
+
+        <p id="coords-display" class="coords-display">Position non encore détectée.</p>
+
+        <input type="hidden" id="id_latitude" name="latitude">
+        <input type="hidden" id="id_longitude" name="longitude">
+        <small class="form-help">Glissez le marqueur rouge sur la carte pour ajuster précisément la position de votre bien.</small>
+      </div>
+    </fieldset>
+
+    <!-- STEP 3: Caractéristiques -->
+    <fieldset class="form-step" data-step="3">
+      <legend class="step-title">Caractéristiques du bien</legend>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="id_area">Surface (m²) *</label>
+          <input type="number" id="id_area" name="area" required min="10"
+                 class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label for="id_bedrooms">Chambres</label>
+          <input type="number" id="id_bedrooms" name="bedrooms" min="0" max="20"
+                 value="0" class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label for="id_bathrooms">Salles de bain</label>
+          <input type="number" id="id_bathrooms" name="bathrooms" min="1" max="10"
+                 value="1" class="form-input">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Équipements</label>
+        <div class="amenities-grid">
+          <label class="amenity-checkbox">
+            <input type="checkbox" name="furnished" value="on">
+            <span style="display:flex;align-items:center;gap:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2 17h20v2H2v-2zm11-2H3v-5c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v5zm7-7h-4v7h4V8z"/></svg> Meublé</span>
+          </label>
+          <label class="amenity-checkbox">
+            <input type="checkbox" name="balcony" value="on">
+            <span style="display:flex;align-items:center;gap:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L2 12h3v8h14v-8h3L12 3zm0 2.83l5 4.5V18H7v-7.67l5-4.5z"/></svg> Balcon/Terrasse</span>
+          </label>
+          <label class="amenity-checkbox">
+            <input type="checkbox" name="parking" value="on">
+            <span style="display:flex;align-items:center;gap:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg> Parking</span>
+          </label>
+          <label class="amenity-checkbox">
+            <input type="checkbox" name="security" value="on">
+            <span style="display:flex;align-items:center;gap:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg> Sécurité 24/7</span>
+          </label>
+          <label class="amenity-checkbox">
+            <input type="checkbox" name="water" value="on" checked>
+            <span style="display:flex;align-items:center;gap:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"/></svg> Eau courante</span>
+          </label>
+          <label class="amenity-checkbox">
+            <input type="checkbox" name="electricity" value="on" checked>
+            <span style="display:flex;align-items:center;gap:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg> Électricité</span>
+          </label>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- STEP 4: Photos -->
+    <fieldset class="form-step" data-step="4">
+      <legend class="step-title">Photos du bien</legend>
+
+      <!-- Image principale -->
+      <div class="upload-zone" id="main-image-zone" style="border: 2px dashed #D4AF37; background: #FFFBF0; border-radius: 16px; text-align: center; cursor: pointer; transition: all 0.3s ease; position: relative;">
+        <input type="file" id="id_main_image" name="main_image" accept="image/*" required class="visually-hidden" style="position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; left: 0; top: 0; z-index: 10;">
+        <label for="id_main_image" class="upload-label" style="padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; cursor: pointer;">
+          <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(212, 175, 55, 0.2); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; color: #D4AF37;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+          </div>
+          <span style="font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 700; color: #0F0D09; margin-bottom: 8px;">Image principale *</span>
+          <small style="font-family: 'DM Sans', sans-serif; font-size: 14px; color: #64605A;">Cliquez ou glissez-déposez une photo professionnelle (max 5 Mo)</small>
+        </label>
+        <div id="main-image-preview" class="image-preview"></div>
+      </div>
+
+      <small class="form-help">L'image principale sera affichée en vignette dans les résultats de recherche.</small>
+
+      <!-- ═══ GALERIE IMAGES SECONDAIRES ═══ -->
+      <div class="gallery-section" style="margin-top: 28px;">
+        <div class="gallery-header">
+          <h3 class="gallery-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+            </svg>
+            Galerie photos
+          </h3>
+          <span class="gallery-count" id="gallery-count">0 / 10</span>
+        </div>
+
+        <p class="gallery-sub">Ajoutez jusqu'à <strong>10 photos supplémentaires</strong> pour présenter votre bien sous tous les angles.</p>
+
+        <!-- Grille des images secondaires -->
+        <div class="gallery-grid" id="gallery-grid">
+          <!-- Les images ajoutées apparaîtront ici dynamiquement -->
+
+          <!-- Bouton AJOUTER (toujours visible tant que < 10) -->
+          <div class="gallery-add-card" id="gallery-add-card" style="border: 2px dashed #E8E3DA; border-radius: 16px; background: #F7F5F1; display: flex; align-items: center; justify-content: center; height: 100%; min-height: 160px; cursor: pointer; transition: all 0.2s ease; position: relative;">
+            <input type="file" id="id_secondary_images" name="secondary_images" accept="image/*" multiple class="visually-hidden" style="position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; left: 0; top: 0; z-index: 10;">
+            <label for="id_secondary_images" class="gallery-add-label" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; text-align: center; padding: 20px; cursor: pointer;">
+              <div class="gallery-add-icon" style="width: 48px; height: 48px; border-radius: 50%; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; margin-bottom: 12px; color: #0F0D09;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </div>
+              <span class="gallery-add-text" style="font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600; color: #0F0D09; margin-bottom: 4px;">Ajouter des photos</span>
+              <small class="gallery-add-sub" style="font-family: 'DM Sans', sans-serif; font-size: 12px; color: #64605A;">JPG, PNG ou WebP</small>
+            </label>
+          </div>
+        </div>
+
+        <small class="form-help" style="margin-top: 10px; display: block;">
+          💡 Glissez-déposez plusieurs fichiers en même temps, ou cliquez sur le <strong>+</strong> pour les sélectionner.
+        </small>
+      </div>
+    </fieldset>
+
+    <!-- STEP 5: Review & Publish -->
+    <fieldset class="form-step" data-step="5">
+      <legend class="step-title">Vérifier et publier</legend>
+
+      <div class="review-card">
+        <h3>Récapitulatif de votre annonce</h3>
+        <div class="review-grid">
+          <div class="review-item"><strong>Titre:</strong> <span id="review-title">—</span></div>
+          <div class="review-item"><strong>Type:</strong> <span id="review-type">—</span></div>
+          <div class="review-item"><strong>Prix:</strong> <span id="review-price">—</span></div>
+          <div class="review-item"><strong>Localisation:</strong> <span id="review-location">—</span></div>
+          <div class="review-item"><strong>Surface:</strong> <span id="review-area">—</span></div>
+        </div>
+      </div>
+
+      <div class="publish-notice">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
+        <p>Vos modifications seront appliquées immédiatement sur votre annonce.</p>
+      </div>
+
+      <label class="form-checkbox publish-checkbox">
+        <input type="checkbox" id="chk-terms-publish" required>
+        <span>Je certifie que toutes les informations modifiées sont exactes.</span>
+      </label>
+    </fieldset>
+
+    <!-- Navigation Buttons -->
+    <div class="form-nav">
+      <button type="button" class="btn-prev" id="btn-prev" disabled>← Étape précédente</button>
+      <button type="button" class="btn-next" id="btn-next">Étape suivante →</button>
+      <button type="submit" class="btn-publish" id="btn-submit" style="display:none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+        </svg>
+        Enregistrer les modifications
+      </button>
+    </div>
+
+    <!-- Error Display -->
+    <div id="form-errors" class="form-errors" style="display:none;"></div>
+
+  </form>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/property-map.js' %}"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=places&callback=initMap" async defer></script>
+  <script src="{% static 'js/property_create.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% load static %}
+<footer class="footer" id="contact">
+    <div class="footer-container">
+        <div class="footer-brand">
+            <a href="{% url 'core:home' %}" style="display: inline-block; margin-bottom: 10px;">
+                <img src="{% static 'img/logo-piolo-clean.png' %}" alt="Logo Piolo" style="height: 48px; object-fit: contain;">
+            </a>
+            <p>Plateforme Immobilière Numérique du Cameroun. Nous connectons bailleurs et locataires en toute sécurité.</p>
+        </div>
+        
+        <div class="footer-links">
+            <h4>Navigation</h4>
+            <ul>
+                <li><a href="{% url 'core:home' %}"><i class="fas fa-chevron-right"></i> Accueil</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Rechercher un bien</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Publier une annonce</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Nos avantages</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-links">
+            <h4>Légal</h4>
+            <ul>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Confidentialité</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Conditions d'utilisation</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Mentions légales</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-links">
+            <h4>Contact</h4>
+            <ul>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Nous contacter</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> FAQ</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Support</a></li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="footer-bottom">
+        <p>© 2026 Piolo. Tous droits réservés.</p>
+        <div class="footer-social">
+            <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+    </div>
+</footer>

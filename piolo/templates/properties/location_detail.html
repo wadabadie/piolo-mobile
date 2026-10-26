@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dossier de location — {{ loc.property.title }}{% endblock %}
+
+{% block content %}
+<div style="max-width:820px;margin:40px auto;padding:0 20px;">
+
+  <a href="{% url 'accounts:bailleur_dashboard' %}" style="display:inline-flex;align-items:center;gap:8px;font-family:Poppins,sans-serif;font-size:13px;font-weight:600;color:#64605A;margin-bottom:24px;">
+    ← Retour au dashboard
+  </a>
+
+  <!-- En-tête statut -->
+  <div style="background:#fff;border-radius:20px;border:1px solid #E8E3DA;padding:28px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,.06);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h1 style="font-family:Poppins,sans-serif;font-size:20px;font-weight:800;color:#0F0D09;">Dossier de location</h1>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;font-family:Poppins,sans-serif;
+          {% if loc.status == 'ACCEPTED' %}background:rgba(30,122,71,.1);color:#1E7A47;
+          {% elif loc.status == 'REFUSED' %}background:rgba(184,50,50,.1);color:#B83232;
+          {% elif loc.status == 'REVIEWING' %}background:rgba(30,58,110,.1);color:#1E3A6E;
+          {% else %}background:rgba(212,175,55,.1);color:#A8891C;{% endif %}">
+          {{ loc.get_status_display }}
+        </span>
+        <!-- Jauge complétude -->
+        <div style="display:flex;align-items:center;gap:7px;">
+          <div style="width:80px;height:6px;background:#E8E3DA;border-radius:6px;overflow:hidden;">
+            <div style="width:{{ dossier_completion }}%;height:100%;background:linear-gradient(90deg,#D4AF37,#F6D365);border-radius:6px;"></div>
+          </div>
+          <span style="font-family:Poppins,sans-serif;font-size:11px;font-weight:700;color:#A8891C;">{{ dossier_completion }}%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bien -->
+    <div style="display:flex;gap:16px;padding:16px;background:#F7F5F1;border-radius:14px;margin-bottom:24px;">
+      {% if loc.property.main_image %}
+      <img src="{{ loc.property.main_image.url }}" alt="{{ loc.property.title }}"
+           style="width:90px;height:70px;object-fit:cover;border-radius:10px;flex-shrink:0;">
+      {% endif %}
+      <div>
+        <div style="font-family:Poppins,sans-serif;font-size:14px;font-weight:700;color:#0F0D09;">{{ loc.property.title }}</div>
+        <div style="font-size:12px;color:#64605A;margin-top:3px;">{{ loc.property.city }}{% if loc.property.neighborhood %}, {{ loc.property.neighborhood }}{% endif %}</div>
+        <div style="font-family:Poppins,sans-serif;font-size:13px;font-weight:800;color:#A8891C;margin-top:5px;">{{ loc.property.price|floatformat:0 }} FCFA/mois</div>
+      </div>
+    </div>
+
+    <!-- Identité locataire -->
+    <h3 style="font-family:Poppins,sans-serif;font-size:14px;font-weight:700;margin-bottom:14px;">Locataire</h3>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;">
+      <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#1E7A47,#27AE60);display:flex;align-items:center;justify-content:center;font-family:Poppins,sans-serif;font-size:18px;font-weight:800;color:#fff;flex-shrink:0;">
+        {{ loc.tenant.first_name|first|upper }}{{ loc.tenant.last_name|first|upper }}
+      </div>
+      <div>
+        <div style="font-family:Poppins,sans-serif;font-size:15px;font-weight:700;color:#0F0D09;">{{ loc.tenant.get_full_name }}</div>
+        <div style="font-size:12px;color:#9B9690;">{{ loc.tenant.email }}</div>
+        {% if loc.tenant.phone %}<div style="font-size:12px;color:#9B9690;">{{ loc.tenant.phone }}</div>{% endif %}
+      </div>
+    </div>
+
+    <!-- Infos dossier -->
+    <h3 style="font-family:Poppins,sans-serif;font-size:14px;font-weight:700;margin-bottom:14px;">Informations du dossier</h3>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+      <div style="padding:14px;background:#F7F5F1;border-radius:12px;border:1px solid #E8E3DA;">
+        <div style="font-size:10px;color:#9B9690;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Entrée souhaitée</div>
+        <div style="font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#0F0D09;">{{ loc.move_in_date|date:"d M Y" }}</div>
+      </div>
+      <div style="padding:14px;background:#F7F5F1;border-radius:12px;border:1px solid #E8E3DA;">
+        <div style="font-size:10px;color:#9B9690;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Durée</div>
+        <div style="font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#0F0D09;">{{ loc.lease_duration }} mois</div>
+      </div>
+      <div style="padding:14px;background:#F7F5F1;border-radius:12px;border:1px solid #E8E3DA;">
+        <div style="font-size:10px;color:#9B9690;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Occupants</div>
+        <div style="font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#0F0D09;">{{ loc.tenant_count }} personne{{ loc.tenant_count|pluralize:"s" }}</div>
+      </div>
+      {% if loc.profession %}
+      <div style="padding:14px;background:#F7F5F1;border-radius:12px;border:1px solid #E8E3DA;">
+        <div style="font-size:10px;color:#9B9690;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Profession</div>
+        <div style="font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#0F0D09;">{{ loc.profession }}</div>
+      </div>
+      {% endif %}
+      {% if loc.employer %}
+      <div style="padding:14px;background:#F7F5F1;border-radius:12px;border:1px solid #E8E3DA;">
+        <div style="font-size:10px;color:#9B9690;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Employeur</div>
+        <div style="font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#0F0D09;">{{ loc.employer }}</div>
+      </div>
+      {% endif %}
+      {% if loc.monthly_income %}
+      <div style="padding:14px;background:#F7F5F1;border-radius:12px;border:1px solid #E8E3DA;">
+        <div style="font-size:10px;color:#9B9690;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Revenus / mois</div>
+        <div style="font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#0F0D09;">{{ loc.monthly_income|floatformat:0 }} FCFA</div>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if loc.message %}
+    <div style="padding:14px;background:#F7F5F1;border-radius:12px;border:1px solid #E8E3DA;margin-bottom:20px;">
+      <div style="font-size:10px;color:#9B9690;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">Lettre de motivation</div>
+      <p style="font-size:14px;color:#0F0D09;line-height:1.7;">{{ loc.message }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Pièces justificatives -->
+    <h3 style="font-family:Poppins,sans-serif;font-size:14px;font-weight:700;margin-bottom:14px;">Pièces justificatives</h3>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+      {% if loc.cni_front %}
+      <a href="{{ loc.cni_front.url }}" target="_blank"
+         style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px;background:#F7F5F1;border-radius:12px;border:1px solid #E8E3DA;text-decoration:none;transition:border-color .2s;"
+         onmouseover="this.style.borderColor='#D4AF37'" onmouseout="this.style.borderColor='#E8E3DA'">
+        <svg width="28" height="28" fill="#A8891C" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+        <span style="font-family:Poppins,sans-serif;font-size:12px;font-weight:700;color:#0F0D09;">CNI recto</span>
+        <span style="font-size:10px;color:#1E7A47;font-weight:600;">✓ Fourni</span>
+      </a>
+      {% else %}
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px;background:#F7F5F1;border-radius:12px;border:1px dashed #E8E3DA;opacity:.5;">
+        <svg width="28" height="28" fill="#9B9690" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+        <span style="font-family:Poppins,sans-serif;font-size:12px;font-weight:700;color:#9B9690;">CNI recto</span>
+        <span style="font-size:10px;color:#B83232;">Non fourni</span>
+      </div>
+      {% endif %}
+
+      {% if loc.cni_back %}
+      <a href="{{ loc.cni_back.url }}" target="_blank"
+         style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px;background:#F7F5F1;border-radius:12px;border:1px solid #E8E3DA;text-decoration:none;">
+        <svg width="28" height="28" fill="#A8891C" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+        <span style="font-family:Poppins,sans-serif;font-size:12px;font-weight:700;color:#0F0D09;">CNI verso</span>
+        <span style="font-size:10px;color:#1E7A47;font-weight:600;">✓ Fourni</span>
+      </a>
+      {% else %}
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px;background:#F7F5F1;border-radius:12px;border:1px dashed #E8E3DA;opacity:.5;">
+        <svg width="28" height="28" fill="#9B9690" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+        <span style="font-family:Poppins,sans-serif;font-size:12px;font-weight:700;color:#9B9690;">CNI verso</span>
+        <span style="font-size:10px;color:#B83232;">Non fourni</span>
+      </div>
+      {% endif %}
+
+      {% if loc.income_proof %}
+      <a href="{{ loc.income_proof.url }}" target="_blank"
+         style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px;background:#F7F5F1;border-radius:12px;border:1px solid #E8E3DA;text-decoration:none;">
+        <svg width="28" height="28" fill="#A8891C" viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+        <span style="font-family:Poppins,sans-serif;font-size:12px;font-weight:700;color:#0F0D09;">Justif. revenus</span>
+        <span style="font-size:10px;color:#1E7A47;font-weight:600;">✓ Fourni</span>
+      </a>
+      {% else %}
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px;background:#F7F5F1;border-radius:12px;border:1px dashed #E8E3DA;opacity:.5;">
+        <svg width="28" height="28" fill="#9B9690" viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+        <span style="font-family:Poppins,sans-serif;font-size:12px;font-weight:700;color:#9B9690;">Justif. revenus</span>
+        <span style="font-size:10px;color:#B83232;">Non fourni</span>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Garant -->
+    {% if loc.has_guarantor %}
+    <h3 style="font-family:Poppins,sans-serif;font-size:14px;font-weight:700;margin-bottom:14px;">Garant</h3>
+    <div style="padding:16px;background:rgba(30,58,110,.05);border-radius:12px;border:1px solid rgba(30,58,110,.15);margin-bottom:20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <div style="font-size:10px;color:#9B9690;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Nom</div>
+          <div style="font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#0F0D09;">{{ loc.guarantor_name|default:"—" }}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:#9B9690;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Téléphone</div>
+          <div style="font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#0F0D09;">{{ loc.guarantor_phone|default:"—" }}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:#9B9690;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Lien</div>
+          <div style="font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#0F0D09;">{{ loc.guarantor_relation|default:"—" }}</div>
+        </div>
+        {% if loc.guarantor_income %}
+        <div>
+          <div style="font-size:10px;color:#9B9690;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Revenus</div>
+          <div style="font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#0F0D09;">{{ loc.guarantor_income|floatformat:0 }} FCFA/mois</div>
+        </div>
+        {% endif %}
+      </div>
+      {% if loc.guarantor_cni %}
+      <a href="{{ loc.guarantor_cni.url }}" target="_blank"
+         style="display:inline-flex;align-items:center;gap:6px;margin-top:12px;font-family:Poppins,sans-serif;font-size:12px;font-weight:700;color:#1E3A6E;">
+        📄 Voir CNI du garant
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Actions bailleur -->
+    {% if is_bailleur and loc.status in 'PENDING REVIEWING' %}
+    <div style="border-top:1px solid #F7F5F1;padding-top:20px;margin-top:10px;">
+      <h3 style="font-family:Poppins,sans-serif;font-size:14px;font-weight:700;margin-bottom:14px;">Décision</h3>
+      <form id="loc-action-form">
+        {% csrf_token %}
+        <div style="margin-bottom:14px;">
+          <label style="font-size:12px;font-weight:600;color:#64605A;display:block;margin-bottom:5px;">Note pour le locataire</label>
+          <textarea name="note" rows="3" placeholder="Motif d'acceptation ou de refus…"
+                    style="width:100%;border:1.5px solid #E8E3DA;border-radius:10px;padding:10px 13px;font-size:14px;outline:none;resize:vertical;font-family:DM Sans,sans-serif;"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button type="button" onclick="submitLocAction('review')"
+                  style="padding:11px 18px;border-radius:11px;background:rgba(30,58,110,.08);border:1px solid rgba(30,58,110,.2);font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#1E3A6E;cursor:pointer;">
+            🔍 Mettre en examen
+          </button>
+          <button type="button" onclick="submitLocAction('accept')"
+                  style="flex:1;padding:12px;border-radius:11px;background:linear-gradient(135deg,#D4AF37,#F6D365);border:none;font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#0F0D09;cursor:pointer;">
+            ✓ Accepter le dossier
+          </button>
+          <button type="button" onclick="submitLocAction('refuse')"
+                  style="padding:12px 20px;border-radius:11px;background:rgba(184,50,50,.08);border:1px solid rgba(184,50,50,.2);font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#B83232;cursor:pointer;">
+            ✕ Refuser
+          </button>
+        </div>
+        <div id="loc-action-result" style="display:none;margin-top:12px;padding:12px;border-radius:10px;font-size:13px;font-weight:600;"></div>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+function submitLocAction(action) {
+  const form = document.getElementById('loc-action-form');
+  const fd = new FormData(form);
+  fd.append('action', action);
+
+  fetch("{% url 'properties:location_action' loc.pk %}", {
+    method: 'POST', body: fd,
+    headers: { 'X-CSRFToken': fd.get('csrfmiddlewaretoken') },
+    credentials: 'same-origin'
+  })
+  .then(r => r.json())
+  .then(data => {
+    const result = document.getElementById('loc-action-result');
+    result.style.display = 'block';
+    if (data.ok) {
+      result.style.background = 'rgba(30,122,71,.08)';
+      result.style.color = '#1E7A47';
+      result.textContent = data.message;
+      setTimeout(() => window.location.href = "{% url 'accounts:bailleur_dashboard' %}", 1500);
+    } else {
+      result.style.background = 'rgba(184,50,50,.08)';
+      result.style.color = '#B83232';
+      result.textContent = data.error || 'Erreur.';
+    }
+  });
+}
+</script>
+{% endblock %}

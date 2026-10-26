@@ -1,0 +1,2176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piolo — Espace Bailleur</title>
+{% load static %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/dashboard_bailleur.css' %}">
+<script src="{% static 'js/data_saver.js' %}"></script>
+<style>
+      /* ================================================================
+      PIOLO — dashboard_bailleur.css
+      Cohérence totale avec dashboard.css (locataire)
+      Même variables CSS, même logique de layout, même composants
+      ================================================================ */
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --or:      #D4AF37;
+      --or-l:    #F6D365;
+      --or-d:    #A8891C;
+      --or-bg:   rgba(212,175,55,.08);
+      --noir:    #0F0D09;
+      --gris:    #64605A;
+      --gris-m:  #9B9690;
+      --gris-f:  #F7F5F1;
+      --gris-b:  #E8E3DA;
+      --blanc:   #FFFFFF;
+      --vert:    #1E7A47;
+      --rouge:   #B83232;
+      --bleu:    #1E3A6E;
+
+      --side:    248px;
+      --top:     66px;
+
+      --shadow-sm: 0 1px 4px rgba(0,0,0,.06);
+      --shadow-md: 0 4px 20px rgba(0,0,0,.09);
+      --shadow-lg: 0 8px 40px rgba(0,0,0,.14);
+
+      --radius:    14px;
+      --radius-lg: 20px;
+      --radius-xl: 26px;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--gris-f);
+      color: var(--noir);
+      font-size: 15px;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* ══════════════════════════════════════════
+      LAYOUT — identique au dashboard locataire
+    ══════════════════════════════════════════ */
+
+    .layout { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ══════════════════════════════════════════
+      SIDEBAR — même structure que locataire
+    ══════════════════════════════════════════ */
+
+    .sidebar {
+      width: var(--side);
+      flex-shrink: 0;
+      background: var(--noir);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      z-index: 50;
+      transition: width .3s;
+    }
+
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      bottom: -60px; right: -60px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(212,175,55,.1), transparent 70%);
+      pointer-events: none;
+    }
+
+    .sb-logo {
+      padding: 22px 20px 18px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+
+    .sb-logo-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      background: rgba(212,175,55,.18);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .sb-logo-txt {
+      font-family: 'Poppins', sans-serif;
+      font-size: 19px; font-weight: 800;
+      color: #fff; letter-spacing: -.3px;
+    }
+
+    .sb-logo-tag {
+      font-size: 10px;
+      color: rgba(255,255,255,.4);
+      margin-top: 2px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* Badge bailleur vérifié */
+    .sb-verified-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(30,122,71,.25);
+      color: #4cd48a;
+      font-size: 9px; font-weight: 700;
+      padding: 2px 7px; border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      margin-top: 3px;
+    }
+
+    .sb-verified-tag svg { width: 9px; height: 9px; fill: currentColor; }
+
+    .sb-user {
+      margin: 16px 14px 4px;
+      background: rgba(255,255,255,.05);
+      border-radius: 12px;
+      padding: 13px;
+      display: flex; align-items: center; gap: 10px;
+      border: 1px solid rgba(255,255,255,.07);
+    }
+
+    .sb-av {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--or), var(--or-l));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px; font-weight: 800;
+      color: var(--noir); flex-shrink: 0;
+    }
+
+    .sb-u-name {
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px; font-weight: 700;
+      color: #fff;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .sb-u-role { font-size: 11px; color: rgba(255,255,255,.45); margin-top: 1px; }
+
+    .sb-pts {
+      margin-left: auto;
+      background: rgba(212,175,55,.15);
+      border: 1px solid rgba(212,175,55,.25);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 11px; font-weight: 700;
+      color: var(--or-l);
+      white-space: nowrap;
+    }
+
+    /* Navigation */
+    .sb-nav {
+      flex: 1;
+      padding: 16px 14px;
+      overflow-y: auto;
+    }
+
+    .sb-nav::-webkit-scrollbar { display: none; }
+
+    .sb-section-label {
+      font-size: 9px; font-weight: 700;
+      color: rgba(255,255,255,.28);
+      letter-spacing: 2px; text-transform: uppercase;
+      padding: 12px 6px 6px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .sb-item {
+      display: flex; align-items: center; gap: 11px;
+      padding: 11px 13px;
+      border-radius: 11px;
+      cursor: pointer;
+      transition: all .2s;
+      color: rgba(255,255,255,.55);
+      font-size: 13.5px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      margin-bottom: 2px;
+      position: relative;
+      text-decoration: none;
+    }
+
+    .sb-item:hover { background: rgba(255,255,255,.07); color: rgba(255,255,255,.9); }
+
+    .sb-item.active {
+      background: rgba(212,175,55,.15);
+      color: var(--or-l);
+    }
+
+    .sb-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 50%;
+      transform: translateY(-50%);
+      width: 3px; height: 58%;
+      background: var(--or);
+      border-radius: 0 3px 3px 0;
+    }
+
+    .sb-item.disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .sb-ico { width: 18px; height: 18px; flex-shrink: 0; opacity: .65; }
+    .sb-item.active .sb-ico, .sb-item:hover .sb-ico { opacity: 1; }
+
+    .sb-badge {
+      margin-left: auto;
+      background: var(--or);
+      border-radius: 20px;
+      padding: 2px 8px;
+      font-size: 9px; font-weight: 800;
+      color: var(--noir);
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .sb-badge.gn { background: var(--vert); color: #fff; }
+    .sb-badge.rd { background: var(--rouge); color: #fff; }
+    .sb-badge.bl { background: var(--bleu); color: #fff; }
+    .sb-badge.soon {
+      background: rgba(255,255,255,.1);
+      color: rgba(255,255,255,.4);
+      font-size: 8px;
+    }
+
+    /* Points dans la sidebar */
+    .sb-pts-footer {
+      margin: 0 14px 10px;
+      background: linear-gradient(135deg, rgba(212,175,55,.12), rgba(212,175,55,.06));
+      border: 1px solid rgba(212,175,55,.2);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .sb-pts-label {
+      font-size: 9.5px; font-weight: 700;
+      color: rgba(255,255,255,.4);
+      letter-spacing: 1.5px; text-transform: uppercase;
+      font-family: 'Poppins', sans-serif;
+      margin-bottom: 6px;
+    }
+
+    .sb-pts-val {
+      font-family: 'Poppins', sans-serif;
+      font-size: 26px; font-weight: 900;
+      color: #fff; line-height: 1;
+    }
+
+    .sb-pts-val span { font-size: 13px; font-weight: 600; color: var(--or-l); margin-left: 4px; }
+
+    .sb-pts-sub { font-size: 11px; color: rgba(255,255,255,.38); margin-top: 5px; margin-bottom: 10px; }
+
+    .sb-pts-prog { height: 4px; background: rgba(255,255,255,.1); border-radius: 4px; overflow: hidden; }
+    .sb-pts-fill { height: 100%; background: linear-gradient(90deg, var(--or), var(--or-l)); border-radius: 4px; transition: width .8s ease; }
+
+    .sb-logout {
+      margin: 0 14px 14px;
+      background: rgba(255,255,255,.05);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px; font-weight: 600;
+      color: rgba(255,255,255,.45);
+      border: 1px solid rgba(255,255,255,.07);
+      transition: all .2s;
+      text-decoration: none;
+    }
+
+    .sb-logout:hover { background: rgba(184,50,50,.15); color: #ff8888; border-color: rgba(184,50,50,.25); }
+    .sb-logout svg { width: 16px; height: 16px; fill: currentColor; flex-shrink: 0; }
+
+    /* ══════════════════════════════════════════
+      MAIN + TOPBAR — identique locataire
+    ══════════════════════════════════════════ */
+
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .topbar {
+      height: var(--top);
+      background: var(--blanc);
+      border-bottom: 1px solid var(--gris-b);
+      display: flex; align-items: center;
+      padding: 0 28px; gap: 16px;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+      z-index: 40;
+    }
+
+    .topbar-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 17px; font-weight: 700;
+      color: var(--noir);
+    }
+
+    .topbar-title span { color: var(--or-d); }
+
+    .tb-search {
+      flex: 1; max-width: 420px;
+      margin: 0 16px;
+      display: flex; align-items: center; gap: 10px;
+      background: var(--gris-f);
+      border: 1.5px solid var(--gris-b);
+      border-radius: 11px; padding: 9px 15px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .tb-search:focus-within {
+      border-color: var(--or);
+      box-shadow: 0 0 0 3px rgba(212,175,55,.12);
+    }
+
+    .tb-search svg { width: 16px; height: 16px; fill: var(--gris-m); flex-shrink: 0; }
+
+    .tb-search input {
+      border: none; outline: none;
+      background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px; color: var(--noir); width: 100%;
+    }
+
+    .tb-search input::placeholder { color: var(--gris-m); }
+
+    .tb-actions { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+
+    .tb-pts-badge {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--or-bg);
+      border: 1px solid rgba(212,175,55,.28);
+      border-radius: 11px; padding: 8px 15px;
+      cursor: pointer; transition: background .2s;
+    }
+
+    .tb-pts-badge:hover { background: rgba(212,175,55,.14); }
+    .tb-pts-val { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700; color: var(--or-d); }
+
+    .tb-icon-btn {
+      width: 40px; height: 40px;
+      border-radius: 11px;
+      background: var(--gris-f);
+      border: 1px solid var(--gris-b);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative; transition: background .2s;
+      text-decoration: none;
+    }
+
+    .tb-icon-btn:hover { background: var(--gris-b); }
+    .tb-icon-btn svg { width: 19px; height: 19px; fill: var(--gris); }
+
+    .tb-notif-dot {
+      position: absolute; top: 8px; right: 8px;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--or);
+      border: 1.5px solid var(--blanc);
+    }
+
+    .tb-av {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--or), var(--or-l));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px; font-weight: 800;
+      color: var(--noir); cursor: pointer;
+      border: 2.5px solid rgba(212,175,55,.3);
+      transition: transform .2s;
+    }
+
+    .tb-av:hover { transform: scale(1.06); }
+
+    /* Bouton publier topbar */
+    .tb-publish-btn {
+      display: flex; align-items: center; gap: 7px;
+      padding: 9px 18px; border-radius: 11px;
+      background: linear-gradient(135deg, var(--or), var(--or-l));
+      color: var(--noir);
+      font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700;
+      border: none; cursor: pointer;
+      box-shadow: 0 3px 12px rgba(212,175,55,.35);
+      transition: all .2s;
+      text-decoration: none;
+    }
+
+    .tb-publish-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(212,175,55,.45); color: var(--noir); }
+    .tb-publish-btn svg { width: 15px; height: 15px; fill: currentColor; }
+
+    /* ══════════════════════════════════════════
+      CONTENU
+    ══════════════════════════════════════════ */
+
+    .content {
+      flex: 1; overflow-y: auto;
+      padding: 30px 30px 50px;
+    }
+
+    .content::-webkit-scrollbar { width: 4px; }
+    .content::-webkit-scrollbar-track { background: transparent; }
+    .content::-webkit-scrollbar-thumb { background: var(--gris-b); border-radius: 4px; }
+
+    /* ══════════════════════════════════════════
+      HERO BANNER — même que locataire
+    ══════════════════════════════════════════ */
+
+    .hero-banner {
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      height: 210px;
+      position: relative;
+      margin-bottom: 30px;
+      background:
+        linear-gradient(110deg, rgba(10,6,0,.82) 0%, rgba(10,6,0,.22) 55%, rgba(10,6,0,.72) 100%),
+        url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1400&q=80') center/cover no-repeat;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .hero-content {
+      position: relative; z-index: 2;
+      padding: 34px 40px;
+    }
+
+    .hero-greet {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px; color: rgba(255,255,255,.72);
+      margin-bottom: 7px;
+    }
+
+    .hero-name {
+      font-family: 'Poppins', sans-serif;
+      font-size: 30px; font-weight: 800;
+      color: #fff; letter-spacing: -.5px; line-height: 1.15;
+    }
+
+    .hero-name span { color: var(--or-l); }
+    .hero-sub { font-size: 14px; color: rgba(255,255,255,.62); margin-top: 7px; }
+
+    .hero-chips {
+      position: absolute; right: 40px; bottom: 34px;
+      display: flex; gap: 9px; z-index: 2;
+    }
+
+    .hero-chip {
+      background: rgba(255,255,255,.12);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 30px; padding: 7px 15px;
+      font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600;
+      color: #fff;
+    }
+
+    .hero-chip.or {
+      background: rgba(212,175,55,.25);
+      border-color: rgba(212,175,55,.4);
+      color: var(--or-l);
+    }
+
+    /* ══════════════════════════════════════════
+      KPI CARDS — identique locataire
+    ══════════════════════════════════════════ */
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 30px;
+    }
+
+    .kpi-card {
+      background: var(--blanc);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gris-b);
+      cursor: pointer;
+      transition: transform .22s, box-shadow .22s, border-color .22s;
+      position: relative; overflow: hidden;
+    }
+
+    .kpi-card::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 3.5px;
+      background: var(--accent, var(--gris-b));
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
+
+    .kpi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: rgba(212,175,55,.18); }
+    .kpi-card.c-or { --accent: var(--or); }
+    .kpi-card.c-gn { --accent: var(--vert); }
+    .kpi-card.c-bl { --accent: var(--bleu); }
+    .kpi-card.c-rd { --accent: var(--rouge); }
+
+    .kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+
+    .kpi-ico {
+      width: 44px; height: 44px;
+      border-radius: 13px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .kpi-ico svg { width: 21px; height: 21px; }
+    .kpi-ico.bg-or { background: rgba(212,175,55,.1); }
+    .kpi-ico.bg-or svg { fill: var(--or-d); }
+    .kpi-ico.bg-gn { background: rgba(30,122,71,.1); }
+    .kpi-ico.bg-gn svg { fill: var(--vert); }
+    .kpi-ico.bg-bl { background: rgba(30,58,110,.1); }
+    .kpi-ico.bg-bl svg { fill: var(--bleu); }
+    .kpi-ico.bg-rd { background: rgba(184,50,50,.1); }
+    .kpi-ico.bg-rd svg { fill: var(--rouge); }
+
+    .kpi-trend {
+      font-family: 'Poppins', sans-serif;
+      font-size: 10.5px; font-weight: 700;
+      padding: 3px 9px; border-radius: 20px;
+    }
+
+    .kpi-trend.up  { background: rgba(30,122,71,.1); color: var(--vert); }
+    .kpi-trend.new { background: rgba(212,175,55,.12); color: var(--or-d); }
+    .kpi-trend.rd  { background: rgba(184,50,50,.1); color: var(--rouge); }
+
+    .kpi-val {
+      font-family: 'Poppins', sans-serif;
+      font-size: 30px; font-weight: 800;
+      color: var(--noir); line-height: 1;
+    }
+
+    .kpi-lbl {
+      font-size: 13px; color: var(--gris);
+      margin-top: 5px;
+      font-family: 'Poppins', sans-serif; font-weight: 500;
+    }
+
+    /* ══════════════════════════════════════════
+      SECTION HEADERS
+    ══════════════════════════════════════════ */
+
+    .sec-hd { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 18px; }
+    .sec-label { font-size: 10.5px; font-weight: 700; color: var(--or-d); letter-spacing: 1.8px; text-transform: uppercase; font-family: 'Poppins', sans-serif; margin-bottom: 5px; }
+    .sec-title { font-family: 'Poppins', sans-serif; font-size: 20px; font-weight: 800; color: var(--noir); }
+    .sec-title span { color: var(--or); }
+
+    .see-all {
+      font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600;
+      color: var(--or-d); display: flex; align-items: center; gap: 5px;
+      cursor: pointer; padding: 7px 16px;
+      border-radius: 9px; border: 1px solid var(--gris-b);
+      transition: all .2s; text-decoration: none;
+    }
+
+    .see-all:hover { background: var(--or-bg); border-color: rgba(212,175,55,.3); }
+
+    /* ══════════════════════════════════════════
+      MAIN GRID
+    ══════════════════════════════════════════ */
+
+    .main-grid { display: grid; grid-template-columns: 1fr 348px; gap: 26px; margin-bottom: 30px; }
+
+    .card {
+      background: var(--blanc);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--gris-b);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 19px 22px 15px;
+      border-bottom: 1px solid var(--gris-f);
+    }
+
+    .ch-title { font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 800; color: var(--noir); }
+    .ch-badge { font-family: 'Poppins', sans-serif; font-size: 10.5px; font-weight: 700; padding: 3px 11px; border-radius: 20px; background: var(--gris-f); color: var(--gris); }
+    .ch-link { font-size: 12px; color: var(--or-d); font-family: 'Poppins', sans-serif; font-weight: 600; cursor: pointer; text-decoration: none; }
+    .ch-link:hover { text-decoration: underline; }
+
+    /* ══════════════════════════════════════════
+      ANNONCES LIST
+    ══════════════════════════════════════════ */
+
+    .annonces-list { padding: 10px 14px; display: flex; flex-direction: column; gap: 10px; }
+
+    .annonce-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px;
+      border: 1px solid var(--gris-b);
+      border-radius: 12px;
+      transition: all .22s;
+      cursor: pointer;
+    }
+
+    .annonce-item:hover {
+      border-color: rgba(212,175,55,.3);
+      box-shadow: var(--shadow-sm);
+      background: rgba(212,175,55,.02);
+    }
+
+    .an-img {
+      width: 80px; height: 60px;
+      border-radius: 9px;
+      background: var(--gris-f) center/cover no-repeat;
+      flex-shrink: 0;
+      border: 1px solid var(--gris-b);
+    }
+
+    .an-info { flex: 1; min-width: 0; }
+
+    .an-name {
+      font-family: 'Poppins', sans-serif;
+      font-size: 13.5px; font-weight: 700;
+      color: var(--noir); margin-bottom: 3px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .an-loc {
+      font-size: 12px; color: var(--gris-m);
+      display: flex; align-items: center; gap: 4px;
+      margin-bottom: 6px;
+    }
+
+    .an-loc svg { width: 11px; height: 11px; fill: var(--gris-m); }
+
+    .an-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    .an-price {
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px; font-weight: 800;
+      color: var(--or-d);
+    }
+
+    .an-status {
+      font-size: 10px; padding: 2px 9px;
+      border-radius: 20px; font-weight: 700;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .st-published  { background: rgba(30,122,71,.1); color: var(--vert); }
+    .st-draft      { background: var(--gris-f); color: var(--gris); }
+    .st-archived   { background: rgba(100,96,90,.1); color: var(--gris-m); }
+    .st-pending    { background: rgba(212,175,55,.1); color: var(--or-d); }
+
+    .an-stats {
+      display: flex; gap: 16px;
+      font-size: 12.5px; font-weight: 600; color: var(--gris-d);
+      flex-wrap: wrap; margin-top: 8px;
+    }
+
+    .an-stat { display: flex; align-items: center; gap: 5px; }
+    
+    .an-stat svg { width: 16px; height: 16px; }
+    
+    .an-stat.stat-views { color: var(--bleu); }
+    .an-stat.stat-views svg { fill: var(--bleu); }
+    
+    .an-stat.stat-likes { color: var(--or-d); }
+    .an-stat.stat-likes svg { fill: var(--or-d); }
+    
+    .an-stat.stat-visits { color: var(--vert); }
+    .an-stat.stat-visits svg { fill: var(--vert); }
+
+    .an-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    .btn-ico {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      background: var(--gris-f);
+      border: 1px solid var(--gris-b);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .2s;
+      text-decoration: none;
+    }
+
+    .btn-ico:hover { background: var(--or-bg); border-color: rgba(212,175,55,.3); }
+    .btn-ico svg { width: 14px; height: 14px; fill: var(--gris); }
+
+    .btn-ico.danger:hover { background: rgba(184,50,50,.08); border-color: rgba(184,50,50,.2); }
+    .btn-ico.danger:hover svg { fill: var(--rouge); }
+
+    /* ══════════════════════════════════════════
+      DEMANDES DE VISITE / LOCATION
+    ══════════════════════════════════════════ */
+
+    .demande-list { padding: 8px 14px; display: flex; flex-direction: column; gap: 10px; }
+
+    .demande-item {
+      display: flex; align-items: flex-start; gap: 13px;
+      padding: 14px;
+      border: 1px solid var(--gris-b);
+      border-radius: 12px;
+      transition: all .2s;
+    }
+
+    .demande-item:hover { border-color: rgba(212,175,55,.25); box-shadow: var(--shadow-sm); }
+
+    .dem-av {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--bleu), #3A6EA5);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 800;
+      color: #fff; flex-shrink: 0;
+    }
+
+    .dem-body { flex: 1; }
+
+    .dem-name {
+      font-family: 'Poppins', sans-serif;
+      font-size: 13.5px; font-weight: 700;
+      color: var(--noir); margin-bottom: 2px;
+    }
+
+    .dem-prop { font-size: 12px; color: var(--gris); margin-bottom: 6px; }
+
+    .dem-details {
+      display: flex; gap: 10px; flex-wrap: wrap;
+    }
+
+    .dem-detail {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11.5px; color: var(--gris-m);
+      background: var(--gris-f);
+      padding: 3px 9px; border-radius: 7px;
+      border: 1px solid var(--gris-b);
+    }
+
+    .dem-detail svg { width: 11px; height: 11px; fill: var(--gris-m); }
+
+    .dem-actions { display: flex; gap: 7px; margin-top: 10px; }
+
+    .dem-btn {
+      padding: 7px 14px;
+      border-radius: 9px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px; font-weight: 700;
+      border: none; cursor: pointer;
+      transition: all .2s;
+    }
+
+    .dem-btn.accept { background: rgba(30,122,71,.1); color: var(--vert); }
+    .dem-btn.accept:hover { background: rgba(30,122,71,.2); }
+    .dem-btn.reject { background: rgba(184,50,50,.08); color: var(--rouge); }
+    .dem-btn.reject:hover { background: rgba(184,50,50,.16); }
+    .dem-btn.detail { background: var(--or-bg); color: var(--or-d); }
+    .dem-btn.detail:hover { background: rgba(212,175,55,.16); }
+
+    .dem-badge {
+      font-size: 9.5px; font-weight: 700;
+      padding: 2px 9px; border-radius: 20px;
+      font-family: 'Poppins', sans-serif;
+      margin-left: auto; flex-shrink: 0;
+    }
+
+    .dem-badge.visite  { background: rgba(30,58,110,.1); color: var(--bleu); }
+    .dem-badge.location { background: rgba(30,122,71,.1); color: var(--vert); }
+    .dem-badge.urgent  { background: rgba(184,50,50,.1); color: var(--rouge); }
+
+    /* ══════════════════════════════════════════
+      CALENDRIER
+    ══════════════════════════════════════════ */
+
+    .cal-wrap {
+      padding: 18px 20px;
+    }
+
+    .cal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .cal-month {
+      font-family: 'Poppins', sans-serif;
+      font-size: 15px; font-weight: 800;
+      color: var(--noir);
+    }
+
+    .cal-nav {
+      display: flex; gap: 6px;
+    }
+
+    .cal-nav-btn {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      background: var(--gris-f);
+      border: 1px solid var(--gris-b);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .2s;
+    }
+
+    .cal-nav-btn:hover { background: var(--or-bg); border-color: rgba(212,175,55,.3); }
+    .cal-nav-btn svg { width: 14px; height: 14px; fill: var(--gris); }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .cal-day-label {
+      text-align: center;
+      font-family: 'Poppins', sans-serif;
+      font-size: 9.5px; font-weight: 700;
+      color: var(--gris-m);
+      text-transform: uppercase;
+      padding: 4px 0 8px;
+    }
+
+    .cal-day {
+      text-align: center;
+      font-family: 'Poppins', sans-serif;
+      font-size: 12.5px; font-weight: 600;
+      color: var(--gris);
+      padding: 6px 2px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all .18s;
+      position: relative;
+    }
+
+    .cal-day:hover { background: var(--gris-f); color: var(--noir); }
+    .cal-day.other-month { color: var(--gris-b); cursor: default; }
+    .cal-day.other-month:hover { background: none; }
+
+    .cal-day.today {
+      background: var(--noir);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .cal-day.has-visit {
+      color: var(--or-d);
+      font-weight: 800;
+    }
+
+    .cal-day.has-visit::after {
+      content: '';
+      position: absolute; bottom: 2px; left: 50%;
+      transform: translateX(-50%);
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--or);
+    }
+
+    .cal-day.visit-confirmed {
+      background: rgba(30,122,71,.1);
+      color: var(--vert);
+      font-weight: 800;
+    }
+
+    .cal-day.visit-confirmed::after {
+      background: var(--vert);
+    }
+
+    .cal-day.selected {
+      background: var(--or);
+      color: var(--noir);
+      font-weight: 800;
+    }
+
+    .cal-legend {
+      display: flex; gap: 14px; margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--gris-f);
+    }
+
+    .cal-leg-item {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 10.5px; color: var(--gris);
+    }
+
+    .cal-leg-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ══════════════════════════════════════════
+      PROFIL + POINTS — identique locataire
+    ══════════════════════════════════════════ */
+
+    .points-widget {
+      background: linear-gradient(148deg, var(--noir) 0%, #1C1400 100%);
+      border-radius: var(--radius-lg);
+      padding: 26px;
+      position: relative; overflow: hidden;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 22px;
+    }
+
+    .pw-glow {
+      position: absolute; top: -55px; right: -55px;
+      width: 220px; height: 220px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(212,175,55,.16), transparent 65%);
+      pointer-events: none;
+    }
+
+    .pw-label { font-size: 10.5px; font-weight: 700; color: rgba(255,255,255,.42); letter-spacing: 1.6px; text-transform: uppercase; font-family: 'Poppins', sans-serif; margin-bottom: 9px; }
+    .pw-val { font-family: 'Poppins', sans-serif; font-size: 38px; font-weight: 900; color: #fff; line-height: 1; }
+    .pw-val span { font-size: 17px; font-weight: 600; color: var(--or-l); margin-left: 5px; }
+    .pw-sub { font-size: 12px; color: rgba(255,255,255,.44); margin-top: 7px; margin-bottom: 16px; }
+    .pw-badge { display: inline-flex; align-items: center; gap: 5px; background: rgba(30,122,71,.25); color: #4cd48a; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 16px; }
+    .pw-badge svg { width: 10px; height: 10px; fill: currentColor; }
+    .pw-prog { height: 6px; background: rgba(255,255,255,.1); border-radius: 6px; margin-bottom: 7px; overflow: hidden; }
+    .pw-prog-fill { height: 100%; background: linear-gradient(90deg, var(--or), var(--or-l)); border-radius: 6px; transition: width .8s ease; }
+    .pw-prog-info { display: flex; justify-content: space-between; font-size: 10.5px; color: rgba(255,255,255,.32); margin-bottom: 18px; }
+    .pw-prog-info .hl { color: var(--or-l); font-weight: 700; }
+    .pw-row { display: flex; gap: 9px; }
+    .pw-btn { flex: 1; padding: 11px; border-radius: 11px; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all .2s; }
+    .pw-btn-g { background: linear-gradient(135deg, var(--or), var(--or-l)); color: var(--noir); box-shadow: 0 3px 14px rgba(212,175,55,.35); }
+    .pw-btn-g:hover { box-shadow: 0 5px 20px rgba(212,175,55,.48); }
+    .pw-btn-o { background: rgba(255,255,255,.08); color: #fff; border: 1px solid rgba(255,255,255,.15); }
+    .pw-btn-o:hover { background: rgba(255,255,255,.14); }
+
+    /* Profil card */
+    .profil-card { padding: 22px; }
+    .pc-top { display: flex; align-items: center; gap: 15px; margin-bottom: 18px; }
+    .pc-av { width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, var(--or), var(--or-l)); display: flex; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif; font-size: 20px; font-weight: 800; color: var(--noir); }
+    .pc-name { font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 800; color: var(--noir); }
+    .pc-role-badge { background: rgba(30,122,71,.1); color: var(--vert); font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 20px; display: inline-block; margin-top: 4px; }
+    .pc-edit { margin-left: auto; width: 36px; height: 36px; border-radius: 10px; background: var(--gris-f); border: 1px solid var(--gris-b); display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: background .2s; }
+    .pc-edit:hover { background: var(--gris-b); }
+    .pc-edit svg { width: 16px; height: 16px; fill: var(--gris); }
+    .comp-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--gris); margin-bottom: 7px; }
+    .comp-label span { font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--or-d); }
+    .comp-bar { height: 6px; background: var(--gris-b); border-radius: 6px; overflow: hidden; }
+    .comp-fill { height: 100%; background: linear-gradient(90deg, var(--or), var(--or-l)); border-radius: 6px; transition: width .8s ease; }
+
+    /* Quick menu 2x2 */
+    .quick-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; padding: 15px; }
+    .qm-item { display: flex; align-items: center; gap: 11px; padding: 13px; border-radius: 11px; background: var(--gris-f); border: 1px solid var(--gris-b); cursor: pointer; transition: all .2s; text-decoration: none; }
+    .qm-item:hover { background: var(--or-bg); border-color: rgba(212,175,55,.28); }
+    .qm-ico { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .qm-ico svg { width: 17px; height: 17px; }
+    .qm-ico.i1 { background: rgba(212,175,55,.1); } .qm-ico.i1 svg { fill: var(--or-d); }
+    .qm-ico.i2 { background: rgba(30,122,71,.1); }  .qm-ico.i2 svg { fill: var(--vert); }
+    .qm-ico.i3 { background: rgba(30,58,110,.1); }  .qm-ico.i3 svg { fill: var(--bleu); }
+    .qm-ico.i4 { background: rgba(184,50,50,.08); } .qm-ico.i4 svg { fill: var(--rouge); }
+    .qm-txt h5 { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700; color: var(--noir); }
+    .qm-txt p  { font-size: 11px; color: var(--gris); margin-top: 2px; }
+    .qm-notif { margin-left: auto; background: var(--or); border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif; font-size: 9.5px; font-weight: 800; color: var(--noir); }
+
+    /* ══════════════════════════════════════════
+      EMPTY STATE
+    ══════════════════════════════════════════ */
+
+    .empty-state {
+      text-align: center; padding: 36px 20px;
+    }
+
+    .empty-state svg { display: block; margin: 0 auto 12px; }
+    .empty-state p { font-size: 14px; color: var(--gris-m); margin-bottom: 16px; }
+    .empty-state a { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 10px; background: linear-gradient(135deg, var(--or), var(--or-l)); color: var(--noir); font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700; text-decoration: none; box-shadow: 0 3px 12px rgba(212,175,55,.3); transition: all .2s; }
+    .empty-state a:hover { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(212,175,55,.42); }
+    .empty-state a svg { width: 14px; height: 14px; fill: currentColor; }
+
+    /* ══════════════════════════════════════════
+      TOAST NOTIFICATION
+    ══════════════════════════════════════════ */
+
+    .toast {
+      position: fixed; bottom: 28px; right: 28px;
+      background: var(--noir); color: #fff;
+      padding: 14px 20px; border-radius: 13px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.22);
+      display: flex; align-items: center; gap: 12px;
+      font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 500;
+      z-index: 9999;
+      transform: translateY(80px); opacity: 0;
+      transition: all .35s cubic-bezier(.34,1.56,.64,1);
+      border-left: 4px solid var(--or);
+    }
+
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-left-color: var(--vert); }
+    .toast.error   { border-left-color: var(--rouge); }
+    .toast svg { width: 18px; height: 18px; fill: var(--or); flex-shrink: 0; }
+    .toast.success svg { fill: var(--vert); }
+    .toast.error   svg { fill: var(--rouge); }
+
+    /* ══════════════════════════════════════════
+      RESPONSIVE
+    ══════════════════════════════════════════ */
+
+    @media (max-width: 1200px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 640px) {
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .content { padding: 16px; }
+      .hero-chips { display: none; }
+    }
+</style>
+</head>
+<body>
+  <!-- Page Loader -->
+  <div id="page-loader-overlay" class="page-loader-overlay">
+    <div class="piolo-loader"></div>
+  </div>
+  <script>
+    function showPioloLoader() {
+      let loader = document.getElementById('page-loader-overlay');
+      if (!loader) {
+        loader = document.createElement('div');
+        loader.id = 'page-loader-overlay';
+        loader.className = 'page-loader-overlay';
+        loader.innerHTML = '<div class="piolo-loader"></div>';
+        document.body.appendChild(loader);
+      } else {
+        document.body.appendChild(loader);
+      }
+      loader.style.opacity = '1';
+      loader.style.visibility = 'visible';
+    }
+
+    // Cache le loader au chargement ET au retour en arrière (BFCache)
+    window.addEventListener('pageshow', function(event) {
+      const loader = document.getElementById('page-loader-overlay');
+      if (loader) {
+        const delay = event.persisted ? 0 : 250;
+        setTimeout(() => {
+          loader.style.opacity = '0';
+          loader.style.visibility = 'hidden';
+        }, delay);
+      }
+    });
+
+    window.addEventListener('beforeunload', showPioloLoader);
+
+    document.addEventListener('click', function(e) {
+      const link = e.target.closest('a');
+      if (link) {
+        const href = link.getAttribute('href');
+        if (href && !href.startsWith('#') && !href.startsWith('javascript:') && link.target !== '_blank') {
+          showPioloLoader();
+        }
+      }
+    });
+  </script>
+<div class="layout">
+
+{% with active_section='dashboard' %}
+{% include "includes/sidebar_bailleur.html" %}
+{% endwith %}
+
+<div class="main">
+
+  <!-- ══════════════════════════════════════
+       TOPBAR
+  ══════════════════════════════════════ -->
+  <header class="topbar">
+    <div class="topbar-title">Espace <span>Bailleur</span></div>
+    <div class="tb-search">
+      <svg viewBox="0 0 24 24">
+        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+      </svg>
+      <input type="text" placeholder="Rechercher une annonce, un locataire…"/>
+    </div>
+    <div class="tb-actions">
+      <div class="tb-pts-badge">
+        <svg width="15" height="15" fill="var(--or)" viewBox="0 0 24 24">
+          <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+        </svg>
+        <span class="tb-pts-val">{{ user.points }} Points</span>
+      </div>
+      <a class="tb-icon-btn" href="#" title="Notifications">
+        <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+        {% if pending_visits > 0 %}<div class="tb-notif-dot"></div>{% endif %}
+      </a>
+      <a href="#" class="tb-publish-btn" onclick="openPublishModal(event)">
+        <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        Publier une annonce
+      </a>
+      <div class="tb-av">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════
+       CONTENU
+  ══════════════════════════════════════ -->
+  <main class="content">
+
+    <!-- ── HERO BANNER ── -->
+    <div class="hero-banner">
+      <div class="hero-content">
+        <p class="hero-greet">Bonjour, bienvenue sur votre espace</p>
+        <h1 class="hero-name skeleton-load">{{ user.first_name }} <span>{{ user.last_name }}</span></h1>
+        <p class="hero-sub">Gérez vos biens, suivez vos demandes et développez votre patrimoine</p>
+      </div>
+      <div class="hero-chips">
+        <span class="hero-chip or">✓ Bailleur Vérifié</span>
+        <span class="hero-chip">{{ user.city|default:"Cameroun" }}</span>
+        <span class="hero-chip">{{ total_properties }} bien{{ total_properties|pluralize:"s" }}</span>
+      </div>
+    </div>
+
+    <!-- ── KPI CARDS ── -->
+    <div class="kpi-grid">
+      <div class="kpi-card c-or" onclick="scrollToSection('annonces')">
+        <div class="kpi-top">
+          <div class="kpi-ico bg-or">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          </div>
+          <span class="kpi-trend new">Biens</span>
+        </div>
+        <div class="kpi-val skeleton-load">{{ total_properties|default:"0" }}</div>
+        <div class="kpi-lbl">Biens gérés</div>
+      </div>
+
+      <div class="kpi-card c-gn" onclick="scrollToSection('visites')">
+        <div class="kpi-top">
+          <div class="kpi-ico bg-gn">
+            <svg viewBox="0 0 24 24"><path d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>
+          </div>
+          <span class="kpi-trend {% if pending_visits > 0 %}rd{% else %}up{% endif %}">
+            {% if pending_visits > 0 %}À confirmer{% else %}OK{% endif %}
+          </span>
+        </div>
+        <div class="kpi-val skeleton-load">{{ pending_visits|default:"0" }}</div>
+        <div class="kpi-lbl">Visites en attente</div>
+      </div>
+
+      <div class="kpi-card c-bl" onclick="scrollToSection('locations')">
+        <div class="kpi-top">
+          <div class="kpi-ico bg-bl">
+            <svg viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+          </div>
+          <span class="kpi-trend {% if pending_locations > 0 %}rd{% else %}up{% endif %}">
+            {% if pending_locations > 0 %}À traiter{% else %}OK{% endif %}
+          </span>
+        </div>
+        <div class="kpi-val skeleton-load">{{ pending_locations|default:"0" }}</div>
+        <div class="kpi-lbl">Demandes de location</div>
+      </div>
+
+      <div class="kpi-card c-rd">
+        <div class="kpi-top">
+          <div class="kpi-ico bg-rd">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+          </div>
+          <span class="kpi-trend new">{{ unread_messages|default:"0" }} non lus</span>
+        </div>
+        <div class="kpi-val skeleton-load">{{ unread_messages|default:"0" }}</div>
+        <div class="kpi-lbl">Messages reçus</div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         MAIN GRID
+    ══════════════════════════════════════ -->
+    <div class="main-grid">
+
+      <!-- COLONNE PRINCIPALE -->
+      <div style="display:flex;flex-direction:column;gap:24px;">
+
+        <!-- ── ANNONCES RÉCENTES ── -->
+        <div class="card" id="annonces">
+          <div class="card-header">
+            <span class="ch-title">Mes annonces récentes</span>
+            <span class="ch-badge">{{ active_properties }} actives / {{ total_properties }} total</span>
+            <a class="ch-link" href="#">Voir tout →</a>
+          </div>
+
+          <div class="annonces-list">
+            {% if recent_properties %}
+              {% for prop in recent_properties %}
+              <div class="annonce-item">
+                <div class="an-img"
+                  {% if prop.main_image %}
+                    style="background-image:url('{{ prop.main_image.url }}');"
+                  {% else %}
+                    style="background:linear-gradient(135deg,var(--gris-f),var(--gris-b));"
+                  {% endif %}
+                ></div>
+
+                <div class="an-info">
+                  <div class="an-name">{{ prop.title }}</div>
+                  <div class="an-loc">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    {{ prop.city }}{% if prop.neighborhood %}, {{ prop.neighborhood }}{% endif %}
+                  </div>
+                  <div class="an-meta">
+                    <span class="an-price">
+                      {% if prop.price %}{{ prop.price|floatformat:0 }} FCFA{% if prop.listing_type == 'LOUER' %}/mois{% endif %}{% else %}Prix N/A{% endif %}
+                    </span>
+                    <span class="an-status
+                      {% if prop.status == 'PUBLISHED' %}st-published
+                      {% elif prop.status == 'ARCHIVED' %}st-archived
+                      {% elif prop.status == 'PENDING' %}st-pending
+                      {% else %}st-draft{% endif %}">
+                      {{ prop.get_status_display }}
+                    </span>
+                    {% if prop.virtual_tours.all %}
+                    <span class="an-status" style="background: rgba(212,175,55,.1); color: var(--or-d); border: 1px solid rgba(212,175,55,.3); margin-left: 5px;">
+                      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:3px; vertical-align:middle; display:inline-block; margin-top:-2px;"><path d="M2 12A10 10 0 0 0 15 21.54A10 10 0 0 1 15 2.46A10 10 0 0 0 2 12Z"></path><path d="M15 2.46A10 10 0 0 0 22 12a10 10 0 0 0-7-9.54"></path><path d="M2 12h20"></path></svg>
+                      Visite 360°
+                    </span>
+                    {% endif %}
+                  </div>
+                  <div class="an-stats" style="margin-top:10px;">
+                    <span class="an-stat stat-views">
+                      <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5z"/></svg>
+                      {{ prop.views_count|default:"0" }} vues
+                    </span>
+                    <span class="an-stat stat-likes">
+                      <!-- Heart Icon for Favorites/Likes -->
+                      <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                      {{ prop.favorites_count|default:"0" }} likes
+                    </span>
+                    <span class="an-stat stat-visits">
+                      <svg viewBox="0 0 24 24"><path d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>
+                      {{ prop.visit_requests.count|default:"0" }} visite{{ prop.visit_requests.count|pluralize:"s" }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="an-actions">
+                  {% if prop.video_reel %}
+                  <a href="{% url 'properties:decouverte' %}?prop={{ prop.slug }}" class="btn-ico" title="Voir le Reel" style="color: #D4AF37;">
+                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                  </a>
+                  {% endif %}
+                  <a href="{% url 'properties:detail' prop.slug %}" class="btn-ico" title="Voir">
+                    <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                  </a>
+                  <a href="{% url 'properties:update' prop.slug %}" class="btn-ico" title="Modifier">
+                    <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                  </a>
+                  <form action="{% url 'properties:archive' prop.slug %}" method="POST" style="display:inline;" onsubmit="return confirm('Voulez-vous archiver cette annonce ?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-ico danger" title="Archiver" style="border:none; background:none; cursor:pointer;">
+                      <svg viewBox="0 0 24 24"><path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z"/></svg>
+                    </button>
+                  </form>
+                  <a href="{% url 'properties:tour_editor' prop.slug %}" class="btn-ico tour-360-btn" data-slug="{{ prop.slug }}" title="Visite 360°" style="color:var(--or);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12A10 10 0 0 0 15 21.54A10 10 0 0 1 15 2.46A10 10 0 0 0 2 12Z"></path><path d="M15 2.46A10 10 0 0 0 22 12a10 10 0 0 0-7-9.54"></path><path d="M2 12h20"></path></svg>
+                  </a>
+                  <button type="button" class="btn-ico video-reel-btn" data-slug="{{ prop.slug }}" title="Vidéo Découverte" style="color:#D4AF37; cursor:pointer; border:none; background:none;" onclick="openReelModal('{{ prop.slug }}', '{{ prop.title|escapejs }}')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                  </button>
+                </div>
+              </div>
+              {% endfor %}
+
+            {% else %}
+              <div class="empty-state">
+                <svg width="48" height="48" fill="var(--gris-b)" viewBox="0 0 24 24">
+                  <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <p>Vous n'avez pas encore publié d'annonce.</p>
+                <a href="#">
+                  <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                  Publier ma première annonce
+                </a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- ── DEMANDES DE VISITE ── -->
+        <div class="card" id="visites">
+          <div class="card-header">
+            <span class="ch-title">Demandes de visite</span>
+            {% if pending_visits > 0 %}
+              <span class="ch-badge" style="background:rgba(184,50,50,.1);color:var(--rouge);">
+                {{ pending_visits }} en attente
+              </span>
+            {% else %}
+              <span class="ch-badge">Aucune en attente</span>
+            {% endif %}
+            <a class="ch-link" href="#">Voir tout →</a>
+          </div>
+
+          <div class="demande-list">
+            {% if visit_requests %}
+              {% for req in visit_requests %}
+              <div class="demande-item" style="{% if req.status != 'PENDING' %}opacity:.75;{% endif %}">
+                <div class="dem-av">{{ req.tenant.first_name|first|upper }}{{ req.tenant.last_name|first|upper }}</div>
+                <div class="dem-body">
+                  <div class="dem-name">{{ req.tenant.get_full_name }}</div>
+                  <div class="dem-prop">{{ req.property.title }} — {{ req.property.city }}</div>
+                  <div class="dem-details">
+                    <span class="dem-detail">
+                      <svg viewBox="0 0 24 24"><path d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>
+                      {{ req.requested_date|date:"l d M Y" }}{% if req.requested_time %} à {{ req.requested_time|time:"H\hi" }}{% endif %}
+                    </span>
+                    <span class="dem-detail">
+                      <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                      {{ req.property.city }}
+                    </span>
+                    {# Badge statut #}
+                    <span style="font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;font-family:Poppins,sans-serif;
+                      {% if req.status == 'CONFIRMED' %}background:rgba(30,122,71,.1);color:#1E7A47;
+                      {% elif req.status == 'REFUSED' %}background:rgba(184,50,50,.1);color:#B83232;
+                      {% else %}background:rgba(212,175,55,.1);color:#A8891C;{% endif %}">
+                      {{ req.get_status_display }}
+                    </span>
+                    {% if req.status == 'CONFIRMED' and req.confirmed_date %}
+                    <span class="dem-detail" style="color:#1E7A47;border-color:rgba(30,122,71,.2);">
+                      ✓ Confirmée le {{ req.confirmed_date|date:"d M Y" }}
+                    </span>
+                    {% endif %}
+                  </div>
+
+                  {# Boutons selon statut #}
+                  {% if req.status == 'PENDING' %}
+                  <div class="dem-actions">
+                    <button class="dem-btn accept" onclick="acceptVisit(this, '{{ req.pk }}')">✓ Confirmer</button>
+                    <button class="dem-btn reject" onclick="rejectVisit(this, '{{ req.pk }}')">✕ Refuser</button>
+                    <a href="{% url 'properties:visit_detail' req.pk %}" class="dem-btn detail">Détails</a>
+                  </div>
+                  {% else %}
+                  <div class="dem-actions">
+                    <a href="{% url 'properties:visit_detail' req.pk %}" class="dem-btn detail">Voir détails</a>
+                  </div>
+                  {% endif %}
+                </div>
+                <span class="dem-badge visite">Visite</span>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="empty-state">
+                <svg width="38" height="38" fill="var(--gris-b)" viewBox="0 0 24 24">
+                  <path d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/>
+                </svg>
+                <p>Aucune demande de visite en attente.</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- ── DEMANDES DE LOCATION ── -->
+        <div class="card" id="locations">
+          <div class="card-header">
+            <span class="ch-title">Demandes de location</span>
+            {% if pending_locations > 0 %}
+              <span class="ch-badge" style="background:rgba(30,122,71,.1);color:var(--vert);">
+                {{ pending_locations }} à traiter
+              </span>
+            {% else %}
+              <span class="ch-badge">Aucune en cours</span>
+            {% endif %}
+            <a class="ch-link" href="#">Voir tout →</a>
+          </div>
+
+          <div class="demande-list">
+            {% if location_requests %}
+              {% for req in location_requests %}
+              <div class="demande-item" style="{% if req.status not in 'PENDING REVIEWING' %}opacity:.75;{% endif %}">
+                <div class="dem-av" style="background:linear-gradient(135deg,var(--vert),#27AE60);">
+                  {{ req.tenant.first_name|first|upper }}{{ req.tenant.last_name|first|upper }}
+                </div>
+                <div class="dem-body">
+                  <div class="dem-name">{{ req.tenant.get_full_name }}</div>
+                  <div class="dem-prop">{{ req.property.title }} · {{ req.property.price|floatformat:0 }} FCFA/mois</div>
+                  <div class="dem-details">
+                    <span class="dem-detail">
+                      Entrée : {{ req.move_in_date|date:"d M Y" }}
+                    </span>
+                    <span class="dem-detail">
+                      {{ req.tenant_count|default:1 }} locataire{{ req.tenant_count|pluralize:"s" }}
+                    </span>
+                    <span style="font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;font-family:Poppins,sans-serif;
+                      {% if req.status == 'ACCEPTED' %}background:rgba(30,122,71,.1);color:#1E7A47;
+                      {% elif req.status == 'REFUSED' %}background:rgba(184,50,50,.1);color:#B83232;
+                      {% elif req.status == 'REVIEWING' %}background:rgba(30,58,110,.1);color:#1E3A6E;
+                      {% else %}background:rgba(212,175,55,.1);color:#A8891C;{% endif %}">
+                      {{ req.get_status_display }}
+                    </span>
+                  </div>
+
+                  {% if req.status in 'PENDING REVIEWING' %}
+                  <div class="dem-actions">
+                    <button class="dem-btn accept" onclick="acceptLocation(this, '{{ req.pk }}')">✓ Accepter</button>
+                    <button class="dem-btn reject" onclick="rejectLocation(this, '{{ req.pk }}')">✕ Refuser</button>
+                    <a href="{% url 'properties:location_detail' req.pk %}" class="dem-btn detail">Voir dossier</a>
+                  </div>
+                  {% else %}
+                  <div class="dem-actions">
+                    <a href="{% url 'properties:location_detail' req.pk %}" class="dem-btn detail">Voir dossier</a>
+                  </div>
+                  {% endif %}
+                </div>
+                <span class="dem-badge location">Location</span>
+              </div>
+              {% endfor %}
+            {% else %}
+              <!-- Exemple statique -->
+              <div class="empty-state">
+                <svg width="38" height="38" fill="var(--gris-b)" viewBox="0 0 24 24">
+                  <path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
+                </svg>
+                <p>Aucune demande de location en cours.</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+      </div><!-- /colonne principale -->
+
+      <!-- COLONNE DROITE -->
+      <div style="display:flex;flex-direction:column;gap:22px;">
+
+        <!-- ── POINTS WIDGET — identique locataire ── -->
+        <div class="points-widget">
+          <div class="pw-glow"></div>
+          <div class="pw-label">Points Fidélité Piolo</div>
+          <div class="pw-val">{{ user.points }} <span>pts</span></div>
+          <div class="pw-badge">
+            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+            Bailleur Vérifié
+          </div>
+          <div class="pw-sub">Niveau Bronze · Prochain : Argent (500 pts)</div>
+          <div class="pw-prog">
+            <div class="pw-prog-fill" style="width:{{ points_percentage }}%;"></div>
+          </div>
+          <div class="pw-prog-info">
+            <span>0 pts</span>
+            <span class="hl">{{ user.points }} / 500</span>
+            <span>500 pts</span>
+          </div>
+          <div class="pw-row">
+            <button class="pw-btn pw-btn-g">Historique</button>
+            <button class="pw-btn pw-btn-o">Avantages</button>
+          </div>
+        </div>
+
+        <!-- ── CALENDRIER ── -->
+        <div class="card" id="calendrier">
+          <div class="card-header">
+            <span class="ch-title">Calendrier des visites</span>
+            <span class="ch-badge" id="cal-count-badge">
+              {{ confirmed_visits_this_month|default:"0" }} ce mois
+            </span>
+          </div>
+          <div class="cal-wrap">
+            <div class="cal-header">
+              <div class="cal-month" id="cal-month-label">Avril 2026</div>
+              <div class="cal-nav">
+                <button class="cal-nav-btn" onclick="calNav(-1)">
+                  <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+                </button>
+                <button class="cal-nav-btn" onclick="calNav(1)">
+                  <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="cal-grid" id="cal-grid">
+              <!-- Jours de la semaine -->
+              <div class="cal-day-label">Lun</div>
+              <div class="cal-day-label">Mar</div>
+              <div class="cal-day-label">Mer</div>
+              <div class="cal-day-label">Jeu</div>
+              <div class="cal-day-label">Ven</div>
+              <div class="cal-day-label">Sam</div>
+              <div class="cal-day-label">Dim</div>
+              <!-- Jours générés par JS -->
+            </div>
+
+            <div class="cal-legend">
+              <div class="cal-leg-item">
+                <div class="cal-leg-dot" style="background:var(--or);"></div>
+                Visite demandée
+              </div>
+              <div class="cal-leg-item">
+                <div class="cal-leg-dot" style="background:var(--vert);"></div>
+                Visite confirmée
+              </div>
+              <div class="cal-leg-item">
+                <div class="cal-leg-dot" style="background:var(--noir);"></div>
+                Aujourd'hui
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── PROFIL CARD ── -->
+        <div class="card">
+          <div class="profil-card">
+            <div class="pc-top">
+              <div class="pc-av">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+              <div>
+                <div class="pc-name">{{ user.get_full_name }}</div>
+                <span class="pc-role-badge">✓ Bailleur Vérifié</span>
+              </div>
+              <a class="pc-edit" href="{% url 'accounts:profile_complete' %}" title="Modifier le profil">
+                <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+              </a>
+            </div>
+            <div class="comp-label">
+              Complété à <span>{{ profile_completion|default:"75" }}%</span>
+            </div>
+            <div class="comp-bar">
+              <div class="comp-fill" style="width:{{ profile_completion|default:'75' }}%;"></div>
+            </div>
+          </div>
+
+          <!-- Quick menu 2x2 -->
+          <div class="quick-menu">
+            <a class="qm-item" href="#">
+              <div class="qm-ico i1">
+                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+              </div>
+              <div class="qm-txt">
+                <h5>Annonces</h5>
+                <p>{{ total_properties }} biens</p>
+              </div>
+            </a>
+            <a class="qm-item" href="#">
+              <div class="qm-ico i2">
+                <svg viewBox="0 0 24 24"><path d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>
+              </div>
+              <div class="qm-txt">
+                <h5>Visites</h5>
+                <p>{{ pending_visits }} attente</p>
+              </div>
+              {% if pending_visits > 0 %}
+                <div class="qm-notif">{{ pending_visits }}</div>
+              {% endif %}
+            </a>
+            <a class="qm-item" href="#">
+              <div class="qm-ico i3">
+                <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+              </div>
+              <div class="qm-txt">
+                <h5>Messages</h5>
+                <p>{{ unread_messages }} non lus</p>
+              </div>
+            </a>
+            <a class="qm-item" href="#">
+              <div class="qm-ico i4">
+                <svg viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+              </div>
+              <div class="qm-txt">
+                <h5>Locations</h5>
+                <p>{{ pending_locations }} demandes</p>
+              </div>
+            </a>
+          </div>
+        </div>
+
+      </div><!-- /colonne droite -->
+    </div><!-- /main-grid -->
+
+
+    <!-- ══════════════════════════════════════
+         SECTION ANNONCES ARCHIVÉES
+    ══════════════════════════════════════ -->
+    <div class="sec-hd" style="margin-top:10px;">
+      <div>
+        <div class="sec-label">Historique</div>
+        <div class="sec-title">Annonces <span>Archivées</span></div>
+      </div>
+      <a class="see-all" href="#">Gérer les archives →</a>
+    </div>
+
+    {% if archived_properties %}
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:32px;">
+        {% for prop in archived_properties %}
+        <div class="annonce-item" style="background:var(--blanc);opacity:.75;">
+          <div class="an-img"
+            {% if prop.main_image %}style="background-image:url('{{ prop.main_image.url }}');"
+            {% else %}style="background:var(--gris-b);"{% endif %}
+          ></div>
+          <div class="an-info">
+            <div class="an-name">{{ prop.title }}</div>
+            <div class="an-loc">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              {{ prop.city }}
+            </div>
+            <div class="an-meta">
+              <span class="an-status st-archived">Archivée</span>
+              <span style="font-size:11px;color:var(--gris-m);">Depuis le {{ prop.archived_at|date:"d M Y"|default:"—" }}</span>
+            </div>
+          </div>
+          <div class="an-actions">
+            {% if prop.video_reel %}
+            <a href="{% url 'properties:decouverte' %}?prop={{ prop.slug }}" class="btn-ico" title="Voir le Reel" style="color: #D4AF37;">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </a>
+            {% endif %}
+            <button class="btn-ico" title="Réactiver" onclick="showToast('Annonce réactivée !', 'success')">
+              <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+            </button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+    {% else %}
+      <div style="text-align:center;padding:36px;background:var(--blanc);border-radius:var(--radius-lg);border:1px solid var(--gris-b);margin-bottom:32px;">
+        <svg width="40" height="40" fill="var(--gris-b)" viewBox="0 0 24 24" style="display:block;margin:0 auto 10px;">
+          <path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27z"/>
+        </svg>
+        <p style="font-size:13px;color:var(--gris-m);">Aucune annonce archivée.</p>
+      </div>
+    {% endif %}
+
+
+    <!-- ══════════════════════════════════════
+         BONUS FIDÉLITÉ — identique locataire
+    ══════════════════════════════════════ -->
+    <div class="sec-hd">
+      <div>
+        <div class="sec-label">Programme Fidélité</div>
+        <div class="sec-title">Gagnez des <span>Points</span></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:40px;">
+      <div class="kpi-card c-or" style="cursor:default;">
+        <div class="kpi-top">
+          <div class="kpi-ico bg-or">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          </div>
+        </div>
+        <div class="kpi-val skeleton-load" style="font-size:22px;">+5 pts</div>
+        <div class="kpi-lbl">Par annonce publiée</div>
+      </div>
+      <div class="kpi-card c-gn" style="cursor:default;">
+        <div class="kpi-top">
+          <div class="kpi-ico bg-gn">
+            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+          </div>
+        </div>
+        <div class="kpi-val skeleton-load" style="font-size:22px;">+10 pts</div>
+        <div class="kpi-lbl">Visite confirmée</div>
+      </div>
+      <div class="kpi-card c-bl" style="cursor:default;">
+        <div class="kpi-top">
+          <div class="kpi-ico bg-bl">
+            <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          </div>
+        </div>
+        <div class="kpi-val skeleton-load" style="font-size:22px;">+20 pts</div>
+        <div class="kpi-lbl">Par parrainage</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   PIOLO — dashboard_bailleur.js
+═══════════════════════════════════════════ */
+
+/* ── Toast ── */
+function showToast(msg, type = 'default') {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.className = 'toast ' + type;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+/* ── Scroll vers section ── */
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ── Actions visites ── */
+function acceptVisit(btn, pk) {
+  btn.disabled = true;
+  btn.textContent = '…';
+
+  const fd = new FormData();
+  fd.append('action', 'confirm');
+
+  fetch(`/properties/visit/action/${pk}/`, {
+    method: 'POST',
+    body: fd,
+    headers: { 'X-CSRFToken': getCsrfToken() },
+    credentials: 'same-origin'
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      const item = btn.closest('.demande-item');
+      item.style.opacity = '.5';
+      item.querySelector('.dem-actions').innerHTML =
+        '<span style="font-size:12px;color:var(--vert);font-weight:700;">✓ Visite confirmée</span>';
+      showToast(data.message, 'success');
+
+      // Décrémenter le badge
+      const badge = document.querySelector('#visites .ch-badge');
+      if (badge) {
+        const count = parseInt(badge.textContent) - 1;
+        badge.textContent = count > 0 ? `${count} en attente` : 'Aucune en attente';
+        if (count === 0) badge.removeAttribute('style');
+      }
+    } else {
+      showToast(data.error || 'Erreur.', 'error');
+      btn.disabled = false;
+      btn.textContent = '✓ Confirmer';
+    }
+  })
+  .catch(() => {
+    showToast('Erreur réseau.', 'error');
+    btn.disabled = false;
+    btn.textContent = '✓ Confirmer';
+  });
+}
+
+function rejectVisit(btn, pk) {
+  const note = prompt('Motif de refus (optionnel) :') ?? '';
+  if (note === null) return; // Annulé
+
+  btn.disabled = true;
+
+  const fd = new FormData();
+  fd.append('action', 'refuse');
+  fd.append('note', note);
+
+  fetch(`/properties/visit/action/${pk}/`, {
+    method: 'POST',
+    body: fd,
+    headers: { 'X-CSRFToken': getCsrfToken() },
+    credentials: 'same-origin'
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      const item = btn.closest('.demande-item');
+      item.style.opacity = '.4';
+      item.querySelector('.dem-actions').innerHTML =
+        '<span style="font-size:12px;color:var(--rouge);font-weight:700;">✕ Demande refusée</span>';
+      showToast('Demande refusée.', 'error');
+    } else {
+      showToast(data.error || 'Erreur.', 'error');
+      btn.disabled = false;
+    }
+  })
+  .catch(() => {
+    showToast('Erreur réseau.', 'error');
+    btn.disabled = false;
+  });
+}
+
+/* ── Actions location ── */
+function acceptLocation(btn, pk) {
+  btn.disabled = true;
+  btn.textContent = '…';
+
+  const fd = new FormData();
+  fd.append('action', 'accept');
+
+  fetch(`/properties/location/action/${pk}/`, {
+    method: 'POST',
+    body: fd,
+    headers: { 'X-CSRFToken': getCsrfToken() },
+    credentials: 'same-origin'
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      const item = btn.closest('.demande-item');
+      item.style.opacity = '.5';
+      item.querySelector('.dem-actions').innerHTML =
+        '<span style="font-size:12px;color:var(--vert);font-weight:700;">✓ Dossier accepté</span>';
+      showToast(data.message, 'success');
+    } else {
+      showToast(data.error || 'Erreur.', 'error');
+      btn.disabled = false;
+      btn.textContent = '✓ Accepter';
+    }
+  })
+  .catch(() => {
+    showToast('Erreur réseau.', 'error');
+    btn.disabled = false;
+    btn.textContent = '✓ Accepter';
+  });
+}
+
+function rejectLocation(btn, pk) {
+  const note = prompt('Motif de refus (optionnel) :') ?? '';
+  if (note === null) return;
+
+  btn.disabled = true;
+
+  const fd = new FormData();
+  fd.append('action', 'refuse');
+  fd.append('note', note);
+
+  fetch(`/properties/location/action/${pk}/`, {
+    method: 'POST',
+    body: fd,
+    headers: { 'X-CSRFToken': getCsrfToken() },
+    credentials: 'same-origin'
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      const item = btn.closest('.demande-item');
+      item.style.opacity = '.4';
+      item.querySelector('.dem-actions').innerHTML =
+        '<span style="font-size:12px;color:var(--rouge);font-weight:700;">✕ Dossier refusé</span>';
+      showToast('Dossier refusé.', 'error');
+    } else {
+      showToast(data.error || 'Erreur.', 'error');
+      btn.disabled = false;
+    }
+  })
+  .catch(() => {
+    showToast('Erreur réseau.', 'error');
+    btn.disabled = false;
+  });
+}
+
+function getCsrfToken() {
+  return document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='))?.split('=')[1] || '';
+}
+
+/* ═══════════════════════════════════════════
+   CALENDRIER
+═══════════════════════════════════════════ */
+
+// Données des visites confirmées (injectées depuis Django)
+const visitedDays = {{ visit_days_json|default:"[]"|safe }};
+// Format attendu : [{"day": 15, "confirmed": true}, {"day": 22, "confirmed": false}]
+
+const MONTHS_FR = [
+  'Janvier','Février','Mars','Avril','Mai','Juin',
+  'Juillet','Août','Septembre','Octobre','Novembre','Décembre'
+];
+
+const DAYS_FR = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+
+let calYear  = new Date().getFullYear();
+let calMonth = new Date().getMonth(); // 0-based
+const TODAY  = new Date();
+
+function renderCal() {
+  const grid  = document.getElementById('cal-grid');
+  const label = document.getElementById('cal-month-label');
+
+  label.textContent = `${MONTHS_FR[calMonth]} ${calYear}`;
+
+  // Supprimer les jours précédents (garder les 7 labels)
+  while (grid.children.length > 7) grid.removeChild(grid.lastChild);
+
+  const firstDay = new Date(calYear, calMonth, 1);
+  const lastDay  = new Date(calYear, calMonth + 1, 0);
+
+  // Décalage : lundi = 0
+  let startDow = firstDay.getDay(); // 0=dim, 1=lun…
+  startDow = startDow === 0 ? 6 : startDow - 1;
+
+  // Jours du mois précédent
+  const prevLast = new Date(calYear, calMonth, 0).getDate();
+  for (let i = startDow - 1; i >= 0; i--) {
+    const d = document.createElement('div');
+    d.className = 'cal-day other-month';
+    d.textContent = prevLast - i;
+    grid.appendChild(d);
+  }
+
+  // Jours du mois courant
+  for (let day = 1; day <= lastDay.getDate(); day++) {
+    const d = document.createElement('div');
+    d.className = 'cal-day';
+    d.textContent = day;
+
+    const isToday = (
+      day === TODAY.getDate() &&
+      calMonth === TODAY.getMonth() &&
+      calYear === TODAY.getFullYear()
+    );
+
+    if (isToday) d.classList.add('today');
+
+    // Vérifier si ce jour a une visite
+    const visitInfo = visitedDays.find(v => v.day === day);
+    if (visitInfo) {
+      d.classList.add(visitInfo.confirmed ? 'visit-confirmed' : 'has-visit');
+      d.title = visitInfo.confirmed ? 'Visite confirmée' : 'Visite demandée';
+    }
+
+    d.addEventListener('click', () => onDayClick(day, visitInfo));
+    grid.appendChild(d);
+  }
+
+  // Jours du mois suivant (compléter la grille sur 6 semaines max)
+  const totalCells = grid.children.length - 7;
+  const remaining  = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+  for (let i = 1; i <= remaining; i++) {
+    const d = document.createElement('div');
+    d.className = 'cal-day other-month';
+    d.textContent = i;
+    grid.appendChild(d);
+  }
+}
+
+function onDayClick(day, visitInfo) {
+  if (visitInfo) {
+    const status = visitInfo.confirmed ? 'confirmée' : 'en attente de confirmation';
+    showToast(`${day} ${MONTHS_FR[calMonth]} — Visite ${status}`, 'success');
+  }
+}
+
+function calNav(dir) {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  renderCal();
+}
+
+// Initialiser le calendrier
+renderCal();
+
+/* ── Sidebar active item ── */
+document.querySelectorAll('.sb-item').forEach(item => {
+  item.addEventListener('click', function () {
+    document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+/* ── KPI hover animation ── */
+document.querySelectorAll('.kpi-card').forEach(card => {
+  card.addEventListener('mouseenter', () => {
+    card.style.transform = 'translateY(-3px)';
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+  });
+});
+</script>
+
+  <!-- ── MODAL PRÉ-PUBLICATION ── -->
+  <div id="publish-modal-overlay" class="publish-modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+    <div class="publish-modal-card" style="background:white; border-radius:24px; padding:40px; max-width:500px; width:90%; box-shadow:0 20px 40px rgba(0,0,0,0.15); text-align:center; position:relative;">
+      
+      <button onclick="closePublishModal()" style="position:absolute; top:20px; right:20px; background:none; border:none; cursor:pointer; color:#A09D98;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
+
+      <div style="width:72px; height:72px; border-radius:50%; background:rgba(212,175,55,0.15); color:#D4AF37; display:flex; align-items:center; justify-content:center; margin:0 auto 24px auto;">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+        </svg>
+      </div>
+
+      <h2 style="font-family:'Poppins', sans-serif; font-size:24px; font-weight:800; color:#0F0D09; margin-bottom:16px;">
+        Localisation de votre bien
+      </h2>
+
+      <p style="font-family:'DM Sans', sans-serif; font-size:15px; color:#64605A; line-height:1.6; margin-bottom:24px;">
+        Pour une précision maximale sur la carte, <strong>il est fortement recommandé d'être physiquement sur place</strong> au moment de la publication de votre annonce afin que le GPS récupère les coordonnées exactes.
+      </p>
+
+      <div style="background:#F7F5F1; border-radius:12px; padding:16px; text-align:left; margin-bottom:32px; display:flex; gap:12px; align-items:flex-start;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#0F0D09" style="flex-shrink:0; margin-top:2px;">
+          <path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+        </svg>
+        <p style="font-family:'DM Sans', sans-serif; font-size:13px; color:#64605A; margin:0; line-height:1.5;">
+          Si vous n'êtes pas sur place, vous pourrez tout de même <strong>rechercher l'adresse</strong> et <strong>déplacer le marqueur manuellement</strong> sur la carte lors de l'étape suivante.
+        </p>
+      </div>
+
+      <a href="{% url 'properties:create' %}" style="display:block; width:100%; padding:16px; background-color:#0F0D09; color:white; border-radius:12px; font-family:'Poppins', sans-serif; font-weight:600; font-size:16px; text-decoration:none; transition:all 0.2s;">
+        J'ai compris, continuer
+      </a>
+
+    </div>
+  </div>
+
+  <script>
+    function openPublishModal(e) {
+      e.preventDefault();
+      document.getElementById('publish-modal-overlay').style.display = 'flex';
+      // Animation douce
+      document.getElementById('publish-modal-overlay').style.opacity = '0';
+      setTimeout(() => {
+        document.getElementById('publish-modal-overlay').style.transition = 'opacity 0.3s ease';
+        document.getElementById('publish-modal-overlay').style.opacity = '1';
+      }, 10);
+    }
+
+    function closePublishModal() {
+      document.getElementById('publish-modal-overlay').style.opacity = '0';
+      setTimeout(() => {
+        document.getElementById('publish-modal-overlay').style.display = 'none';
+      }, 300);
+    }
+  </script>
+
+
+<!-- MODAL ONBOARDING VISITE 360 -->
+<div id="onboarding-360-overlay" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center; backdrop-filter:blur(4px);">
+  <div class="modal-content" style="background:#fff; border-radius:16px; width:450px; max-width:90%; padding:30px; text-align:center; position:relative; animation: slideUp 0.4s ease;">
+    <button onclick="document.getElementById('onboarding-360-overlay').style.display='none'" style="position:absolute; right:20px; top:20px; background:none; border:none; font-size:24px; cursor:pointer; color:#999;">&times;</button>
+    
+    <div style="width:70px; height:70px; background:rgba(212,175,55,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+      <svg width="32" height="32" fill="none" stroke="var(--or)" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M2 12A10 10 0 0 0 15 21.54A10 10 0 0 1 15 2.46A10 10 0 0 0 2 12Z"></path>
+        <path d="M15 2.46A10 10 0 0 0 22 12a10 10 0 0 0-7-9.54"></path>
+        <path d="M2 12h20"></path>
+      </svg>
+    </div>
+    
+    <h2 style="font-family:'Poppins', sans-serif; font-size:22px; margin-bottom:12px; color:var(--bleu);">Félicitations pour votre publication !</h2>
+    <p style="color:var(--gris-f); font-size:14px; margin-bottom:24px; line-height:1.6;">
+      Saviez-vous que les biens avec une <strong>Visite Virtuelle 360°</strong> sont loués 3 fois plus vite ?<br><br>
+      Cliquez sur l'icône <span style="color:var(--or); font-weight:bold;">Visite 360°</span> à côté de votre bien pour créer une visite interactive et immersive en quelques clics.
+    </p>
+    
+    <button onclick="highlight360Button()" style="background:linear-gradient(135deg, var(--or), var(--or-l)); color:#000; border:none; padding:12px 24px; border-radius:8px; font-family:'Poppins', sans-serif; font-weight:600; font-size:15px; cursor:pointer; width:100%; box-shadow:0 4px 12px rgba(212,175,55,0.3);">
+      Découvrir l'outil 360°
+    </button>
+  </div>
+</div>
+
+<style>
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulseHighlight { 
+  0% { box-shadow: 0 0 0 0 rgba(212,175,55,0.7); transform: scale(1); }
+  50% { box-shadow: 0 0 0 15px rgba(212,175,55,0); transform: scale(1.1); }
+  100% { box-shadow: 0 0 0 0 rgba(212,175,55,0); transform: scale(1); }
+}
+.highlight-360-btn { animation: pulseHighlight 1.5s infinite; background: rgba(212,175,55,0.1); border-radius: 50%; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Check URL parameters for just_published
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('just_published')) {
+    document.getElementById('onboarding-360-overlay').style.display = 'flex';
+    // Remove the param from URL without reloading
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+});
+
+function highlight360Button() {
+  document.getElementById('onboarding-360-overlay').style.display = 'none';
+  const firstBtn = document.querySelector('.tour-360-btn');
+  if (firstBtn) {
+    firstBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    firstBtn.classList.add('highlight-360-btn');
+    setTimeout(() => { firstBtn.classList.remove('highlight-360-btn'); }, 4500);
+  }
+}
+</script>
+
+<!-- MODAL VIDEO REEL -->
+<div id="video-reel-overlay" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center; backdrop-filter:blur(4px);">
+  <div class="modal-content" style="background:#fff; border-radius:16px; width:450px; max-width:90%; padding:30px; text-align:center; position:relative; animation: slideUp 0.4s ease; color: #333;">
+    <button onclick="closeReelModal()" style="position:absolute; right:20px; top:20px; background:none; border:none; font-size:24px; cursor:pointer; color:#999;">&times;</button>
+    
+    <div style="width:70px; height:70px; background:rgba(212,175,55,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; color: #D4AF37;">
+      <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+      </svg>
+    </div>
+    
+    <h2 style="font-family:'Poppins', sans-serif; font-size:22px; margin-bottom:12px; color:#1a2b4c;">Mode Découverte</h2>
+    <p style="color:#555; font-size:14px; margin-bottom:24px; line-height:1.6;">
+      Publiez une <strong>vidéo courte et verticale</strong> (format téléphone, max 60s) pour apparaître dans l'espace Découverte.
+    </p>
+    
+    <form id="uploadReelForm" enctype="multipart/form-data" style="text-align: left;">
+      <input type="hidden" id="reelPropertySlug" name="slug">
+      
+      <div style="margin-bottom: 15px;">
+        <label style="display:block; font-size:13px; font-weight:600; color:#444; margin-bottom:8px;">Sélectionnez votre vidéo (MP4) :</label>
+        <div style="position: relative; overflow: hidden; display: inline-block; width: 100%;">
+          <input type="file" name="video_reel" id="video_reel_input" accept="video/mp4,video/x-m4v,video/*" required style="width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; background:#f9f9f9; color:#333; cursor:pointer;">
+        </div>
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <label style="display:block; font-size:13px; font-weight:600; color:#444; margin-bottom:8px;">Petite description attrayante :</label>
+        <textarea name="reel_description" id="reel_description_input" rows="2" maxlength="150" placeholder="Ex: Magnifique studio meublé en plein cœur de Bastos..." style="width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; background:#f9f9f9; color:#333; font-family:'DM Sans', sans-serif; font-size:14px; resize:none;"></textarea>
+      </div>
+      
+      <button type="submit" id="btnSubmitReel" style="background:#D4AF37; color:#fff; border:none; padding:14px 24px; border-radius:8px; font-family:'Poppins', sans-serif; font-weight:600; font-size:15px; cursor:pointer; width:100%; box-shadow:0 4px 12px rgba(212,175,55,0.3); transition: background 0.3s;">
+        Publier ma vidéo Découverte
+      </button>
+    </form>
+    <div id="reelUploadMsg" style="margin-top:15px; font-size:14px; display:none; font-weight: 600;"></div>
+  </div>
+</div>
+
+<script>
+function openReelModal(slug, title) {
+  document.getElementById('reelPropertySlug').value = slug;
+  document.getElementById('video_reel_input').value = "";
+  document.getElementById('reelUploadMsg').style.display = 'none';
+  document.getElementById('video-reel-overlay').style.display = 'flex';
+}
+
+function closeReelModal() {
+  document.getElementById('video-reel-overlay').style.display = 'none';
+}
+
+document.getElementById('uploadReelForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const slug = document.getElementById('reelPropertySlug').value;
+  const formData = new FormData(this);
+  const btn = document.getElementById('btnSubmitReel');
+  const msg = document.getElementById('reelUploadMsg');
+  
+  btn.innerText = "Téléchargement en cours...";
+  btn.disabled = true;
+  
+  fetch('/properties/' + slug + '/upload-reel/', {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-CSRFToken': '{{ csrf_token }}'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      msg.style.color = "green";
+      msg.innerText = "Vidéo ajoutée avec succès !";
+      msg.style.display = "block";
+      setTimeout(closeReelModal, 2000);
+    } else {
+      msg.style.color = "red";
+      msg.innerText = data.error || "Erreur lors du téléchargement.";
+      msg.style.display = "block";
+    }
+  })
+  .catch(err => {
+    msg.style.color = "red";
+    msg.innerText = "Erreur de connexion.";
+    msg.style.display = "block";
+  })
+  .finally(() => {
+    btn.innerText = "Envoyer la vidéo";
+    btn.disabled = false;
+  });
+});
+</script>
+<!-- Bottom Navbar Mobile (PWA) -->
+{% include 'includes/bottom_navbar.html' %}
+</body>
+</html>

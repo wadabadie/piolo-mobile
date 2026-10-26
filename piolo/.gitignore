@@ -1,0 +1,127 @@
+# =============================================================================
+# PIOLO — .gitignore
+# Fichiers et dossiers à NE PAS versionner sur GitHub
+# =============================================================================
+
+# ── PYTHON / DJANGO ─────────────────────────────────────────────────────────
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+__pycache__/
+*.egg-info/
+*.egg
+celerybeat-schedule
+celerybeat.pid
+.Python
+pip-wheel-metadata/
+
+# Environnements virtuels
+env/
+venv/
+.venv/
+ENV/
+pipenv.lock
+Pipfile.lock
+poetry.lock
+
+# ── ENVIRONNEMENT & SECRETS ─────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+.env.production
+secrets.json
+*.key
+*.pem
+config_local.py
+
+# ── BASE DE DONNÉES & MÉDIA ─────────────────────────────────────────────────
+*.sqlite3
+*.sqlite3-journal
+db.sqlite3
+media/
+staticfiles/
+uploads/
+*.sql
+*.dump
+backup_*.sql
+dump_*.sql
+
+# ── FRONTEND REACT / VITE ───────────────────────────────────────────────────
+# Racine & sous-dossiers
+node_modules/
+piolo-frontend/node_modules/
+
+# Builds & caches
+.cache/
+piolo-frontend/dist/
+piolo-frontend/build/
+.next/
+out/
+piolo-frontend/.vite/
+
+# Env & logs frontend
+piolo-frontend/.env
+piolo-frontend/.env.local
+piolo-frontend/npm-debug.log*
+piolo-frontend/yarn-debug.log*
+piolo-frontend/yarn-error.log*
+piolo-frontend/pnpm-debug.log*
+
+# Linters & formatters
+.eslintcache
+.stylelintcache
+.prettiercache
+
+# ── IDE, OS & OUTILS ────────────────────────────────────────────────────────
+.idea/
+*.iml
+.vscode/
+*.code-workspace
+*.swp
+*.swo
+*.swn
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# ── TESTS, COUVERTURE & QUALITÉ ─────────────────────────────────────────────
+.pytest_cache/
+.coverage
+*.cover
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+.flake8
+*.rej
+*.orig
+
+# ── LOGS, BACKUPS & TEMPORAIRES ─────────────────────────────────────────────
+logs/
+*.log
+*.log.*
+*.tmp
+*.temp
+~$*
+*.bak
+
+# ── DOCKER & CI/CD (Optionnel) ──────────────────────────────────────────────
+.docker/
+docker-compose.override.yml
+.github/workflows/ci-debug.yml
+
+# ── ARCHIVES & EXPORTS ──────────────────────────────────────────────────────
+*.zip
+*.tar.gz
+*.rar
+*.7z
+export_*.csv
+import_*.csv

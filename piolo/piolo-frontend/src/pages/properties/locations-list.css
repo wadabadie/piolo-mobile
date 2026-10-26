@@ -1,0 +1,13 @@
+.location-skeleton-list { display: grid; gap: 14px; }
+.location-skeleton-card { display: flex; align-items: center; gap: 16px; min-height: 118px; padding: 18px; overflow: hidden; }
+.location-skeleton-image, .location-skeleton-line, .location-skeleton-button { position: relative; overflow: hidden; background: #ebe6dd; }
+.location-skeleton-image::after, .location-skeleton-line::after, .location-skeleton-button::after { position: absolute; inset: 0; content: ''; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent); animation: location-skeleton-shimmer 1.35s ease-in-out infinite; }
+.location-skeleton-image { flex: 0 0 108px; width: 108px; height: 82px; border-radius: 12px; }
+.location-skeleton-body { flex: 1; display: grid; gap: 10px; min-width: 0; }
+.location-skeleton-line { height: 13px; border-radius: 7px; }
+.location-skeleton-title { width: min(48%, 260px); height: 17px; }
+.location-skeleton-meta { width: min(32%, 180px); }
+.location-skeleton-small { width: min(58%, 310px); height: 11px; }
+.location-skeleton-button { flex: 0 0 118px; width: 118px; height: 38px; border-radius: 10px; }
+@keyframes location-skeleton-shimmer { 100% { transform: translateX(100%); } }
+@media (max-width: 620px) { .location-skeleton-card { align-items: flex-start; flex-wrap: wrap; } .location-skeleton-body { flex: 1 1 calc(100% - 124px); } .location-skeleton-button { margin-left: 124px; } }

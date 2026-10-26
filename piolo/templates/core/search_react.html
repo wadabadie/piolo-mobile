@@ -1,0 +1,16 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Recherche de biens - Piolo{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'react/assets/index.css' %}?v={% now 'U' %}">
+{% endblock %}
+
+{% block content %}
+<div id="react-root" data-api-url="{% url 'api:property-list' %}"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{% static 'react/assets/index.js' %}?v={% now 'U' %}"></script>
+{% endblock %}

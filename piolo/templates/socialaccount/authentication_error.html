@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Erreur d'authentification | Piolo{% endblock %}
+
+{% block content %}
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; background-color: #F7F5F1; padding: 20px;">
+  <div style="background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); text-align: center; max-width: 480px; width: 100%;">
+    
+    <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(184, 50, 50, 0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px auto; color: #B83232;">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+      </svg>
+    </div>
+
+    <h1 style="font-family: 'Poppins', sans-serif; font-size: 24px; font-weight: 800; color: #0F0D09; margin-bottom: 16px;">
+      Oups, une erreur est survenue
+    </h1>
+
+    <p style="font-family: 'DM Sans', sans-serif; font-size: 15px; color: #64605A; margin-bottom: 32px; line-height: 1.6;">
+      Impossible de vous connecter via ce réseau social pour le moment. (Vérifiez que l'application est bien configurée par l'administrateur).
+    </p>
+
+    <a href="http://localhost:3000/login" style="display: block; width: 100%; padding: 14px; background-color: #0F0D09; color: white; border: none; border-radius: 12px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s; text-decoration: none;">
+      Retourner à la page de connexion
+    </a>
+
+  </div>
+</div>
+{% endblock %}

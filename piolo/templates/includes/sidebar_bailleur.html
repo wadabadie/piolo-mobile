@@ -1,0 +1,177 @@
+{% load static %}
+<aside class="sidebar" id="sidebar">
+
+  <!-- Logo -->
+  <div class="sb-logo" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 25px 15px 15px;">
+    <a href="{% url 'core:home' %}">
+      <img src="{% static 'img/logo-piolo-clean.png' %}" alt="Logo Piolo" style="width: 100px; height: auto; object-fit: contain;">
+    </a>
+    <div class="sb-logo-tag" style="margin-top:10px;">Espace Bailleur</div>
+  </div>
+
+  <!-- Profil -->
+  <div class="sb-user">
+    <div class="sb-av">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+    <div style="min-width:0;flex:1;">
+      <div class="sb-u-name">{{ user.get_full_name }}</div>
+      <div class="sb-verified-tag">
+        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+        Bailleur Vérifié
+      </div>
+    </div>
+    <div class="sb-pts">{{ user.points }} pts</div>
+  </div>
+
+  <nav class="sb-nav">
+
+    <!-- ── PRINCIPAL ── -->
+    <div class="sb-section-label">Principal</div>
+
+    <a class="sb-item {% if active_section == 'dashboard' %}active{% endif %}"
+       href="{% url 'accounts:bailleur_dashboard' %}">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+      </svg>
+      Tableau de Bord
+    </a>
+
+    <!-- ── MES ANNONCES ── -->
+    <div class="sb-section-label">Mes Annonces</div>
+
+    <a class="sb-item {% if active_section == 'annonces' %}active{% endif %}" href="#">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+      Toutes mes annonces
+      {% if total_properties > 0 %}
+        <span class="sb-badge">{{ total_properties }}</span>
+      {% endif %}
+    </a>
+
+    <a class="sb-item {% if active_section == 'publier' %}active{% endif %}" href="{% url 'properties:create' %}">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+      </svg>
+      Publier une annonce
+    </a>
+
+    <a class="sb-item {% if active_section == 'archivees' %}active{% endif %}" href="#">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z"/>
+      </svg>
+      Annonces archivées
+      {% if archived_count > 0 %}
+        <span class="sb-badge" style="background:var(--gris-m);color:#fff;">{{ archived_count }}</span>
+      {% endif %}
+    </a>
+
+    <!-- ── DEMANDES ── -->
+    <div class="sb-section-label">Demandes reçues</div>
+
+    <a class="sb-item {% if active_section == 'visites' %}active{% endif %}" href="#">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/>
+      </svg>
+      Demandes de visite
+      {% if pending_visits > 0 %}
+        <span class="sb-badge rd">{{ pending_visits }}</span>
+      {% endif %}
+    </a>
+
+    <a class="sb-item {% if active_section == 'locations' %}active{% endif %}" href="#">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
+      </svg>
+      Demandes de location
+      {% if pending_locations > 0 %}
+        <span class="sb-badge gn">{{ pending_locations }}</span>
+      {% endif %}
+    </a>
+
+    <!-- ── CALENDRIER & COMMUNICATION ── -->
+    <div class="sb-section-label">Planning</div>
+
+    <a class="sb-item {% if active_section == 'calendrier' %}active{% endif %}" href="#">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
+      </svg>
+      Calendrier des visites
+    </a>
+
+    <a class="sb-item {% if active_section == 'messages' or request.resolver_match.app_name == 'messaging' %}active{% endif %}" href="{% url 'messaging:list' %}">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+      </svg>
+      Messages
+      {% if unread_messages > 0 %}
+        <span class="sb-badge bl">{{ unread_messages }}</span>
+      {% endif %}
+    </a>
+
+    <!-- ── DÉCOUVERTE ── -->
+    <div class="sb-section-label">Mode Découverte</div>
+
+    <a class="sb-item {% if 'decouverte' in request.path %}active{% endif %}" href="{% url 'properties:decouverte' %}">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+      Mode Découverte
+      <span style="font-size:9px; background:#D4AF37; color:#fff; padding:1px 6px; border-radius:10px; margin-left:4px;">REEL</span>
+    </a>
+
+    <!-- ── MON COMPTE ── -->
+    <div class="sb-section-label">Mon Compte</div>
+
+    <a class="sb-item {% if active_section == 'profil' %}active{% endif %}" href="#">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+      </svg>
+      Mon Profil
+    </a>
+
+    <a class="sb-item" href="#">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/>
+      </svg>
+      Points fidélité
+    </a>
+
+    <a class="sb-item" href="#">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+      </svg>
+      Sécurité & Confidentialité
+    </a>
+
+    <a class="sb-item" href="#">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+      </svg>
+      Aide & Support
+    </a>
+
+    <a class="sb-item data-saver-toggle-btn" href="javascript:void(0)">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="#D4AF37"><path d="M11 15H6l7-14v8h5l-7 14v-8z"/></svg>
+      Mode Éco Données
+    </a>
+
+  </nav>
+
+  <!-- Footer : Points + Déconnexion -->
+  <div class="sb-pts-footer">
+    <div class="sb-pts-label">Points Fidélité</div>
+    <div class="sb-pts-val">{{ user.points }} <span>pts</span></div>
+    <div class="sb-pts-sub">Bailleur Vérifié · Niveau Bronze</div>
+    <div class="sb-pts-prog">
+      <div class="sb-pts-fill" style="width:{{ points_percentage }}%;"></div>
+    </div>
+  </div>
+
+  <a class="sb-logout" href="{% url 'accounts:logout' %}">
+    <svg viewBox="0 0 24 24">
+      <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+    </svg>
+    Se déconnecter
+  </a>
+
+</aside>

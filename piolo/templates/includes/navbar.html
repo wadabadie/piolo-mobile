@@ -1,0 +1,29 @@
+{% load static %}
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="{% url 'core:home' %}" class="logo" style="display: flex; align-items: center; text-decoration: none;">
+            <img src="{% static 'img/logo-piolo-clean.png' %}" alt="Logo Piolo" style="height: 38px; object-fit: contain;">
+        </a>
+        
+        <ul class="nav-links" id="navLinks">
+            <li><a href="{% url 'core:home' %}" class="active">Accueil</a></li>
+            <li><a href="{% url 'properties:decouverte' %}" style="color: #D4AF37; font-weight: bold;"><i class="fas fa-play-circle"></i> Découverte</a></li>
+            <li><a href="#biens">Biens</a></li>
+            <li><a href="#avantages">Avantages</a></li>
+            <li><a href="#points">Programme</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        
+        <div class="nav-buttons">
+            <button type="button" class="btn btn-ghost data-saver-toggle-btn" title="Mode Économie de Données">
+                <i class="fas fa-bolt"></i> <span class="data-saver-text">Mode Éco</span>
+            </button>
+            <a href="{% url 'accounts:auth' %}" class="btn btn-ghost"><i class="fas fa-sign-in-alt"></i> Connexion</a>
+            <a href="{% url 'accounts:auth' %}" class="btn btn-gold"><i class="fas fa-user-plus"></i> S'inscrire</a>
+        </div>
+        
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+</nav>

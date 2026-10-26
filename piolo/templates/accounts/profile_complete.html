@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compléter mon profil | Piolo</title>
+{% load static %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<style>
+  .profile-form-container {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .form-header {
+    margin-bottom: 24px;
+  }
+  .form-header h2 {
+    font-family: 'Poppins', sans-serif;
+    color: var(--bleu);
+    margin-bottom: 8px;
+    font-size: 24px;
+  }
+  .form-header p {
+    color: var(--gris-f);
+    font-size: 14px;
+  }
+  .form-group {
+    margin-bottom: 20px;
+  }
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--sombre);
+    font-size: 14px;
+  }
+  .form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 15px;
+    transition: all 0.2s;
+  }
+  .form-control:focus {
+    border-color: var(--or);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+  }
+  .form-row {
+    display: flex;
+    gap: 20px;
+  }
+  .form-row .form-group {
+    flex: 1;
+  }
+  .btn-submit {
+    background: var(--or);
+    color: #fff;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.2s;
+    width: 100%;
+    margin-top: 10px;
+  }
+  .btn-submit:hover {
+    background: #b5952f;
+  }
+  .avatar-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 12px;
+    border: 3px solid var(--gris-c);
+  }
+  .pts-badge {
+    display: inline-block;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--or);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 13px;
+    margin-left: 10px;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+  <!-- Page Loader -->
+  <div id="page-loader-overlay" class="page-loader-overlay">
+    <div class="piolo-loader"></div>
+  </div>
+  <script>
+    function showPioloLoader() {
+      let loader = document.getElementById('page-loader-overlay');
+      if (!loader) {
+        loader = document.createElement('div');
+        loader.id = 'page-loader-overlay';
+        loader.className = 'page-loader-overlay';
+        loader.innerHTML = '<div class="piolo-loader"></div>';
+        document.body.appendChild(loader);
+      } else {
+        document.body.appendChild(loader);
+      }
+      loader.style.opacity = '1';
+      loader.style.visibility = 'visible';
+    }
+
+    // Cache le loader au chargement ET au retour en arrière (BFCache)
+    window.addEventListener('pageshow', function(event) {
+      const loader = document.getElementById('page-loader-overlay');
+      if (loader) {
+        const delay = event.persisted ? 0 : 250;
+        setTimeout(() => {
+          loader.style.opacity = '0';
+          loader.style.visibility = 'hidden';
+        }, delay);
+      }
+    });
+
+    window.addEventListener('beforeunload', showPioloLoader);
+
+    document.addEventListener('click', function(e) {
+      const link = e.target.closest('a');
+      if (link) {
+        const href = link.getAttribute('href');
+        if (href && !href.startsWith('#') && !href.startsWith('javascript:') && link.target !== '_blank') {
+          showPioloLoader();
+        }
+      }
+    });
+  </script>
+<div class="layout">
+
+{% include "includes/sidebar.html" %}
+
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-title">Profil <span>Complété</span></div>
+    <div class="tb-search">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input type="text" placeholder="Rechercher un bien, un quartier, un architecte…"/>
+    </div>
+    <div class="tb-actions">
+      <div class="tb-pts-badge">
+        <svg width="15" height="15" fill="var(--or)" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+        <span class="tb-pts-val">{{ user.points }} Points</span>
+      </div>
+      <a class="tb-icon-btn" href="#" title="Notifications">
+        <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+      </a>
+      <div class="tb-av">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+    </div>
+  </header>
+
+  <main class="content">
+    <div class="profile-form-container">
+      <div class="form-header">
+        <h2>Compléter mon profil <span class="pts-badge">+10 pts fidélité</span></h2>
+        <p>Renseignez toutes les informations ci-dessous pour atteindre 100% de complétion de votre profil et gagner 10 points fidélité Piolo.</p>
+        
+        <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px;">
+          <span style="font-size: 14px; font-weight: 600; color: var(--sombre);">Progression actuelle : {{ profile_completion }}%</span>
+          <div style="flex:1; height:8px; background:var(--gris-c); border-radius:4px; overflow:hidden;">
+            <div style="height:100%; width:{{ profile_completion }}%; background:var(--or); border-radius:4px; transition:width 0.4s ease;"></div>
+          </div>
+        </div>
+      </div>
+
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group" style="text-align: center;">
+          {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" alt="Avatar" class="avatar-preview" id="avatarPreview">
+          {% else %}
+            <div class="avatar-preview" id="avatarPreview" style="background:#eee; display:flex; align-items:center; justify-content:center; color:#999; font-size:32px; margin: 0 auto 12px;">
+              {{ user.first_name|first|upper }}
+            </div>
+          {% endif %}
+          <label for="avatar" style="cursor:pointer; color:var(--bleu); text-decoration:underline;">Changer ma photo de profil</label>
+          <input type="file" id="avatar" name="avatar" accept="image/*" style="display:none;" onchange="previewAvatar(event)">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="first_name">Prénom *</label>
+            <input type="text" id="first_name" name="first_name" class="form-control" value="{{ user.first_name }}" required>
+          </div>
+          <div class="form-group">
+            <label for="last_name">Nom *</label>
+            <input type="text" id="last_name" name="last_name" class="form-control" value="{{ user.last_name }}" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Adresse email</label>
+          <input type="email" id="email" class="form-control" value="{{ user.email }}" disabled style="background: #f9f9f9; color: #777;">
+          <small style="color: #888; font-size: 12px; margin-top: 4px; display: block;">L'adresse email ne peut pas être modifiée ici.</small>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phone">Numéro de téléphone *</label>
+            <input type="tel" id="phone" name="phone" class="form-control" value="{{ user.phone|default:'' }}" required placeholder="Ex: +237 600 00 00 00">
+          </div>
+          <div class="form-group">
+            <label for="city">Ville de résidence *</label>
+            <input type="text" id="city" name="city" class="form-control" value="{{ user.city|default:'' }}" required placeholder="Ex: Douala, Yaoundé...">
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit">Mettre à jour et valider mon profil</button>
+      </form>
+    </div>
+  </main>
+</div>
+</div>
+
+<script>
+function previewAvatar(event) {
+  const reader = new FileReader();
+  reader.onload = function() {
+    const output = document.getElementById('avatarPreview');
+    if(output.tagName === 'IMG') {
+      output.src = reader.result;
+    } else {
+      output.style.background = `url(${reader.result}) center/cover`;
+      output.innerText = '';
+    }
+  }
+  if(event.target.files[0]) {
+    reader.readAsDataURL(event.target.files[0]);
+  }
+}
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Option 1: Ecoute sur les boutons de soumission (pour voir l'effet avant que la page change)
+  const submitBtns = document.querySelectorAll('button[type="submit"]');
+  
+  submitBtns.forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      // Si le formulaire est valide (HTML5)
+      const form = this.closest('form');
+      if (form && !form.checkValidity()) {
+        return; // Laisse le navigateur afficher les erreurs
+      }
+      
+      // Petit délai pour qu'on ait le temps de voir l'animation
+      if (!this.classList.contains('btn-loading')) {
+        e.preventDefault(); // On bloque temporairement
+        
+        this.style.width = this.offsetWidth + 'px';
+        this.style.height = this.offsetHeight + 'px'; // Fixer la hauteur aussi
+        this.classList.add('btn-loading');
+        this.classList.add('btn-gold-spinner');
+        
+        // Soumettre le formulaire après 600ms pour bien voir l'animation UX
+        setTimeout(() => {
+          form.submit();
+        }, 600);
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

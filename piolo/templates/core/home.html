@@ -1,0 +1,2239 @@
+{% extends 'core/base.html' %}
+
+{% load static %}
+
+{% block title %}Bienvenue sur Piolo - Immobilier Cameroun{% endblock %}
+
+{% block body_class %}home-page{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════
+     HERO SECTION
+════════════════════════════════════════════ -->
+<section class="hero" id="accueil">
+    <div class="hero-content">
+        <div class="hero-badge">
+            <i class="fas fa-map-marker-alt"></i>
+            Yaoundé · Douala · Cameroun
+        </div>
+        <h1>Bienvenue sur <span>Piolo</span></h1>
+        <p class="hero-subtitle">
+            Plateforme Immobilière Numérique du Cameroun —
+            Trouvez, visitez et louez votre bien en toute sécurité
+        </p>
+        <div class="hero-cta">
+            <a href="{% url 'accounts:auth' %}" class="btn btn-gold btn-large">
+                <i class="fas fa-search"></i> Trouver un Bien
+            </a>
+            <a href="{% url 'accounts:auth' %}" class="btn btn-outline-white btn-large">
+                <i class="fas fa-plus-circle"></i> Publier une Annonce
+            </a>
+        </div>
+        <!-- Hero floating badges -->
+        <div class="hero-floating-badges">
+            <div class="hero-float-badge">
+                <i class="fas fa-shield-check"></i>
+                <span>100% Bailleurs vérifiés</span>
+            </div>
+            <div class="hero-float-badge">
+                <i class="fas fa-vr-cardboard"></i>
+                <span>Visites 3D disponibles</span>
+            </div>
+            <div class="hero-float-badge">
+                <i class="fas fa-robot"></i>
+                <span>Estimation IA incluse</span>
+            </div>
+        </div>
+    </div>
+    <!-- Scroll indicator -->
+    <div class="hero-scroll-indicator">
+        <span>Découvrir</span>
+        <i class="fas fa-chevron-down"></i>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     SEARCH SECTION
+════════════════════════════════════════════ -->
+<section class="search-section">
+    <div class="search-container">
+        <h2 class="search-title">
+            <i class="fas fa-search"></i> Recherchez facilement votre bien idéal
+        </h2>
+        <form action="{% url 'core:property_search_react' %}" method="GET" class="search-grid">
+            <div class="search-field">
+                <label><i class="fas fa-tag"></i> Type</label>
+                <select name="transaction_type">
+                    <option value="">Tout type</option>
+                    <option value="rental">Location</option>
+                    <option value="sale">Vente</option>
+                    <option value="short_term">Courte durée</option>
+                </select>
+            </div>
+            <div class="search-field">
+                <label><i class="fas fa-home"></i> Catégorie</label>
+                <select name="property_type">
+                    <option value="">Tous</option>
+                    <option value="apartment">Appartement</option>
+                    <option value="villa">Villa</option>
+                    <option value="studio">Studio</option>
+                    <option value="land">Terrain</option>
+                    <option value="office">Bureau</option>
+                </select>
+            </div>
+            <div class="search-field">
+                <label><i class="fas fa-map-marker-alt"></i> Localisation</label>
+                <select name="location">
+                    <option value="">Toutes les villes</option>
+                    <optgroup label="Douala">
+                        <option value="douala-bonanjo">Bonanjo</option>
+                        <option value="douala-bonapriso">Bonapriso</option>
+                        <option value="douala-bonamoussadi">Bonamoussadi</option>
+                        <option value="douala-akwa">Akwa</option>
+                    </optgroup>
+                    <optgroup label="Yaoundé">
+                        <option value="yaounde-bastos">Bastos</option>
+                        <option value="yaounde-mvog-mbi">Mvog-Mbi</option>
+                        <option value="yaounde-ngousso">Ngousso</option>
+                        <option value="yaounde-elig-edzoa">Elig-Edzoa</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="search-field">
+                <label><i class="fas fa-coins"></i> Budget max (FCFA)</label>
+                <input type="number" name="max_price" placeholder="Ex: 150000">
+            </div>
+            <button type="submit" class="btn btn-gold search-btn-full">
+                <i class="fas fa-search"></i> Lancer la recherche
+            </button>
+        </form>
+        <!-- Quick filters -->
+        <div class="quick-filters">
+            <span class="qf-label">Recherches populaires :</span>
+            <a href="#?location=yaounde-bastos&transaction_type=rental" class="qf-tag">
+                <i class="fas fa-fire"></i> Bastos · Location
+            </a>
+            <a href="#?property_type=studio&transaction_type=rental" class="qf-tag">
+                <i class="fas fa-fire"></i> Studios à louer
+            </a>
+            <a href="#?location=douala-bonapriso&transaction_type=sale" class="qf-tag">
+                <i class="fas fa-fire"></i> Vente Bonapriso
+            </a>
+            <a href="#?has_virtual_tour=true" class="qf-tag qf-tag--gold">
+                <i class="fas fa-vr-cardboard"></i> Avec visite 3D
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     STATS SECTION
+════════════════════════════════════════════ -->
+<section class="stats-section">
+    <div class="stats-container">
+        <div class="stat-card reveal">
+            <div class="stat-icon"><i class="fas fa-handshake"></i></div>
+            <div class="stat-number" data-target="12500">0</div>
+            <div class="stat-label">Transactions réussies</div>
+        </div>
+        <div class="stat-card reveal">
+            <div class="stat-icon"><i class="fas fa-home"></i></div>
+            <div class="stat-number" data-target="8400">0</div>
+            <div class="stat-label">Annonces actives</div>
+        </div>
+        <div class="stat-card reveal">
+            <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="stat-number">100</div>
+            <div class="stat-label">% Bailleurs vérifiés</div>
+        </div>
+        <div class="stat-card reveal">
+            <div class="stat-icon"><i class="fas fa-vr-cardboard"></i></div>
+            <div class="stat-number" data-target="2100">0</div>
+            <div class="stat-label">Visites 3D disponibles</div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     AVANTAGES SECTION
+════════════════════════════════════════════ -->
+<section class="section" id="avantages">
+    <div class="section-header reveal">
+        <div class="section-tag">
+            <i class="fas fa-check-circle"></i>
+            Pourquoi Piolo ?
+        </div>
+        <h2 class="section-title">Tout ce dont vous avez besoin, <span>au même endroit</span></h2>
+        <p class="section-subtitle">
+            Une plateforme pensée pour les réalités du marché immobilier camerounais,
+            avec des outils modernes accessibles à tous.
+        </p>
+    </div>
+
+    <div class="avantages-grid">
+        <div class="avantage-card reveal">
+            <div class="avantage-icon"><i class="fas fa-shield-alt"></i></div>
+            <h3>Bailleurs 100% vérifiés</h3>
+            <p>Chaque bailleur soumet une pièce d'identité et un selfie de vérification. 
+               Notre équipe valide manuellement chaque dossier avant toute publication. 
+               Zéro arnaqueur, zéro risque.</p>
+        </div>
+
+        <div class="avantage-card reveal">
+            <div class="avantage-icon"><i class="fas fa-vr-cardboard"></i></div>
+            <h3>Visites virtuelles 3D</h3>
+            <p>Explorez chaque pièce à 360° depuis chez vous avant de vous déplacer. 
+               Gagnez du temps, réduisez les visites inutiles et prenez votre décision 
+               en toute connaissance de cause.</p>
+        </div>
+
+        <div class="avantage-card reveal">
+            <div class="avantage-icon"><i class="fas fa-robot"></i></div>
+            <h3>Estimation IA des loyers</h3>
+            <p>Notre intelligence artificielle analyse localisation, superficie et équipements 
+               pour vous donner une fourchette de loyer réaliste. Ni trop cher, ni sous-évalué — 
+               le juste prix du marché.</p>
+        </div>
+
+        <div class="avantage-card reveal">
+            <div class="avantage-icon"><i class="fas fa-map-marked-alt"></i></div>
+            <h3>Carte interactive</h3>
+            <p>Visualisez tous les biens disponibles sur une carte dynamique. Filtrez 
+               par proximité d'une école, d'un marché ou de votre lieu de travail. 
+               Trouvez le quartier qui vous correspond.</p>
+        </div>
+
+        <div class="avantage-card reveal">
+            <div class="avantage-icon"><i class="fas fa-hard-hat"></i></div>
+            <h3>Architectes certifiés</h3>
+            <p>Accédez à un annuaire d'architectes et d'entrepreneurs vérifiés. 
+               Consultez leurs portfolios, lisez les avis et contactez un professionnel 
+               de confiance pour vos travaux.</p>
+        </div>
+
+        <div class="avantage-card reveal">
+            <div class="avantage-icon"><i class="fas fa-gift"></i></div>
+            <h3>Programme de points</h3>
+            <p>Cumulez des points à chaque action sur la plateforme. Utilisez-les pour 
+               débloquer les visites 3D, afficher les contacts des bailleurs et accéder 
+               aux fonctionnalités premium.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     VISITE 3D SECTION  (NOUVEAU)
+════════════════════════════════════════════ -->
+<section class="visite3d-section" id="visites3d">
+    <div class="visite3d-container">
+        <div class="visite3d-content reveal">
+            <div class="section-tag section-tag--dark">
+                <i class="fas fa-vr-cardboard"></i>
+                Exclusivité Piolo
+            </div>
+            <h2 class="section-title" style="color: var(--blanc);">
+                Visitez sans vous <span>déplacer</span>
+            </h2>
+            <p class="section-subtitle" style="color: rgba(255,255,255,0.75);">
+                Nos visites virtuelles 360° vous permettent d'explorer chaque pièce du logement 
+                en détail, comme si vous y étiez. Disponibles sur mobile, tablette et ordinateur.
+            </p>
+            <ul class="visite3d-features">
+                <li>
+                    <div class="vf-icon"><i class="fas fa-check"></i></div>
+                    <div>
+                        <strong>Navigation immersive à 360°</strong>
+                        <span>Explorez librement chaque pièce du logement</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="vf-icon"><i class="fas fa-check"></i></div>
+                    <div>
+                        <strong>Coût : 5 points PIolo seulement</strong>
+                        <span>Rechargez vos points via MTN ou Orange Money</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="vf-icon"><i class="fas fa-check"></i></div>
+                    <div>
+                        <strong>Compatible faible connexion</strong>
+                        <span>Optimisé pour les réseaux 3G au Cameroun</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="vf-icon"><i class="fas fa-check"></i></div>
+                    <div>
+                        <strong>Plan 2D inclus</strong>
+                        <span>Schéma du logement fourni pour mieux vous projeter</span>
+                    </div>
+                </li>
+            </ul>
+            <a href="{% url 'accounts:auth' %}?has_virtual_tour=true" class="btn btn-gold btn-large">
+                <i class="fas fa-vr-cardboard"></i> Voir les biens avec visite 3D
+            </a>
+        </div>
+        <div class="visite3d-demo reveal">
+            <div class="visite3d-mockup">
+                <div class="mockup-screen">
+                    <div class="mockup-header">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div class="mockup-body">
+                        <!-- Simulated 3D tour UI -->
+                        <div class="tour-preview">
+                            <img 
+                                src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=600&q=80" 
+                                alt="Aperçu visite 3D"
+                                class="tour-img"
+                            >
+                            <div class="tour-overlay">
+                                <div class="tour-badge">
+                                    <i class="fas fa-vr-cardboard"></i>
+                                    Vue 360°
+                                </div>
+                                <div class="tour-compass">
+                                    <i class="fas fa-compass fa-spin-slow"></i>
+                                </div>
+                                <div class="tour-hotspots">
+                                    <div class="hotspot" style="top:40%;left:30%">
+                                        <div class="hotspot-ring"></div>
+                                        <i class="fas fa-circle"></i>
+                                    </div>
+                                    <div class="hotspot" style="top:55%;left:60%">
+                                        <div class="hotspot-ring"></div>
+                                        <i class="fas fa-circle"></i>
+                                    </div>
+                                </div>
+                                <div class="tour-nav">
+                                    <button><i class="fas fa-arrow-left"></i></button>
+                                    <span>Salon</span>
+                                    <button><i class="fas fa-arrow-right"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tour-rooms">
+                            <div class="room-thumb active">
+                                <i class="fas fa-couch"></i><span>Salon</span>
+                            </div>
+                            <div class="room-thumb">
+                                <i class="fas fa-bed"></i><span>Chambre</span>
+                            </div>
+                            <div class="room-thumb">
+                                <i class="fas fa-utensils"></i><span>Cuisine</span>
+                            </div>
+                            <div class="room-thumb">
+                                <i class="fas fa-bath"></i><span>SDB</span>
+                            </div>
+                        </div>
+                        <div class="tour-cost-badge">
+                            <i class="fas fa-coins"></i>
+                            Accès : <strong>5 pts</strong>
+                        </div>
+                    </div>
+                </div>
+                <!-- Floating decorations -->
+                <div class="mockup-float mockup-float--1">
+                    <i class="fas fa-expand-alt"></i>
+                    <span>Plein écran</span>
+                </div>
+                <div class="mockup-float mockup-float--2">
+                    <i class="fas fa-ruler-combined"></i>
+                    <span>120 m²</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     CARTE INTERACTIVE SECTION  (NOUVEAU)
+════════════════════════════════════════════ -->
+<section class="map-section" id="carte">
+    <div class="map-section-inner">
+        <div class="map-info-panel reveal">
+            <div class="section-tag">
+                <i class="fas fa-map-marked-alt"></i>
+                Géolocalisation
+            </div>
+            <h2 class="section-title">Explorez les biens <span>sur la carte</span></h2>
+            <p class="section-subtitle">
+                Tous les biens PIolo sont géolocalisés avec précision. 
+                Trouvez le logement idéal en fonction de votre quartier, 
+                de votre lieu de travail ou d'un point d'intérêt.
+            </p>
+            <div class="map-features-list">
+                <div class="map-feat">
+                    <div class="map-feat-icon"><i class="fas fa-layer-group"></i></div>
+                    <div>
+                        <strong>Filtres sur la carte</strong>
+                        <span>Filtrez par prix, type et équipements directement depuis la carte</span>
+                    </div>
+                </div>
+                <div class="map-feat">
+                    <div class="map-feat-icon"><i class="fas fa-school"></i></div>
+                    <div>
+                        <strong>Points d'intérêt</strong>
+                        <span>Écoles, marchés, hôpitaux, transports — tout est affiché</span>
+                    </div>
+                </div>
+                <div class="map-feat">
+                    <div class="map-feat-icon"><i class="fas fa-location-arrow"></i></div>
+                    <div>
+                        <strong>Ma position</strong>
+                        <span>Trouvez les biens disponibles autour de vous en 1 clic</span>
+                    </div>
+                </div>
+            </div>
+            <a href="{% url 'accounts:auth' %}" class="btn btn-gold btn-large">
+                <i class="fas fa-map-marked-alt"></i> Ouvrir la carte interactive
+            </a>
+        </div>
+        <div class="map-visual reveal">
+            <!-- Stylized map preview -->
+            <div class="map-preview-wrap">
+                <div class="map-preview-bg">
+                    <!-- Simulated map tiles via CSS -->
+                    <div class="map-grid"></div>
+                    <!-- Map pins -->
+                    <div class="map-pin map-pin--gold" style="top:28%;left:35%">
+                        <i class="fas fa-home"></i>
+                        <div class="pin-popup">
+                            <strong>120 000 FCFA/mois</strong>
+                            <span>Bonapriso · 3 ch.</span>
+                        </div>
+                    </div>
+                    <div class="map-pin map-pin--gold" style="top:52%;left:58%">
+                        <i class="fas fa-home"></i>
+                        <div class="pin-popup">
+                            <strong>85 000 FCFA/mois</strong>
+                            <span>Akwa · 2 ch.</span>
+                        </div>
+                    </div>
+                    <div class="map-pin map-pin--gold" style="top:40%;left:70%">
+                        <i class="fas fa-home"></i>
+                        <div class="pin-popup">
+                            <strong>45 000 FCFA/mois</strong>
+                            <span>Bonamoussadi · Studio</span>
+                        </div>
+                    </div>
+                    <div class="map-pin map-pin--green" style="top:62%;left:30%">
+                        <i class="fas fa-vr-cardboard"></i>
+                        <div class="pin-popup">
+                            <strong>Visite 3D</strong>
+                            <span>Bastos · Villa · 5 ch.</span>
+                        </div>
+                    </div>
+                    <div class="map-pin map-pin--gold" style="top:22%;left:52%">
+                        <i class="fas fa-home"></i>
+                        <div class="pin-popup">
+                            <strong>60 000 FCFA/mois</strong>
+                            <span>Ngousso · 2 ch.</span>
+                        </div>
+                    </div>
+                    <!-- Map controls overlay -->
+                    <div class="map-controls">
+                        <button class="map-ctrl"><i class="fas fa-plus"></i></button>
+                        <button class="map-ctrl"><i class="fas fa-minus"></i></button>
+                        <button class="map-ctrl"><i class="fas fa-location-arrow"></i></button>
+                    </div>
+                    <!-- Legend -->
+                    <div class="map-legend">
+                        <div class="legend-item">
+                            <span class="legend-dot legend-dot--gold"></span>
+                            <span>À louer / Vente</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot legend-dot--green"></span>
+                            <span>Visite 3D</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     IA ESTIMATION SECTION  (NOUVEAU)
+════════════════════════════════════════════ -->
+<section class="ia-section" id="estimation">
+    <div class="ia-container">
+        <div class="ia-visual reveal">
+            <div class="ia-widget">
+                <div class="ia-widget-header">
+                    <div class="ia-widget-dot"></div>
+                    <span>Estimation PIolo IA</span>
+                    <div class="ia-widget-badge"><i class="fas fa-robot"></i> IA</div>
+                </div>
+                <div class="ia-widget-body">
+                    <div class="ia-input-row">
+                        <div class="ia-input-group">
+                            <label>Quartier</label>
+                            <div class="ia-fake-select">Bastos, Yaoundé <i class="fas fa-chevron-down"></i></div>
+                        </div>
+                        <div class="ia-input-group">
+                            <label>Surface (m²)</label>
+                            <div class="ia-fake-input">85</div>
+                        </div>
+                    </div>
+                    <div class="ia-input-row">
+                        <div class="ia-input-group">
+                            <label>Chambres</label>
+                            <div class="ia-fake-input">3</div>
+                        </div>
+                        <div class="ia-input-group">
+                            <label>Équipements</label>
+                            <div class="ia-fake-select">Eau · Élec · WiFi <i class="fas fa-chevron-down"></i></div>
+                        </div>
+                    </div>
+                    <div class="ia-result">
+                        <div class="ia-result-label">Estimation du loyer de marché</div>
+                        <div class="ia-result-range">
+                            <span class="ia-range-min">95 000</span>
+                            <div class="ia-range-bar">
+                                <div class="ia-range-fill"></div>
+                                <div class="ia-range-thumb"></div>
+                            </div>
+                            <span class="ia-range-max">140 000</span>
+                        </div>
+                        <div class="ia-result-unit">FCFA / mois</div>
+                        <div class="ia-result-indicator ia-indicator--ok">
+                            <i class="fas fa-check-circle"></i>
+                            Dans la fourchette du marché
+                        </div>
+                    </div>
+                    <button class="ia-cta-btn">
+                        <i class="fas fa-calculator"></i>
+                        Estimer mon bien gratuitement
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="ia-content reveal">
+            <div class="section-tag section-tag--dark">
+                <i class="fas fa-robot"></i>
+                Intelligence Artificielle
+            </div>
+            <h2 class="section-title" style="color: var(--blanc);">
+                Le juste prix, <span>calculé par l'IA</span>
+            </h2>
+            <p class="section-subtitle" style="color: rgba(255,255,255,0.75);">
+                Notre modèle de machine learning analyse en temps réel les données du marché 
+                immobilier camerounais pour vous donner une estimation fiable et honnête.
+            </p>
+            <div class="ia-points">
+                <div class="ia-point">
+                    <div class="ia-point-num">01</div>
+                    <div>
+                        <strong>Pour les bailleurs</strong>
+                        <span>Fixez un loyer compétitif sans laisser de l'argent sur la table 
+                        ni risquer de rester sans locataire</span>
+                    </div>
+                </div>
+                <div class="ia-point">
+                    <div class="ia-point-num">02</div>
+                    <div>
+                        <strong>Pour les locataires</strong>
+                        <span>Détectez immédiatement les loyers surévalués et négociez 
+                        avec des chiffres réels en main</span>
+                    </div>
+                </div>
+                <div class="ia-point">
+                    <div class="ia-point-num">03</div>
+                    <div>
+                        <strong>Données locales</strong>
+                        <span>Entraîné sur les transactions réelles de Yaoundé et Douala, 
+                        quartier par quartier</span>
+                    </div>
+                </div>
+            </div>
+            <a href="{% url 'accounts:auth' %}" class="btn btn-gold btn-large">
+                <i class="fas fa-calculator"></i> Tester l'estimation gratuite
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PROPERTIES SECTION
+════════════════════════════════════════════ -->
+<section class="properties-section" id="biens">
+    <div class="section-header reveal" style="max-width:1400px; margin:0 auto 2.5rem; padding: 0 2rem; text-align:center;">
+        <div class="section-tag">
+            <i class="fas fa-key"></i>
+            Biens disponibles
+        </div>
+        <h2 class="section-title">Annonces <span>vérifiées</span> du moment</h2>
+        <p class="section-subtitle">Tous les biens publiés par des bailleurs vérifiés par notre équipe.</p>
+    </div>
+
+    <div class="properties-grid">
+        {% for property in featured_properties|default:sample_properties %}
+        <div class="property-card reveal">
+            <div class="property-image">
+                <img src="{{ property.image_url }}" alt="{{ property.title }}" loading="lazy">
+                <span class="property-badge {% if property.is_rental %}location{% endif %}">
+                    {{ property.transaction_type }}
+                </span>
+                {% if property.has_virtual_tour %}
+                <span class="property-badge-3d">
+                    <i class="fas fa-vr-cardboard"></i> 3D
+                </span>
+                {% endif %}
+                <button class="property-fav {% if property.is_favorited %}active{% endif %}"
+                    data-property-id="{{ property.id }}" aria-label="Ajouter aux favoris">
+                    <i class="{% if property.is_favorited %}fas{% else %}far{% endif %} fa-heart"></i>
+                </button>
+                <div class="property-verified-badge">
+                    <i class="fas fa-shield-check"></i> Vérifié
+                </div>
+            </div>
+            <div class="property-content">
+                <div class="property-price">
+                    {{ property.price|floatformat:0 }}
+                    <span>FCFA{% if property.is_rental %}/mois{% endif %}</span>
+                </div>
+                <div class="property-title">{{ property.title }}</div>
+                <div class="property-location">
+                    <i class="fas fa-map-marker-alt"></i> {{ property.location }}
+                </div>
+                <div class="property-features">
+                    <span class="feature"><i class="fas fa-bed"></i> {{ property.bedrooms }} ch.</span>
+                    <span class="feature"><i class="fas fa-bath"></i> {{ property.bathrooms }} sdb</span>
+                    <span class="feature"><i class="fas fa-ruler-combined"></i> {{ property.area }} m²</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="view-all-btn reveal">
+        <a href="{% url 'accounts:auth' %}" class="btn btn-gold btn-large">
+            Voir toutes les annonces <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     MODULE ARCHITECTES  (NOUVEAU)
+════════════════════════════════════════════ -->
+<section class="section architects-section" id="architectes">
+    <div class="section-header reveal">
+        <div class="section-tag">
+            <i class="fas fa-hard-hat"></i>
+            Professionnels du bâtiment
+        </div>
+        <h2 class="section-title">Trouvez un <span>architecte certifié</span></h2>
+        <p class="section-subtitle">
+            PIolo met en relation propriétaires et locataires avec des architectes et entrepreneurs 
+            vérifiés, disponibles partout au Cameroun.
+        </p>
+    </div>
+
+    <div class="architects-grid">
+        <!-- Architect card 1 -->
+        <div class="architect-card reveal">
+            <div class="arch-card-header">
+                <div class="arch-avatar">JN</div>
+                <div class="arch-badge"><i class="fas fa-certificate"></i> Certifié PIolo</div>
+            </div>
+            <div class="arch-card-body">
+                <h3 class="arch-name">Jean-Pierre N.</h3>
+                <p class="arch-specialty">
+                    <i class="fas fa-drafting-compass"></i> Architecte OAAC · Conception & Rénovation
+                </p>
+                <p class="arch-location">
+                    <i class="fas fa-map-marker-alt"></i> Douala · Yaoundé
+                </p>
+                <div class="arch-stats">
+                    <div class="arch-stat">
+                        <strong>12 ans</strong>
+                        <span>Expérience</span>
+                    </div>
+                    <div class="arch-stat">
+                        <strong>47</strong>
+                        <span>Réalisations</span>
+                    </div>
+                    <div class="arch-stat">
+                        <strong>4.9 <i class="fas fa-star text-gold"></i></strong>
+                        <span>Note</span>
+                    </div>
+                </div>
+                <div class="arch-portfolio">
+                    <img src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=200&q=70" alt="">
+                    <img src="https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=200&q=70" alt="">
+                    <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=200&q=70" alt="">
+                </div>
+                <a href="{% url 'accounts:auth' %}" class="btn btn-gold arch-btn">
+                    <i class="fas fa-comments"></i> Contacter (2 pts)
+                </a>
+            </div>
+        </div>
+
+        <!-- Architect card 2 -->
+        <div class="architect-card reveal">
+            <div class="arch-card-header">
+                <div class="arch-avatar" style="background: linear-gradient(135deg,#10B981,#059669)">MB</div>
+                <div class="arch-badge"><i class="fas fa-certificate"></i> Certifié PIolo</div>
+            </div>
+            <div class="arch-card-body">
+                <h3 class="arch-name">Marie-Blanche B.</h3>
+                <p class="arch-specialty">
+                    <i class="fas fa-drafting-compass"></i> Architecte · Intérieur & Aménagement
+                </p>
+                <p class="arch-location">
+                    <i class="fas fa-map-marker-alt"></i> Yaoundé
+                </p>
+                <div class="arch-stats">
+                    <div class="arch-stat">
+                        <strong>8 ans</strong>
+                        <span>Expérience</span>
+                    </div>
+                    <div class="arch-stat">
+                        <strong>31</strong>
+                        <span>Réalisations</span>
+                    </div>
+                    <div class="arch-stat">
+                        <strong>4.8 <i class="fas fa-star text-gold"></i></strong>
+                        <span>Note</span>
+                    </div>
+                </div>
+                <div class="arch-portfolio">
+                    <img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=200&q=70" alt="">
+                    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=200&q=70" alt="">
+                    <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=200&q=70" alt="">
+                </div>
+                <a href="{% url 'accounts:auth' %}" class="btn btn-gold arch-btn">
+                    <i class="fas fa-comments"></i> Contacter (2 pts)
+                </a>
+            </div>
+        </div>
+
+        <!-- Architect card 3 -->
+        <div class="architect-card reveal">
+            <div class="arch-card-header">
+                <div class="arch-avatar" style="background: linear-gradient(135deg,#6C3483,#9B59B6)">DK</div>
+                <div class="arch-badge"><i class="fas fa-certificate"></i> Certifié PIolo</div>
+            </div>
+            <div class="arch-card-body">
+                <h3 class="arch-name">Didier K.</h3>
+                <p class="arch-specialty">
+                    <i class="fas fa-hard-hat"></i> Entrepreneur · Gros œuvre & Finitions
+                </p>
+                <p class="arch-location">
+                    <i class="fas fa-map-marker-alt"></i> Douala · Bafoussam
+                </p>
+                <div class="arch-stats">
+                    <div class="arch-stat">
+                        <strong>15 ans</strong>
+                        <span>Expérience</span>
+                    </div>
+                    <div class="arch-stat">
+                        <strong>62</strong>
+                        <span>Réalisations</span>
+                    </div>
+                    <div class="arch-stat">
+                        <strong>4.7 <i class="fas fa-star text-gold"></i></strong>
+                        <span>Note</span>
+                    </div>
+                </div>
+                <div class="arch-portfolio">
+                    <img src="https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=200&q=70" alt="">
+                    <img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=200&q=70" alt="">
+                    <img src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=200&q=70" alt="">
+                </div>
+                <a href="{% url 'accounts:auth' %}" class="btn btn-gold arch-btn">
+                    <i class="fas fa-comments"></i> Contacter (2 pts)
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Architectes -->
+    <div class="architects-cta reveal">
+        <div class="arch-cta-left">
+            <h3>Vous êtes architecte ou entrepreneur ?</h3>
+            <p>Rejoignez l'annuaire PIolo, faites vérifier votre profil et accédez à des milliers de clients potentiels.</p>
+        </div>
+        <div class="arch-cta-right">
+            <a href="{% url 'accounts:auth' %}" class="btn btn-gold btn-large">
+                <i class="fas fa-user-plus"></i> Créer mon profil pro
+            </a>
+            <a href="{% url 'accounts:auth' %}" class="btn btn-outline btn-large">
+                <i class="fas fa-search"></i> Voir tous les pros
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     VERIFICATION BAILLEUR SECTION (NOUVEAU)
+════════════════════════════════════════════ -->
+<section class="verification-section" id="verification">
+    <div class="verif-container">
+        <div class="section-header reveal">
+            <div class="section-tag">
+                <i class="fas fa-user-check"></i>
+                Processus de vérification
+            </div>
+            <h2 class="section-title">Aucun arnaqueur <span>ne passe</span></h2>
+            <p class="section-subtitle">
+                PIolo est la seule plateforme immobilière camerounaise à vérifier manuellement 
+                l'identité de chaque bailleur avant toute publication.
+            </p>
+        </div>
+
+        <div class="verif-steps reveal">
+            <div class="verif-step">
+                <div class="verif-step-num">1</div>
+                <div class="verif-step-icon"><i class="fas fa-file-alt"></i></div>
+                <h4>Soumission du dossier</h4>
+                <p>Le bailleur soumet sa CNI scannée, un selfie de vérification tenant sa pièce d'identité et son numéro de téléphone vérifié par OTP.</p>
+            </div>
+            <div class="verif-arrow"><i class="fas fa-chevron-right"></i></div>
+            <div class="verif-step">
+                <div class="verif-step-num">2</div>
+                <div class="verif-step-icon"><i class="fas fa-search"></i></div>
+                <h4>Vérification manuelle</h4>
+                <p>Notre équipe examine la cohérence entre la pièce d'identité et le selfie. En cas de doute, un document complémentaire est demandé.</p>
+            </div>
+            <div class="verif-arrow"><i class="fas fa-chevron-right"></i></div>
+            <div class="verif-step">
+                <div class="verif-step-num">3</div>
+                <div class="verif-step-icon"><i class="fas fa-check-circle"></i></div>
+                <h4>Badge Vérifié attribué</h4>
+                <p>Le bailleur approuvé reçoit son badge "Bailleur Vérifié PIolo". Toutes ses annonces portent ce badge, visible par tous les locataires.</p>
+            </div>
+            <div class="verif-arrow"><i class="fas fa-chevron-right"></i></div>
+            <div class="verif-step">
+                <div class="verif-step-num">4</div>
+                <div class="verif-step-icon"><i class="fas fa-eye"></i></div>
+                <h4>Surveillance continue</h4>
+                <p>Les utilisateurs peuvent signaler tout bailleur suspect. Après 3 signalements, une investigation prioritaire est automatiquement déclenchée.</p>
+            </div>
+        </div>
+
+        <div class="verif-cta reveal">
+            <div class="verif-cta-card verif-cta-card--locataire">
+                <i class="fas fa-home"></i>
+                <h4>Vous cherchez un logement ?</h4>
+                <p>Tous les biens sur PIolo sont publiés par des bailleurs vérifiés. Trouvez en toute sécurité.</p>
+                <a href="{% url 'accounts:auth' %}" class="btn btn-gold">
+                    <i class="fas fa-search"></i> Chercher un bien
+                </a>
+            </div>
+            <div class="verif-cta-card verif-cta-card--bailleur">
+                <i class="fas fa-building"></i>
+                <h4>Vous êtes bailleur ?</h4>
+                <p>Faites vérifier votre compte et publiez vos annonces auprès de locataires sérieux.</p>
+                <a href="{% url 'accounts:auth' %}" class="btn btn-gold">
+                    <i class="fas fa-user-check"></i> Demander la vérification
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     POINTS SECTION
+════════════════════════════════════════════ -->
+<section class="points-section" id="points">
+    <div class="points-container">
+        <div class="section-header reveal">
+            <div class="section-tag" style="background:rgba(212,175,55,0.15);color:var(--or-light);border-color:rgba(212,175,55,0.3);">
+                <i class="fas fa-coins"></i>
+                Programme de points
+            </div>
+            <h2 class="section-title">Vos points, <span>votre pouvoir</span></h2>
+            <p class="section-subtitle">
+                À chaque action sur PIolo, vous gagnez ou utilisez des points. 
+                Rechargez facilement via MTN Money ou Orange Money.
+            </p>
+        </div>
+
+        <div class="points-economy reveal">
+            <!-- Gagner des points -->
+            <div class="pts-col">
+                <h3 class="pts-col-title pts-col-title--earn">
+                    <i class="fas fa-plus-circle"></i> Gagnez des points
+                </h3>
+                <div class="pts-items">
+                    <div class="pts-item pts-item--earn">
+                        <div class="pts-item-icon"><i class="fas fa-user-plus"></i></div>
+                        <div class="pts-item-info">
+                            <span>Inscription</span>
+                            <small>Capital de départ automatique</small>
+                        </div>
+                        <div class="pts-item-val pts-val--earn">+50 pts</div>
+                    </div>
+                    <div class="pts-item pts-item--earn">
+                        <div class="pts-item-icon"><i class="fas fa-users"></i></div>
+                        <div class="pts-item-info">
+                            <span>Parrainage</span>
+                            <small>Par ami invité qui s'inscrit</small>
+                        </div>
+                        <div class="pts-item-val pts-val--earn">+20 pts</div>
+                    </div>
+                    <div class="pts-item pts-item--earn">
+                        <div class="pts-item-icon"><i class="fas fa-user-circle"></i></div>
+                        <div class="pts-item-info">
+                            <span>Profil complété à 100%</span>
+                            <small>Une seule fois</small>
+                        </div>
+                        <div class="pts-item-val pts-val--earn">+10 pts</div>
+                    </div>
+                    <div class="pts-item pts-item--earn">
+                        <div class="pts-item-icon"><i class="fas fa-star"></i></div>
+                        <div class="pts-item-info">
+                            <span>Laisser un avis</span>
+                            <small>Après une location finalisée</small>
+                        </div>
+                        <div class="pts-item-val pts-val--earn">+5 pts</div>
+                    </div>
+                    <div class="pts-item pts-item--earn">
+                        <div class="pts-item-icon"><i class="fas fa-home"></i></div>
+                        <div class="pts-item-info">
+                            <span>1ère annonce publiée</span>
+                            <small>Pour les bailleurs vérifiés</small>
+                        </div>
+                        <div class="pts-item-val pts-val--earn">+15 pts</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Utiliser des points -->
+            <div class="pts-divider">
+                <div class="pts-divider-icon"><i class="fas fa-coins"></i></div>
+            </div>
+
+            <div class="pts-col">
+                <h3 class="pts-col-title pts-col-title--use">
+                    <i class="fas fa-minus-circle"></i> Utilisez vos points
+                </h3>
+                <div class="pts-items">
+                    <div class="pts-item pts-item--use">
+                        <div class="pts-item-icon"><i class="fas fa-vr-cardboard"></i></div>
+                        <div class="pts-item-info">
+                            <span>Visite virtuelle 3D</span>
+                            <small>Par bien visité</small>
+                        </div>
+                        <div class="pts-item-val pts-val--use">- 5 pts</div>
+                    </div>
+                    <div class="pts-item pts-item--use">
+                        <div class="pts-item-icon"><i class="fas fa-phone"></i></div>
+                        <div class="pts-item-info">
+                            <span>Afficher le contact bailleur</span>
+                            <small>Numéro + email direct</small>
+                        </div>
+                        <div class="pts-item-val pts-val--use">- 3 pts</div>
+                    </div>
+                    <div class="pts-item pts-item--use">
+                        <div class="pts-item-icon"><i class="fas fa-chart-line"></i></div>
+                        <div class="pts-item-info">
+                            <span>Rapport de marché IA</span>
+                            <small>Par quartier, par mois</small>
+                        </div>
+                        <div class="pts-item-val pts-val--use">- 10 pts</div>
+                    </div>
+                    <div class="pts-item pts-item--use">
+                        <div class="pts-item-icon"><i class="fas fa-bolt"></i></div>
+                        <div class="pts-item-info">
+                            <span>Booster une annonce</span>
+                            <small>Mise en avant 7 jours</small>
+                        </div>
+                        <div class="pts-item-val pts-val--use">- 15 pts</div>
+                    </div>
+                    <div class="pts-item pts-item--use">
+                        <div class="pts-item-icon"><i class="fas fa-comments"></i></div>
+                        <div class="pts-item-info">
+                            <span>Contacter un architecte</span>
+                            <small>Demande de devis</small>
+                        </div>
+                        <div class="pts-item-val pts-val--use">- 2 pts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Packs de recharge -->
+        <div class="points-packs reveal">
+            <h3 class="packs-title">
+                <i class="fas fa-mobile-alt"></i> Rechargez via Mobile Money
+            </h3>
+            <div class="packs-grid">
+                <div class="pack-card">
+                    <div class="pack-pts">100 pts</div>
+                    <div class="pack-price">500 <span>FCFA</span></div>
+                    <div class="pack-ops">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/MTN_Logo.svg/200px-MTN_Logo.svg.png" alt="MTN" class="pack-op-logo">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Orange_logo.svg/200px-Orange_logo.svg.png" alt="Orange" class="pack-op-logo">
+                    </div>
+                    <a href="{% url 'accounts:auth' %}" class="btn btn-outline pack-btn">Recharger</a>
+                </div>
+                <div class="pack-card pack-card--featured">
+                    <div class="pack-popular">Populaire</div>
+                    <div class="pack-pts">300 pts</div>
+                    <div class="pack-price">1 200 <span>FCFA</span></div>
+                    <div class="pack-ops">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/MTN_Logo.svg/200px-MTN_Logo.svg.png" alt="MTN" class="pack-op-logo">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Orange_logo.svg/200px-Orange_logo.svg.png" alt="Orange" class="pack-op-logo">
+                    </div>
+                    <a href="{% url 'accounts:auth' %}" class="btn btn-gold pack-btn">Recharger</a>
+                </div>
+                <div class="pack-card">
+                    <div class="pack-pts">1 000 pts</div>
+                    <div class="pack-price">3 500 <span>FCFA</span></div>
+                    <div class="pack-ops">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/MTN_Logo.svg/200px-MTN_Logo.svg.png" alt="MTN" class="pack-op-logo">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Orange_logo.svg/200px-Orange_logo.svg.png" alt="Orange" class="pack-op-logo">
+                    </div>
+                    <a href="{% url 'accounts:auth' %}" class="btn btn-outline pack-btn">Recharger</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     TESTIMONIALS SECTION
+════════════════════════════════════════════ -->
+<section class="testimonials-section">
+    <div class="section-header reveal">
+        <div class="section-tag">
+            <i class="fas fa-comment-alt"></i>
+            Témoignages
+        </div>
+        <h2 class="section-title">Ils font confiance à <span>Piolo</span></h2>
+    </div>
+
+    <div class="testimonials-grid">
+        <div class="testimonial-card reveal">
+            <div class="testimonial-stars">
+                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                <i class="fas fa-star"></i><i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-text">
+                J'ai trouvé mon appartement à Bonamoussadi en moins de 3 jours grâce à la carte interactive. 
+                La visite 3D m'a évité 4 déplacements inutiles — j'ai vu le bien depuis mon bureau !
+            </p>
+            <div class="testimonial-author">
+                <div class="author-avatar">JK</div>
+                <div class="author-info">
+                    <h4>Julien K.</h4>
+                    <span>Locataire · Douala</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="testimonial-card reveal">
+            <div class="testimonial-stars">
+                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                <i class="fas fa-star"></i><i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-text">
+                Mes 3 appartements sont loués en permanence. L'estimation IA m'a aidé à ajuster mes prix. 
+                Et le système de points m'a permis de booster mes annonces lors du lancement.
+            </p>
+            <div class="testimonial-author">
+                <div class="author-avatar">MN</div>
+                <div class="author-info">
+                    <h4>Marie-Claire N.</h4>
+                    <span>Bailleur vérifié · Yaoundé</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="testimonial-card reveal">
+            <div class="testimonial-stars">
+                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                <i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+            </div>
+            <p class="testimonial-text">
+                J'ai trouvé mes deux premiers clients via l'annuaire architectes PIolo. 
+                La vérification de mon profil a mis 48h — depuis, mes demandes ont triplé.
+            </p>
+            <div class="testimonial-author">
+                <div class="author-avatar">DM</div>
+                <div class="author-info">
+                    <h4>Denis M.</h4>
+                    <span>Architecte certifié · Bastos</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+
+{% block extra_css %}
+<style>
+/* ─── HERO EXTRAS ────────────────────────────────────────────────────────── */
+.hero-floating-badges {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 2.5rem;
+    animation: fadeInUp 1s ease 0.4s both;
+}
+.hero-float-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(8px);
+    color: rgba(255,255,255,0.9);
+    padding: 0.5rem 1.1rem;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: var(--transition);
+}
+.hero-float-badge i { color: var(--or-light); }
+.hero-float-badge:hover {
+    background: rgba(212,175,55,0.2);
+    border-color: rgba(212,175,55,0.4);
+}
+.hero-scroll-indicator {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    color: rgba(255,255,255,0.6);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    animation: bounce 2s infinite;
+}
+@keyframes bounce {
+    0%,100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(6px); }
+}
+
+/* ─── SEARCH EXTRAS ──────────────────────────────────────────────────────── */
+.quick-filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #F3F4F6;
+}
+.qf-label {
+    font-size: 12px;
+    color: var(--gris-light);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.qf-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.875rem;
+    background: var(--gris-f);
+    border: 1px solid #E5E7EB;
+    border-radius: 50px;
+    font-size: 12px;
+    color: var(--gris);
+    font-weight: 500;
+    transition: var(--transition);
+    cursor: pointer;
+}
+.qf-tag:hover { border-color: var(--or); color: var(--or-dark); background: rgba(212,175,55,0.05); }
+.qf-tag--gold { border-color: var(--or); color: var(--or-dark); background: rgba(212,175,55,0.08); }
+.qf-tag i { font-size: 11px; color: var(--or); }
+
+/* ─── STAT ICON ──────────────────────────────────────────────────────────── */
+.stat-icon {
+    font-size: 28px;
+    color: var(--or);
+    margin-bottom: 0.5rem;
+    opacity: 0.8;
+}
+
+/* ─── PROPERTY CARD EXTRAS ───────────────────────────────────────────────── */
+.property-badge-3d {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    background: rgba(26,26,26,0.85);
+    color: var(--or-light);
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(212,175,55,0.3);
+}
+.property-verified-badge {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    background: rgba(16,185,129,0.9);
+    color: #fff;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    backdrop-filter: blur(4px);
+}
+
+/* ─── VISITE 3D SECTION ──────────────────────────────────────────────────── */
+.visite3d-section {
+    background: linear-gradient(135deg, var(--noir) 0%, #0D2137 100%);
+    padding: 6rem 2rem;
+    overflow: hidden;
+    position: relative;
+}
+.visite3d-section::before {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(212,175,55,0.12), transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+.visite3d-container {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+}
+.visite3d-content .section-tag {
+    background: rgba(212,175,55,0.15);
+    color: var(--or-light);
+    border-color: rgba(212,175,55,0.3);
+}
+.visite3d-features {
+    list-style: none;
+    margin: 2rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.visite3d-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+.vf-icon {
+    width: 28px;
+    height: 28px;
+    background: var(--or);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--noir);
+    font-size: 11px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+.visite3d-features strong {
+    display: block;
+    color: var(--blanc);
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+.visite3d-features span {
+    color: rgba(255,255,255,0.6);
+    font-size: 13px;
+}
+
+/* Mockup 3D */
+.visite3d-mockup {
+    position: relative;
+}
+.mockup-screen {
+    background: #1A1A2E;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 2px solid rgba(212,175,55,0.3);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+}
+.mockup-header {
+    background: #0D0D1A;
+    padding: 12px 16px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+.mockup-header span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+}
+.mockup-header span:nth-child(1) { background: #FF5F57; }
+.mockup-header span:nth-child(2) { background: #FFBD2E; }
+.mockup-header span:nth-child(3) { background: #28CA41; }
+.mockup-body { padding: 1rem; }
+.tour-preview {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    height: 220px;
+}
+.tour-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.7);
+}
+.tour-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    padding: 1rem;
+}
+.tour-badge {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    background: rgba(0,0,0,0.75);
+    color: var(--or-light);
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(212,175,55,0.3);
+}
+.tour-compass {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    color: rgba(255,255,255,0.7);
+    font-size: 22px;
+}
+.tour-nav {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(0,0,0,0.6);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    backdrop-filter: blur(8px);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+}
+.tour-nav button {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: var(--transition);
+}
+.tour-nav button:hover { background: var(--or); color: var(--noir); }
+.tour-hotspots { position: absolute; inset: 0; pointer-events: none; }
+.hotspot {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    transform: translate(-50%, -50%);
+}
+.hotspot i { color: var(--or-light); font-size: 10px; }
+.hotspot-ring {
+    position: absolute;
+    inset: -6px;
+    border: 2px solid rgba(212,175,55,0.5);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0%,100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.4); opacity: 0.3; }
+}
+.tour-rooms {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+.room-thumb {
+    flex: 1;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 0.5rem 0.25rem;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    color: rgba(255,255,255,0.6);
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+.room-thumb i { font-size: 16px; }
+.room-thumb.active { background: rgba(212,175,55,0.2); border-color: var(--or); color: var(--or-light); }
+.room-thumb:hover { border-color: rgba(212,175,55,0.4); color: rgba(255,255,255,0.9); }
+.tour-cost-badge {
+    text-align: center;
+    margin-top: 0.75rem;
+    color: rgba(255,255,255,0.6);
+    font-size: 12px;
+}
+.tour-cost-badge i { color: var(--or); }
+.tour-cost-badge strong { color: var(--or-light); }
+
+/* Floating decorations */
+.mockup-float {
+    position: absolute;
+    background: rgba(255,255,255,0.95);
+    border-radius: 10px;
+    padding: 0.5rem 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--noir);
+    box-shadow: var(--shadow-lg);
+    animation: floatBadge 3s ease-in-out infinite;
+}
+.mockup-float i { color: var(--or); font-size: 14px; }
+.mockup-float--1 { top: -15px; right: -20px; animation-delay: 0s; }
+.mockup-float--2 { bottom: 20px; left: -20px; animation-delay: 1.5s; }
+@keyframes floatBadge {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+@keyframes fa-spin-slow {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.fa-spin-slow { animation: fa-spin-slow 8s linear infinite; }
+
+/* ─── MAP SECTION ────────────────────────────────────────────────────────── */
+.map-section {
+    background: var(--gris-f);
+    padding: 6rem 2rem;
+    overflow: hidden;
+}
+.map-section-inner {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+}
+.map-features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin: 2rem 0;
+}
+.map-feat {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+.map-feat-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--or), var(--or-light));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--noir);
+    font-size: 15px;
+    flex-shrink: 0;
+}
+.map-feat strong { display: block; color: var(--noir); font-size: 14px; margin-bottom: 2px; }
+.map-feat span { color: var(--gris); font-size: 13px; }
+
+/* Map visual */
+.map-preview-wrap { position: relative; }
+.map-preview-bg {
+    background: #E8ECEF;
+    border-radius: 20px;
+    height: 420px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid rgba(0,0,0,0.08);
+    box-shadow: var(--shadow-xl);
+}
+.map-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px),
+        /* Roads */ linear-gradient(rgba(255,255,255,0.8) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(255,255,255,0.8) 2px, transparent 2px);
+    background-size: 30px 30px, 30px 30px, 90px 90px, 90px 90px;
+}
+.map-pin {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    cursor: pointer;
+}
+.map-pin i {
+    font-size: 28px;
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3));
+    transition: var(--transition);
+}
+.map-pin--gold i { color: var(--or); }
+.map-pin--green i { color: var(--vert); }
+.map-pin:hover i { transform: scale(1.2); }
+.pin-popup {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--blanc);
+    border-radius: 8px;
+    padding: 0.5rem 0.875rem;
+    box-shadow: var(--shadow-lg);
+    white-space: nowrap;
+    font-size: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transition: var(--transition);
+    border: 1px solid rgba(0,0,0,0.07);
+}
+.pin-popup strong { display: block; color: var(--noir); font-weight: 700; }
+.pin-popup span { color: var(--gris); }
+.map-pin:hover .pin-popup { opacity: 1; }
+.map-controls {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.map-ctrl {
+    width: 32px;
+    height: 32px;
+    background: white;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--gris);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+.map-ctrl:hover { border-color: var(--or); color: var(--or); }
+.map-legend {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    background: white;
+    border-radius: 8px;
+    padding: 0.5rem 0.875rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border: 1px solid rgba(0,0,0,0.07);
+}
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--gris); }
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+.legend-dot--gold { background: var(--or); }
+.legend-dot--green { background: var(--vert); }
+
+/* ─── IA SECTION ─────────────────────────────────────────────────────────── */
+.ia-section {
+    background: linear-gradient(135deg, #0D2137 0%, var(--noir) 100%);
+    padding: 6rem 2rem;
+    overflow: hidden;
+    position: relative;
+}
+.ia-section::after {
+    content: '';
+    position: absolute;
+    top: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(212,175,55,0.08), transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+.ia-container {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+/* IA Widget */
+.ia-widget {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(212,175,55,0.25);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+    backdrop-filter: blur(10px);
+}
+.ia-widget-header {
+    background: rgba(0,0,0,0.3);
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.ia-widget-dot {
+    width: 10px;
+    height: 10px;
+    background: var(--or);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(212,175,55,0.5);
+    animation: blink 2s infinite;
+}
+@keyframes blink {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+.ia-widget-header span {
+    color: rgba(255,255,255,0.9);
+    font-size: 13px;
+    font-weight: 600;
+    flex: 1;
+}
+.ia-widget-badge {
+    background: rgba(212,175,55,0.2);
+    color: var(--or-light);
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid rgba(212,175,55,0.3);
+}
+.ia-widget-body { padding: 1.5rem; }
+.ia-input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.ia-input-group label {
+    display: block;
+    color: rgba(255,255,255,0.5);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.4rem;
+}
+.ia-fake-select, .ia-fake-input {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 0.625rem 0.875rem;
+    color: rgba(255,255,255,0.85);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.ia-fake-select i { color: rgba(255,255,255,0.4); font-size: 11px; }
+.ia-result {
+    background: rgba(212,175,55,0.08);
+    border: 1px solid rgba(212,175,55,0.2);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin: 1rem 0;
+}
+.ia-result-label {
+    color: rgba(255,255,255,0.6);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.875rem;
+    font-weight: 600;
+}
+.ia-result-range {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+.ia-range-min, .ia-range-max {
+    color: rgba(255,255,255,0.7);
+    font-size: 12px;
+    white-space: nowrap;
+}
+.ia-range-bar {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    position: relative;
+}
+.ia-range-fill {
+    position: absolute;
+    left: 20%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--or), var(--or-light));
+    border-radius: 3px;
+}
+.ia-range-thumb {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 14px;
+    height: 14px;
+    background: var(--or);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 10px rgba(212,175,55,0.5);
+}
+.ia-result-unit {
+    text-align: center;
+    color: var(--or-light);
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 0.875rem;
+}
+.ia-result-indicator {
+    text-align: center;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+.ia-indicator--ok { background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
+.ia-cta-btn {
+    width: 100%;
+    padding: 0.875rem;
+    background: linear-gradient(135deg, var(--or), var(--or-light));
+    color: var(--noir);
+    border: none;
+    border-radius: 10px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: var(--transition);
+}
+.ia-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(212,175,55,0.3); }
+
+/* IA Content */
+.ia-points {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin: 2rem 0;
+}
+.ia-point {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+}
+.ia-point-num {
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--or);
+    background: rgba(212,175,55,0.15);
+    border: 1px solid rgba(212,175,55,0.3);
+    border-radius: 6px;
+    padding: 0.25rem 0.5rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+}
+.ia-point strong { display: block; color: var(--blanc); font-size: 14px; margin-bottom: 3px; }
+.ia-point span { color: rgba(255,255,255,0.6); font-size: 13px; line-height: 1.6; }
+
+/* ─── ARCHITECTS SECTION ─────────────────────────────────────────────────── */
+.architects-section { background: var(--blanc); }
+.architects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+.architect-card {
+    background: var(--blanc);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(0,0,0,0.07);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    overflow: hidden;
+}
+.architect-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-xl); }
+.arch-card-header {
+    background: linear-gradient(135deg, var(--noir), var(--noir-light));
+    padding: 1.75rem 1.5rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+.arch-avatar {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--or), var(--or-light));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    color: var(--noir);
+    font-size: 22px;
+    border: 3px solid rgba(255,255,255,0.15);
+}
+.arch-badge {
+    background: rgba(16,185,129,0.15);
+    color: #6ee7b7;
+    border: 1px solid rgba(16,185,129,0.3);
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.arch-card-body { padding: 1.5rem; }
+.arch-name { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--noir); }
+.arch-specialty, .arch-location {
+    font-size: 13px;
+    color: var(--gris);
+    margin-bottom: 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.arch-specialty i, .arch-location i { color: var(--or); font-size: 12px; }
+.arch-stats {
+    display: flex;
+    gap: 0;
+    margin: 1.25rem 0;
+    background: var(--gris-f);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+.arch-stat {
+    flex: 1;
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+    border-right: 1px solid rgba(0,0,0,0.05);
+}
+.arch-stat:last-child { border-right: none; }
+.arch-stat strong { display: block; font-size: 14px; color: var(--noir); font-weight: 700; }
+.arch-stat span { font-size: 11px; color: var(--gris-light); text-transform: uppercase; letter-spacing: 0.3px; }
+.text-gold { color: var(--or); }
+.arch-portfolio {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 1.25rem;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.arch-portfolio img {
+    width: 100%;
+    height: 65px;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+    cursor: pointer;
+}
+.arch-portfolio img:hover { transform: scale(1.08); }
+.arch-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem;
+    font-size: 13px;
+}
+/* Architects CTA */
+.architects-cta {
+    background: linear-gradient(135deg, var(--noir), var(--noir-light));
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+.arch-cta-left h3 { color: var(--blanc); font-size: 1.25rem; margin-bottom: 0.5rem; }
+.arch-cta-left p { color: rgba(255,255,255,0.6); font-size: 14px; max-width: 400px; }
+.arch-cta-right { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+/* ─── VERIFICATION SECTION ───────────────────────────────────────────────── */
+.verification-section {
+    background: var(--gris-f);
+    padding: 6rem 2rem;
+}
+.verif-container { max-width: 1200px; margin: 0 auto; }
+.verif-steps {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+    gap: 1rem;
+    align-items: start;
+    margin: 3rem 0;
+}
+.verif-step {
+    background: var(--blanc);
+    border-radius: var(--radius);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(0,0,0,0.04);
+    transition: var(--transition);
+    position: relative;
+}
+.verif-step:hover { transform: translateY(-4px); box-shadow: var(--shadow-xl); }
+.verif-step-num {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--or), var(--or-light));
+    color: var(--noir);
+    border-radius: 50%;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(212,175,55,0.4);
+}
+.verif-step-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.05));
+    border: 2px solid rgba(212,175,55,0.3);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.5rem auto 1rem;
+    font-size: 22px;
+    color: var(--or-dark);
+}
+.verif-step h4 { font-size: 15px; font-weight: 700; margin-bottom: 0.75rem; color: var(--noir); }
+.verif-step p { font-size: 13px; color: var(--gris); line-height: 1.6; }
+.verif-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--or);
+    font-size: 18px;
+    padding-top: 60px;
+    opacity: 0.6;
+}
+.verif-cta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+.verif-cta-card {
+    padding: 2.5rem;
+    border-radius: var(--radius-lg);
+    text-align: center;
+    border: 2px solid transparent;
+    transition: var(--transition);
+}
+.verif-cta-card > i { font-size: 40px; margin-bottom: 1rem; display: block; }
+.verif-cta-card h4 { font-size: 1.125rem; margin-bottom: 0.75rem; }
+.verif-cta-card p { font-size: 14px; line-height: 1.7; margin-bottom: 1.5rem; }
+.verif-cta-card--locataire {
+    background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(16,185,129,0.04));
+    border-color: rgba(16,185,129,0.2);
+}
+.verif-cta-card--locataire > i { color: var(--vert); }
+.verif-cta-card--locataire h4 { color: var(--vert); }
+.verif-cta-card--locataire p { color: var(--gris); }
+.verif-cta-card--bailleur {
+    background: linear-gradient(135deg, rgba(212,175,55,0.1), rgba(212,175,55,0.04));
+    border-color: rgba(212,175,55,0.25);
+}
+.verif-cta-card--bailleur > i { color: var(--or); }
+.verif-cta-card--bailleur h4 { color: var(--or-dark); }
+.verif-cta-card--bailleur p { color: var(--gris); }
+
+/* ─── POINTS ECONOMY ─────────────────────────────────────────────────────── */
+.points-economy {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 2rem;
+    align-items: start;
+    margin: 2.5rem 0;
+}
+.pts-col-title {
+    font-size: 15px;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+}
+.pts-col-title--earn { color: #6ee7b7; }
+.pts-col-title--earn i { color: var(--vert); }
+.pts-col-title--use { color: rgba(255,255,255,0.7); }
+.pts-col-title--use i { color: rgba(239,68,68,0.8); }
+.pts-items { display: flex; flex-direction: column; gap: 0.75rem; }
+.pts-item {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.875rem 1rem;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    transition: var(--transition);
+}
+.pts-item--earn {
+    background: rgba(16,185,129,0.07);
+    border-color: rgba(16,185,129,0.15);
+}
+.pts-item--use {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.08);
+}
+.pts-item:hover { transform: translateX(4px); }
+.pts-item-icon {
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+.pts-item--earn .pts-item-icon { background: rgba(16,185,129,0.2); color: #6ee7b7; }
+.pts-item--use .pts-item-icon { background: rgba(212,175,55,0.15); color: var(--or-light); }
+.pts-item-info { flex: 1; }
+.pts-item-info span { display: block; color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 500; }
+.pts-item-info small { color: rgba(255,255,255,0.4); font-size: 11px; }
+.pts-item-val { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 800; white-space: nowrap; }
+.pts-val--earn { color: #6ee7b7; }
+.pts-val--use { color: rgba(239,68,68,0.8); }
+.pts-divider {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 2.5rem;
+}
+.pts-divider-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--or), var(--or-light));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--noir);
+    font-size: 18px;
+    box-shadow: 0 4px 20px rgba(212,175,55,0.3);
+}
+
+/* Points packs */
+.packs-title {
+    text-align: center;
+    color: rgba(255,255,255,0.85);
+    font-size: 17px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+}
+.packs-title i { color: var(--or); }
+.packs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    max-width: 700px;
+    margin: 0 auto;
+}
+.pack-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(212,175,55,0.2);
+    border-radius: var(--radius);
+    padding: 1.75rem 1.25rem;
+    text-align: center;
+    transition: var(--transition);
+    position: relative;
+}
+.pack-card:hover { transform: translateY(-4px); border-color: var(--or); }
+.pack-card--featured {
+    background: rgba(212,175,55,0.12);
+    border-color: var(--or);
+    transform: scale(1.05);
+}
+.pack-popular {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--or);
+    color: var(--noir);
+    padding: 0.2rem 0.875rem;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+.pack-pts {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--or-light);
+    margin-bottom: 0.25rem;
+}
+.pack-price {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--blanc);
+    margin-bottom: 0.875rem;
+}
+.pack-price span { font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 500; }
+.pack-ops {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    height: 22px;
+}
+.pack-op-logo {
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+    opacity: 0.6;
+}
+.pack-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.625rem;
+    font-size: 13px;
+}
+
+/* ─── SECTION TAG VARIANTS ───────────────────────────────────────────────── */
+.section-tag--dark {
+    background: rgba(212,175,55,0.15);
+    color: var(--or-light);
+    border-color: rgba(212,175,55,0.3);
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────────────────────── */
+@media (max-width: 1200px) {
+    .visite3d-container,
+    .map-section-inner,
+    .ia-container { grid-template-columns: 1fr; gap: 3rem; }
+    .visite3d-demo { display: none; }
+    .architects-grid { grid-template-columns: repeat(2, 1fr); }
+    .verif-steps {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    .verif-arrow { display: none; }
+    .points-economy { grid-template-columns: 1fr; }
+    .pts-divider { display: none; }
+    .packs-grid { max-width: 100%; }
+}
+
+@media (max-width: 768px) {
+    .hero-floating-badges { gap: 0.5rem; }
+    .hero-float-badge { font-size: 11px; padding: 0.4rem 0.875rem; }
+    .quick-filters { display: none; }
+    .architects-grid { grid-template-columns: 1fr; }
+    .architects-cta { flex-direction: column; text-align: center; }
+    .arch-cta-right { justify-content: center; }
+    .verif-cta { grid-template-columns: 1fr; }
+    .packs-grid { grid-template-columns: 1fr; max-width: 320px; margin: 0 auto; }
+    .pack-card--featured { transform: none; }
+    .map-section-inner { gap: 2rem; }
+    .ia-container { gap: 2rem; }
+}
+</style>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+// ── Room thumbnail toggle (3D tour mockup) ─────────────────────────────────
+document.querySelectorAll('.room-thumb').forEach(thumb => {
+    thumb.addEventListener('click', function() {
+        document.querySelectorAll('.room-thumb').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+
+// ── Map pin hover (close others) ──────────────────────────────────────────
+document.querySelectorAll('.map-pin').forEach(pin => {
+    pin.addEventListener('mouseenter', () => {
+        document.querySelectorAll('.pin-popup').forEach(p => p.style.opacity = '0');
+        pin.querySelector('.pin-popup').style.opacity = '1';
+    });
+});
+
+// ── IA range thumb interaction ─────────────────────────────────────────────
+const iaRangeBar = document.querySelector('.ia-range-bar');
+if (iaRangeBar) {
+    iaRangeBar.style.cursor = 'pointer';
+    iaRangeBar.addEventListener('click', function(e) {
+        const rect = this.getBoundingClientRect();
+        const pct = ((e.clientX - rect.left) / rect.width) * 100;
+        const clamped = Math.min(Math.max(pct, 20), 80);
+        this.querySelector('.ia-range-thumb').style.left = clamped + '%';
+    });
+}
+</script>
+{% endblock %}

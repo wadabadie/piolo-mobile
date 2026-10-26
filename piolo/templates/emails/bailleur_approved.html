@@ -1,0 +1,177 @@
+{% autoescape off %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Votre compte Bailleur Piolo est approuvé !</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #F7F5F1; color: #333; line-height: 1.6; }
+  .wrap { max-width: 580px; margin: 32px auto; }
+  .header {
+    background: linear-gradient(135deg, #D4AF37, #F6D365);
+    padding: 36px 32px 28px; border-radius: 14px 14px 0 0;
+    text-align: center;
+  }
+  .header-logo { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; }
+  .header-logo-txt { font-size: 22px; font-weight: 800; color: #0F0D09; letter-spacing: -.3px; }
+  .header-circle {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: rgba(15,13,9,.1);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px; font-size: 32px;
+  }
+  .header h1 { font-size: 22px; font-weight: 800; color: #0F0D09; }
+  .header p  { font-size: 14px; color: rgba(15,13,9,.7); margin-top: 6px; }
+
+  .body {
+    background: #fff; padding: 32px;
+    border-left: 1px solid #E8E3DA;
+    border-right: 1px solid #E8E3DA;
+  }
+
+  .greeting { font-size: 16px; color: #0F0D09; margin-bottom: 16px; }
+  .text { font-size: 14px; color: #64605A; margin-bottom: 16px; }
+
+  .badge-verified {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(30,122,71,.1); color: #1E7A47;
+    border: 1px solid rgba(30,122,71,.25);
+    padding: 8px 18px; border-radius: 20px;
+    font-weight: 700; font-size: 14px; margin: 8px 0 20px;
+  }
+
+  .points-box {
+    background: linear-gradient(135deg, rgba(212,175,55,.08), rgba(246,211,101,.08));
+    border: 1px solid rgba(212,175,55,.25);
+    border-radius: 12px; padding: 20px; text-align: center; margin: 20px 0;
+  }
+  .points-num { font-size: 36px; font-weight: 800; color: #A8891C; }
+  .points-lbl { font-size: 13px; color: #64605A; margin-top: 4px; }
+
+  .features {
+    background: #F7F5F1; border-radius: 10px;
+    padding: 18px 20px; margin: 20px 0;
+  }
+  .features-title { font-size: 12px; font-weight: 700; color: #A8891C;
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+  .feature-item {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: #64605A; margin-bottom: 8px;
+  }
+  .feature-item:last-child { margin-bottom: 0; }
+  .feature-dot {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: rgba(30,122,71,.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; flex-shrink: 0;
+  }
+
+  .cta-wrap { text-align: center; margin: 28px 0 20px; }
+  .cta {
+    display: inline-block;
+    background: linear-gradient(135deg, #D4AF37, #F6D365);
+    color: #0F0D09; padding: 14px 32px;
+    text-decoration: none; border-radius: 10px;
+    font-weight: 800; font-size: 15px;
+    box-shadow: 0 4px 16px rgba(212,175,55,.4);
+  }
+
+  .divider { border: none; border-top: 1px solid #E8E3DA; margin: 20px 0; }
+
+  .footer {
+    background: #F7F5F1; padding: 20px 32px;
+    border: 1px solid #E8E3DA;
+    border-radius: 0 0 14px 14px;
+    text-align: center; font-size: 12px; color: #9B9690;
+  }
+  .footer a { color: #A8891C; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-logo">
+      <span style="font-size:20px;">🏠</span>
+      <span class="header-logo-txt">Piolo</span>
+    </div>
+    <div class="header-circle">🎉</div>
+    <h1>Félicitations {{ user.first_name }} !</h1>
+    <p>Votre dossier bailleur a été approuvé avec succès</p>
+  </div>
+
+  <!-- Corps -->
+  <div class="body">
+    <p class="greeting">Bonjour <strong>{{ user.get_full_name }}</strong>,</p>
+
+    <p class="text">
+      L'équipe Piolo a examiné votre dossier et nous avons le plaisir de vous informer que
+      votre <strong>compte bailleur est désormais actif</strong>.
+    </p>
+
+    <div style="text-align:center;">
+      <span class="badge-verified">✅ Compte Bailleur Vérifié</span>
+    </div>
+
+    <!-- Points crédités -->
+    <div class="points-box">
+      <div class="points-num">+{{ bonus }}</div>
+      <div class="points-lbl">Points de bienvenue crédités sur votre compte</div>
+    </div>
+
+    <!-- Ce que vous pouvez faire -->
+    <div class="features">
+      <div class="features-title">Vous pouvez maintenant</div>
+      <div class="feature-item">
+        <div class="feature-dot">🏠</div>
+        Publier vos annonces immobilières sur Piolo
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot">📊</div>
+        Gérer vos biens depuis votre tableau de bord
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot">💬</div>
+        Recevoir et répondre aux demandes de location
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot">📅</div>
+        Organiser et confirmer les visites de vos biens
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-wrap">
+      <a href="{{ dashboard_url }}" class="cta">
+        Accéder à mon dashboard bailleur →
+      </a>
+    </div>
+
+    <hr class="divider"/>
+
+    <p class="text" style="margin-bottom:4px;">
+      Bienvenue dans la communauté Piolo !
+    </p>
+    <p class="text">
+      <strong>L'équipe Piolo</strong><br>
+      <span style="font-size:12px; color:#9B9690;">
+        Plateforme Immobilière Numérique du Cameroun
+      </span>
+    </p>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    © 2025 Piolo — <a href="{{ site_url }}">piolo.cm</a><br>
+    <span style="margin-top:6px;display:block;">
+      Vous recevez cet email car vous avez soumis un dossier bailleur sur Piolo.
+    </span>
+  </div>
+
+</div>
+</body>
+</html>
+{% endautoescape %}

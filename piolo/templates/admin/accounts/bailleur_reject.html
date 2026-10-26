@@ -1,0 +1,202 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Rejeter le dossier — Piolo Admin{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  {{ admin_css }}
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Accueil</a>
+  &rsaquo; <a href="{% url 'admin:accounts_bailleurdossier_changelist' %}">Dossiers Bailleurs</a>
+  &rsaquo; <a href="{% url 'admin:accounts_bailleurdossier_change' dossier.pk %}">{{ dossier.user.get_full_name }}</a>
+  &rsaquo; Rejeter
+</div>
+{% endblock %}
+
+{% block content %}
+{{ admin_css }}
+
+<div style="max-width:660px; margin:0 auto;">
+
+  <!-- En-tête -->
+  <div style="display:flex; align-items:center; gap:14px; margin-bottom:24px;">
+    <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#B83232,#d14545);
+                display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <span style="color:#fff;font-size:20px;">✕</span>
+    </div>
+    <div>
+      <h1 style="font-family:'Poppins',sans-serif;font-size:20px;font-weight:800;
+                 color:#B83232;margin:0 0 2px;">Rejeter le dossier KYC</h1>
+      <p style="color:#64605A;font-size:13px;margin:0;">
+        Un motif clair et détaillé est obligatoire. Il sera communiqué au bailleur par email.
+      </p>
+    </div>
+  </div>
+
+  <!-- Fiche du bailleur -->
+  <div class="p-reject-user-card" style="margin-bottom:20px;">
+    <div class="p-reject-avatar">
+      {{ dossier.user.first_name|first|upper }}{{ dossier.user.last_name|first|upper }}
+    </div>
+    <div class="p-reject-user-info">
+      <strong>{{ dossier.user.get_full_name }}</strong>
+      <small>{{ dossier.user.email }} — {{ dossier.user.phone|default:"Téléphone non renseigné" }}</small>
+    </div>
+    <div style="margin-left:auto;text-align:right;">
+      <span class="p-badge p-badge-pending">⏳ En attente</span><br>
+      <small style="color:#9B9690;font-size:11px;">
+        Rejet {{ dossier.rejection_count|add:1 }}/3
+      </small>
+    </div>
+  </div>
+
+  <!-- Récap patrimoine -->
+  <div style="background:#F7F5F1;border:1px solid #E8E3DA;border-radius:10px;
+              padding:14px 18px;margin-bottom:22px;">
+    <div style="font-size:10px;font-weight:800;color:#A8891C;letter-spacing:1.5px;
+                text-transform:uppercase;margin-bottom:10px;">Dossier soumis le {{ dossier.submitted_at|date:"d/m/Y à H:i" }}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div>
+        <div style="font-size:10px;color:#9B9690;font-weight:600;text-transform:uppercase;">Document</div>
+        <div style="font-size:13px;font-weight:700;color:#0F0D09;">
+          {{ dossier.get_document_type_display }}<br>
+          <span style="font-size:11px;color:#64605A;">{{ dossier.document_number }}</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:#9B9690;font-weight:600;text-transform:uppercase;">Ville</div>
+        <div style="font-size:13px;font-weight:700;color:#0F0D09;">{{ dossier.city }}</div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:#9B9690;font-weight:600;text-transform:uppercase;">Biens</div>
+        <div style="font-size:13px;font-weight:700;color:#0F0D09;">{{ dossier.property_count }} bien(s)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Avertissement blocage -->
+  {% if dossier.rejection_count >= 2 %}
+    <div class="p-warning-box" style="margin-bottom:20px;">
+      ⚠️ <strong>Attention :</strong> Ce bailleur a déjà {{ dossier.rejection_count }} rejet(s).
+      Ce nouveau rejet entraînera le <strong>blocage définitif</strong> de son compte.
+    </div>
+  {% endif %}
+
+  {% if error %}
+    <div class="p-warning-box" style="margin-bottom:16px;">
+      ❌ {{ error }}
+    </div>
+  {% endif %}
+
+  <!-- Formulaire de rejet -->
+  <form method="post">
+    {% csrf_token %}
+
+    <div style="margin-bottom:14px;">
+      <label style="display:block;font-family:'Poppins',sans-serif;font-size:12px;
+                    font-weight:700;color:#0F0D09;margin-bottom:8px;">
+        Motif de rejet <span style="color:#B83232;">*</span>
+      </label>
+
+      <!-- Suggestions prédéfinies -->
+      <div style="margin-bottom:12px;">
+        <div style="font-size:11px;color:#9B9690;margin-bottom:6px;font-weight:600;">
+          Suggestions rapides (cliquez pour remplir) :
+        </div>
+        <div class="p-presets">
+          {% for reason in preset_reasons %}
+            <button type="button" class="p-preset"
+                    onclick="document.getElementById('id_reason').value = '{{ reason|escapejs }}';">
+              {{ reason|truncatechars:50 }}
+            </button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <textarea
+        id="id_reason"
+        name="reason"
+        class="p-reject-textarea"
+        placeholder="Décrivez précisément le motif de rejet. Ce message sera communiqué directement au bailleur par email. Soyez clair et constructif pour lui permettre de corriger sa demande."
+        required
+        minlength="20">{{ request.POST.reason|default:'' }}</textarea>
+      <div style="font-size:11px;color:#9B9690;margin-top:4px;">
+        Minimum 20 caractères. Ce motif est visible par le bailleur.
+      </div>
+    </div>
+
+    <!-- Aperçu des documents -->
+    <div style="margin-bottom:20px;">
+      <div style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:700;
+                  color:#0F0D09;margin-bottom:10px;">
+        Documents soumis
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        {% if dossier.cni_recto %}
+          <div class="p-doc-card">
+            <div class="p-doc-label">CNI Recto</div>
+            <div class="p-doc-preview" style="min-height:80px;">
+              <img src="{{ dossier.cni_recto.url }}" alt="CNI Recto" loading="lazy"
+                   style="max-height:100px;"/>
+            </div>
+            <a href="{{ dossier.cni_recto.url }}" target="_blank" class="p-doc-link">Voir</a>
+          </div>
+        {% else %}
+          <div class="p-doc-card">
+            <div class="p-doc-label">CNI Recto</div>
+            <div class="p-doc-no-file">Absent</div>
+          </div>
+        {% endif %}
+
+        {% if dossier.cni_verso %}
+          <div class="p-doc-card">
+            <div class="p-doc-label">CNI Verso</div>
+            <div class="p-doc-preview" style="min-height:80px;">
+              <img src="{{ dossier.cni_verso.url }}" alt="CNI Verso" loading="lazy"
+                   style="max-height:100px;"/>
+            </div>
+            <a href="{{ dossier.cni_verso.url }}" target="_blank" class="p-doc-link">Voir</a>
+          </div>
+        {% else %}
+          <div class="p-doc-card">
+            <div class="p-doc-label">CNI Verso</div>
+            <div class="p-doc-no-file">Absent</div>
+          </div>
+        {% endif %}
+
+        {% if dossier.selfie %}
+          <div class="p-doc-card">
+            <div class="p-doc-label">Selfie</div>
+            <div class="p-doc-preview" style="min-height:80px;">
+              <img src="{{ dossier.selfie.url }}" alt="Selfie" loading="lazy"
+                   style="max-height:100px;"/>
+            </div>
+            <a href="{{ dossier.selfie.url }}" target="_blank" class="p-doc-link">Voir</a>
+          </div>
+        {% else %}
+          <div class="p-doc-card">
+            <div class="p-doc-label">Selfie</div>
+            <div class="p-doc-no-file">Absent</div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Boutons -->
+    <div class="p-reject-actions">
+      <button type="submit" class="p-btn p-btn-reject">
+        ❌ Confirmer le rejet
+      </button>
+      <a href="{% url 'admin:accounts_bailleurdossier_changelist' %}"
+         class="p-btn p-btn-back">
+        ← Annuler
+      </a>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

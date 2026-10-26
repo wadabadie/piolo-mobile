@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Biens disponibles — Piolo{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+  <link rel="stylesheet" href="{% static 'css/dashboard_properties_grid.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="layout">
+  {% include "includes/sidebar.html" %}
+
+  <div class="main">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-title">Biens <span>Disponibles</span></div>
+      <div class="tb-search">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" placeholder="Rechercher un bien, un quartier…" id="quick-search"/>
+      </div>
+      <div class="tb-actions">
+        <div class="tb-pts-badge">
+          <svg width="15" height="15" fill="var(--or)" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+          <span class="tb-pts-val">{{ user.points }} Points</span>
+        </div>
+        <a class="tb-icon-btn" href="#" title="Notifications">
+          <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+          <div class="tb-notif-dot"></div>
+        </a>
+        <div class="tb-av">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- FIL D'ARIANE -->
+      <div style="margin-bottom:20px;">
+        <a href="#" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--gris);text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          Retour au dashboard
+        </a>
+      </div>
+
+      <!-- HERO -->
+      <div class="hero-banner" style="margin-bottom:24px;">
+        <div class="hero-content">
+          <p class="hero-greet">Explorez notre catalogue</p>
+          <h1 class="hero-name">Biens <span>Disponibles</span></h1>
+          <p class="hero-sub">{{ properties|length }} bien{{ properties|length|pluralize:"s" }} trouvé{{ properties|length|pluralize:"s" }}</p>
+        </div>
+        <div class="hero-chips">
+          {% if filters.city %}<span class="hero-chip">{{ filters.city }}</span>{% endif %}
+          {% if filters.type %}<span class="hero-chip">{{ filters.type }}</span>{% endif %}
+          {% if filters.transaction %}<span class="hero-chip">{{ filters.transaction }}</span>{% endif %}
+        </div>
+      </div>
+
+      <!-- BARRE DE RECHERCHE -->
+      <div style="background:#fff;border-radius:16px;border:1px solid var(--gris-b);padding:20px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+        <form method="GET" action="{% url 'properties:list' %}" style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:12px;align-items:end;">
+          <div class="form-group" style="margin:0;">
+            <label style="font-size:11px;font-weight:700;color:var(--gris-m);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:5px;">Ville ou quartier</label>
+            <input type="text" name="city" value="{{ filters.city }}" placeholder="Yaoundé, Douala, Bastos…"
+                   style="width:100%;border:1.5px solid var(--gris-b);border-radius:10px;padding:10px 14px;font-size:14px;outline:none;font-family:DM Sans,sans-serif;">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label style="font-size:11px;font-weight:700;color:var(--gris-m);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:5px;">Type de bien</label>
+            <select name="type" style="width:100%;border:1.5px solid var(--gris-b);border-radius:10px;padding:10px 14px;font-size:14px;outline:none;background:#fff;">
+              <option value="">Tous</option>
+              <option value="APPARTEMENT" {% if filters.type == 'APPARTEMENT' %}selected{% endif %}>Appartement</option>
+              <option value="VILLA" {% if filters.type == 'VILLA' %}selected{% endif %}>Villa</option>
+              <option value="STUDIO" {% if filters.type == 'STUDIO' %}selected{% endif %}>Studio</option>
+              <option value="BUREAU" {% if filters.type == 'BUREAU' %}selected{% endif %}>Bureau</option>
+              <option value="BOUTIQUE" {% if filters.type == 'BOUTIQUE' %}selected{% endif %}>Boutique</option>
+              <option value="TERRAIN" {% if filters.type == 'TERRAIN' %}selected{% endif %}>Terrain</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label style="font-size:11px;font-weight:700;color:var(--gris-m);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:5px;">Prix max (FCFA)</label>
+            <input type="number" name="max_price" value="{{ filters.max_price }}" placeholder="Ex: 200000"
+                   style="width:100%;border:1.5px solid var(--gris-b);border-radius:10px;padding:10px 14px;font-size:14px;outline:none;">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label style="font-size:11px;font-weight:700;color:var(--gris-m);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:5px;">Transaction</label>
+            <select name="transaction" style="width:100%;border:1.5px solid var(--gris-b);border-radius:10px;padding:10px 14px;font-size:14px;outline:none;background:#fff;">
+              <option value="">Tous</option>
+              <option value="LOCATION" {% if filters.transaction == 'LOCATION' %}selected{% endif %}>Location</option>
+              <option value="VENTE" {% if filters.transaction == 'VENTE' %}selected{% endif %}>Vente</option>
+            </select>
+          </div>
+          <button type="submit"
+                  style="padding:11px 22px;border-radius:11px;background:linear-gradient(135deg,#D4AF37,#F6D365);border:none;font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#0F0D09;cursor:pointer;white-space:nowrap;box-shadow:0 3px 12px rgba(212,175,55,.3);height:42px; display:flex; align-items:center; justify-content:center; gap:8px;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            Rechercher
+          </button>
+        </form>
+
+        {% if filters.city or filters.type or filters.transaction or filters.max_price %}
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--gris-b);display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span style="font-size:12px;color:var(--gris-m);font-weight:600;">Filtres actifs :</span>
+          {% if filters.city %}
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:var(--or-bg);color:var(--or-d);font-size:11px;font-weight:700;">
+            📍 {{ filters.city }}
+          </span>
+          {% endif %}
+          {% if filters.type %}
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:var(--or-bg);color:var(--or-d);font-size:11px;font-weight:700;">
+            🏠 {{ filters.type }}
+          </span>
+          {% endif %}
+          {% if filters.transaction %}
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:var(--or-bg);color:var(--or-d);font-size:11px;font-weight:700;">
+            {% if filters.transaction == 'LOCATION' %}🔑 Location{% else %}💰 Vente{% endif %}
+          </span>
+          {% endif %}
+          {% if filters.max_price %}
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:var(--or-bg);color:var(--or-d);font-size:11px;font-weight:700;">
+            💵 Max {{ filters.max_price|floatformat:0 }} FCFA
+          </span>
+          {% endif %}
+          <a href="{% url 'properties:list' %}" style="margin-left:auto;font-size:12px;color:var(--rouge);font-weight:600;text-decoration:none;">
+            ✕ Effacer tous les filtres
+          </a>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- FILTRES RAPIDES (chips) -->
+      <div class="filter-chips" style="margin-bottom:24px;">
+        <a href="{% url 'properties:list' %}" class="fchip {% if not filters.transaction and not filters.type %}active{% endif %}">Tous</a>
+        <a href="{% url 'properties:list' %}?transaction=LOCATION" class="fchip {% if filters.transaction == 'LOCATION' %}active{% endif %}">À louer</a>
+        <a href="{% url 'properties:list' %}?transaction=VENTE" class="fchip {% if filters.transaction == 'VENTE' %}active{% endif %}">À vendre</a>
+        <a href="{% url 'properties:list' %}?type=APPARTEMENT" class="fchip {% if filters.type == 'APPARTEMENT' %}active{% endif %}">Appartements</a>
+        <a href="{% url 'properties:list' %}?type=VILLA" class="fchip {% if filters.type == 'VILLA' %}active{% endif %}">Villas</a>
+        <a href="{% url 'properties:list' %}?type=STUDIO" class="fchip {% if filters.type == 'STUDIO' %}active{% endif %}">Studios</a>
+      </div>
+
+      <!-- GRILLE DE BIENS -->
+      {% if properties %}
+      <div class="props-grid">
+        {% for prop in properties %}
+        <div class="prop-card">
+          <a href="{% url 'properties:detail' prop.slug %}" class="prop-img-link" onclick="if(event.target.closest('.fav-btn')) return false;">
+            <div class="prop-img">
+              {% if prop.main_image %}
+                <img src="{{ prop.main_image.url }}" alt="{{ prop.title }}" class="prop-img-real" loading="lazy">
+              {% else %}
+                <div class="prop-img-placeholder">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                  </svg>
+                </div>
+              {% endif %}
+
+              <div class="prop-top-pictos">
+                <span class="ptag ptag-photos">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="13" r="4"></circle>
+                  </svg>
+                  {{ prop.images.count|add:1 }}
+                </span>
+
+                {% if request.user.is_authenticated %}
+                <button type="button" class="fav-btn" onclick="toggleFav(event, this, '{{ prop.id }}')" title="Ajouter aux favoris">
+                  {% if prop.id in favoris_ids %}
+                    <svg viewBox="0 0 24 24" fill="#D4AF37"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg>
+                  {% else %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg>
+                  {% endif %}
+                </button>
+                {% endif %}
+              </div>
+
+              <span class="pbadge {{ prop.transaction_type|lower }}">{{ prop.get_transaction_type_display }}</span>
+
+              {% if prop.virtual_tours.all %}
+              <span class="pbadge" style="bottom: 12px; left: 100px; background: rgba(212,175,55,.95); color: #000; box-shadow: 0 2px 10px rgba(0,0,0,.2);">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:2px; vertical-align:middle; margin-top:-2px;"><path d="M2 12A10 10 0 0 0 15 21.54A10 10 0 0 1 15 2.46A10 10 0 0 0 2 12Z"></path><path d="M15 2.46A10 10 0 0 0 22 12a10 10 0 0 0-7-9.54"></path><path d="M2 12h20"></path></svg>
+                360°
+              </span>
+              {% endif %}
+
+              {% if prop.owner.verification_level == 3 %}
+              <span class="pverifie" style="background:#2C3E7A; color:#D4AF37; border: 1px solid #D4AF37;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21L12 17.77L5.82 21L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg> Premium</span>
+              {% elif prop.owner.verification_level == 2 %}
+              <span class="pverifie"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Vérifié</span>
+              {% else %}
+              <span class="pverifie" style="background:#FFF3CD; color:#856404; border: 1px solid #FFEEBA;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg> Non vérifié</span>
+              {% endif %}
+            </div>
+          </a>
+          
+          <a href="{% url 'properties:detail' prop.slug %}" class="prop-body-link">
+            <div class="prop-body">
+              <div class="pname text-capitalize">{{ prop.property_type }} à {{ prop.transaction_type|lower }} à {{ prop.city }} &middot; {{ prop.bedrooms }} pièce(s) sur {{ prop.area }} m²</div>
+              <div class="ploc">
+                <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                {{ prop.city }}{% if prop.neighborhood %}, {{ prop.neighborhood }}{% endif %}
+              </div>
+              
+              <div class="product-bulles">
+                <div class="bulle">
+                  <div class="picto">
+                    <svg viewBox="0 0 16 17" fill="currentColor" stroke="none"><path d="M1.132 2.538h12.993v-1.43H1.132zm1.033 6.06h10.927v-4.96H2.165zm0 6.07h10.927v-4.96H2.165zM.034 0h15.19v3.639H14.19v12.137H12.3V17H11.2v-1.224H4.056V17H2.957v-1.224h-1.89V3.64H.034zm8.144 6.119a.552.552 0 0 1-.55.554.552.552 0 0 1-.549-.554c0-.307.246-.555.55-.555.303 0 .549.248.549.555zm0 6.068a.552.552 0 0 1-.55.555.552.552 0 0 1-.549-.555c0-.306.246-.554.55-.554.303 0 .549.248.549.554z"/></svg>
+                  </div>
+                  <span class="value">x {{ prop.bedrooms }}</span>
+                </div>
+                <div class="bulle">
+                  <div class="picto">
+                    <svg viewBox="0 0 17 9" fill="currentColor" stroke="none"><path d="M1.074 5.244H15.39v1.677H1.074zm0-1.955a.9.9 0 0 1 .908-.888h2.03a.9.9 0 0 1 .909.888.9.9 0 0 1-.909.888H1.074zM15.39 1.835v2.36H5.764c.146-.27.23-.579.23-.906 0-1.068-.89-1.937-1.982-1.937h-2.03c-.327 0-.636.078-.908.216V0H0v9h1.074V7.963H15.39V9h1.073V1.835z"/></svg>
+                  </div>
+                  <span class="value">x {{ prop.bathrooms }}</span>
+                </div>
+                <div class="bulle">
+                  <div class="picto">
+                    <svg viewBox="0 0 924.7 746.62" fill="currentColor"><path d="m924.6,436.52h-45.2v10.4c0,29.5.1,59,0,88.5-.3,71.5-45.9,126.6-116.2,140.2-1.7.3-3.4.9-6.1,1.7,5.7,16.3,11.2,32.3,17.1,49.3-19,6.7-37.5,13.2-56.8,20-7.1-20.3-14.3-39.7-20.6-59.4-2.3-7.2-5.7-9.6-13.4-9.6-147.5.2-295,.2-442.6,0-7.5,0-11.1,2.1-13.5,9.4-6.3,19.7-13.5,39.1-20.6,59.5-19-6.7-37.4-13.1-56.8-19.9,5.7-16.5,11.2-32.6,17-49.4-6.3-1.4-12.4-2.6-18.4-4.2-59.5-15.5-102.2-68.8-103.6-130.4-.8-34.9-.1-69.8-.1-105.7H0v-158.7h106.4c.2-4.3.5-7.8.5-11.2,0-57.8.1-115.6,0-173.4,0-24.3,5.8-46.5,22.7-64.8C151.6,5.02,179.2-4.28,210.5,1.82c32.1,6.3,54.4,26,65.1,57.3,2.8,8.3,3.7,17.3,5.7,26.9h-59.8c-2-4.9-3.3-9.9-5.9-14.1-6-9.7-18.5-13.8-29.3-10.6-11.7,3.6-18.8,13.3-18.8,26.7-.1,57.8,0,115.6,0,173.4v15.9c3.6.2,6.5.5,9.4.5h739.7c2.7,0,5.4-.3,8.1-.5-.1,53.2-.1,106.2-.1,159.2Zm-105.5.4H105.9c-.3,2-.9,3.7-.9,5.5,0,31.3-.8,62.7.3,93.9.4,12.3,3,25.4,8.3,36.5,14.8,31.1,41.3,44.6,75.3,44.6h546.4c3.6,0,7.2-.1,10.8-.4,39.4-3.6,69.1-32.7,71.9-71.8,1.4-19.8.9-39.7,1-59.6.2-16,.1-31.9.1-48.7Zm44.7-97.5H60.4v36.5h803.4v-36.5Z"/></svg>
+                  </div>
+                  <span class="value">x 1</span>
+                </div>
+              </div>
+
+              <div class="product-bottom-infos">
+                <div class="product-price">
+                  Loyer : {{ prop.price|floatformat:0 }} FCFA{% if prop.transaction_type == 'LOCATION' %}<span class="pprice-sub">/mois</span>{% endif %}
+                </div>
+                <div class="product-ref">Réf : {{ prop.reference|default:prop.slug|slice:":8"|upper }}</div>
+              </div>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% else %}
+      <div class="card" style="text-align:center;padding:60px 20px;">
+        <svg width="56" height="56" fill="var(--gris-b)" viewBox="0 0 24 24" style="display:block;margin:0 auto 16px;">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+        <p style="font-family:Poppins,sans-serif;font-size:16px;font-weight:700;color:var(--gris);margin-bottom:8px;">
+          Aucun bien ne correspond à votre recherche
+        </p>
+        <p style="font-size:14px;color:var(--gris-m);margin-bottom:20px;">Essayez d'élargir vos critères ou créez une alerte</p>
+        <a href="{% url 'properties:list' %}"
+           style="display:inline-block;padding:10px 24px;border-radius:11px;background:linear-gradient(135deg,#D4AF37,#F6D365);font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#0F0D09;text-decoration:none;">
+          Voir tous les biens
+        </a>
+      </div>
+      {% endif %}
+    </main>
+  </div>
+</div>
+
+<script>
+{% csrf_token %}
+function toggleFav(e, btn, propertyId) {
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  fetch(`/properties/favorite/${propertyId}/`, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': getCsrfCookie() },
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      const svg = btn.querySelector('svg');
+      if (data.is_favorite) {
+        svg.setAttribute('fill', '#D4AF37');
+        svg.removeAttribute('stroke');
+      } else {
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.setAttribute('stroke-width', '2');
+      }
+    }
+  })
+  .catch(err => console.error('Erreur favoris :', err));
+}
+
+function getCsrfCookie() {
+  const token = document.querySelector('input[name=csrfmiddlewaretoken]');
+  if (token) return token.value;
+  for (const c of document.cookie.split(';')) {
+    const [k, v] = c.trim().split('=');
+    if (k === 'csrftoken') return decodeURIComponent(v);
+  }
+  return '';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', function() {
+      const btn = this.querySelector('button[type="submit"]');
+      if (btn && !btn.classList.contains('btn-loading')) {
+        btn.style.width = btn.offsetWidth + 'px';
+        btn.classList.add('btn-loading');
+        btn.classList.add('btn-gold-spinner');
+      }
+    });
+  });
+});
+</script>
+{% endblock %}

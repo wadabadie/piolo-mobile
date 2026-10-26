@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carte Interactive - Piolo</title>
+{% load static %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script src="{% static 'js/data_saver.js' %}"></script>
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .map-sidebar {
+    width: 450px;
+    background: #fff;
+    border-right: 1px solid var(--gris-b);
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+    height: 100%;
+  }
+  .map-sidebar-header {
+    padding: 24px;
+    border-bottom: 1px solid var(--gris-b);
+    background: #fff;
+  }
+  .map-sidebar-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--noir);
+    margin-bottom: 5px;
+  }
+  .map-sidebar-subtitle {
+    font-size: 13px;
+    color: var(--gris-m);
+  }
+  .map-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: var(--gris-f);
+  }
+  .property-card {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    border-radius: 16px;
+    border: 1px solid var(--gris-b);
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: inherit;
+    background: #fff;
+    box-shadow: var(--shadow-sm);
+  }
+  .property-card:hover {
+    border-color: rgba(212,175,55,0.4);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  .property-card.active {
+    border-color: var(--or);
+    background: rgba(212,175,55,0.05);
+  }
+  .property-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 12px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .property-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .property-price {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: 17px;
+    color: var(--or-d);
+  }
+  .property-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--noir);
+    margin: 4px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .property-meta {
+    font-size: 12px;
+    color: var(--gris-m);
+  }
+  .map-container {
+    flex: 1;
+    position: relative;
+    height: 100%;
+  }
+  #map {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Custom Marker Styles */
+  .custom-price-marker {
+    background: var(--noir);
+    border: 2px solid var(--or);
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .custom-price-marker::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 8px 8px 0;
+    border-style: solid;
+    border-color: var(--or) transparent transparent transparent;
+  }
+  .custom-price-marker:hover, .custom-price-marker.active {
+    background: var(--or);
+    color: var(--noir);
+    border-color: var(--noir);
+    transform: scale(1.15);
+    z-index: 100;
+    box-shadow: 0 8px 20px rgba(212,175,55,0.4);
+  }
+  .custom-price-marker:hover::after, .custom-price-marker.active::after {
+    border-top-color: var(--noir);
+  }
+
+  /* Custom InfoWindow */
+  .gm-style .gm-style-iw-c {
+    padding: 0 !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+  }
+  .gm-style .gm-style-iw-d {
+    overflow: hidden !important;
+  }
+  .info-window-card {
+    width: 250px;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .info-window-img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+  }
+  .info-window-content {
+    padding: 15px;
+  }
+  .info-window-price {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--or-d);
+  }
+  .info-window-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--noir);
+    margin: 5px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Responsive Design Mobile */
+  @media (max-width: 768px) {
+    .main {
+      flex-direction: column-reverse !important; /* Carte en haut, liste en bas */
+    }
+    .map-container {
+      flex: none;
+      height: 50vh; /* La moitié de l'écran pour la carte */
+      width: 100%;
+    }
+    .map-sidebar {
+      width: 100%;
+      height: 50vh;
+      border-right: none;
+      border-top: 1px solid var(--gris-b);
+    }
+    .property-card {
+      padding: 10px;
+    }
+    .property-img {
+      width: 100px;
+      height: 100px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  {% include "includes/sidebar.html" %}
+
+  <div class="main" style="flex-direction: row;">
+    
+    <!-- Liste des biens à gauche -->
+    <div class="map-sidebar">
+      <div class="map-sidebar-header">
+        <h2 class="map-sidebar-title">Carte Interactive</h2>
+        <p class="map-sidebar-subtitle" id="property-count">Chargement des biens...</p>
+      </div>
+      <div class="map-list" id="property-list">
+        <!-- Les cartes seront injectées ici par JS -->
+      </div>
+    </div>
+
+    <!-- La Google Map à droite -->
+    <div class="map-container">
+      <div id="map"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
+    key: "{{ GOOGLE_MAPS_API_KEY }}",
+    v: "weekly"
+  });
+</script>
+
+<script>
+  let map;
+  let markers = [];
+  let properties = [];
+  let activeInfoWindow = null;
+
+  async function initMap() {
+    const { Map } = await google.maps.importLibrary("maps");
+    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+
+    // Coordonnées de base (Yaoundé par défaut)
+    const center = { lat: 3.8480, lng: 11.5021 };
+
+    map = new Map(document.getElementById("map"), {
+      zoom: 12,
+      center: center,
+      mapId: "PIOLO_MAP_ID", // Optionnel, requis pour AdvancedMarkerElement
+      disableDefaultUI: true,
+      zoomControl: true,
+    });
+
+    fetchProperties();
+  }
+
+  function fetchProperties() {
+    fetch('/properties/api/properties/')
+      .then(response => response.json())
+      .then(data => {
+        // DRF renvoie parfois {count, next, previous, results}
+        properties = data.results || data; 
+        // Garder uniquement ceux avec latitude/longitude valide
+        properties = properties.filter(p => p.latitude && p.longitude);
+        
+        document.getElementById('property-count').textContent = `${properties.length} biens trouvés`;
+        renderList();
+        renderMarkers();
+      })
+      .catch(error => {
+        console.error("Erreur API:", error);
+        document.getElementById('property-count').textContent = "Erreur de chargement.";
+      });
+  }
+
+  async function renderMarkers() {
+    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+    const { InfoWindow } = await google.maps.importLibrary("maps");
+
+    properties.forEach((prop, index) => {
+      const priceTag = document.createElement("div");
+      priceTag.className = "custom-price-marker";
+      const formattedPrice = new Intl.NumberFormat('fr-FR').format(prop.price);
+      priceTag.textContent = `${formattedPrice} F`;
+
+      const marker = new AdvancedMarkerElement({
+        map,
+        position: { lat: parseFloat(prop.latitude), lng: parseFloat(prop.longitude) },
+        content: priceTag,
+        title: prop.title
+      });
+
+      const imgUrl = prop.main_image || '/static/img/placeholder.jpg';
+      const infoContent = `
+        <a href="/properties/${prop.slug || prop.id}/" class="info-window-card">
+          <img src="${imgUrl}" class="info-window-img" alt="${prop.title}">
+          <div class="info-window-content">
+            <div class="info-window-price">${formattedPrice} FCFA</div>
+            <div class="info-window-title">${prop.title}</div>
+            <div style="font-size:12px; color:#64605A; margin-top:5px;">
+              ${prop.city} ${prop.neighborhood ? ' - ' + prop.neighborhood : ''}
+            </div>
+          </div>
+        </a>
+      `;
+
+      const infoWindow = new InfoWindow({
+        content: infoContent,
+      });
+
+      marker.addListener("click", () => {
+        if (activeInfoWindow) activeInfoWindow.close();
+        infoWindow.open({
+          anchor: marker,
+          map,
+        });
+        activeInfoWindow = infoWindow;
+      });
+
+      prop.markerElement = priceTag;
+      prop.marker = marker;
+    });
+  }
+
+  function renderList() {
+    const listContainer = document.getElementById('property-list');
+    listContainer.innerHTML = '';
+
+    properties.forEach(prop => {
+      const imgUrl = prop.main_image || '/static/img/placeholder.jpg';
+      const formattedPrice = new Intl.NumberFormat('fr-FR').format(prop.price);
+      
+      const card = document.createElement('a');
+      card.href = `/properties/${prop.slug || prop.id}/`;
+      card.className = 'property-card';
+      
+      card.innerHTML = `
+        <img src="${imgUrl}" class="property-img" alt="${prop.title}">
+        <div class="property-info">
+          <div class="property-price">${formattedPrice} FCFA</div>
+          <div class="property-title">${prop.title}</div>
+          <div class="property-meta">${prop.city} ${prop.neighborhood ? '• ' + prop.neighborhood : ''}</div>
+          <div class="property-meta" style="margin-top:4px;">${prop.bedrooms || 0} ch. • ${prop.bathrooms || 0} sdb.</div>
+        </div>
+      `;
+
+      card.addEventListener('mouseenter', () => {
+        if (prop.markerElement) {
+          prop.markerElement.classList.add('active');
+          if (prop.marker) prop.marker.zIndex = 999;
+        }
+      });
+      
+      card.addEventListener('mouseleave', () => {
+        if (prop.markerElement) {
+          prop.markerElement.classList.remove('active');
+          if (prop.marker) prop.marker.zIndex = null;
+        }
+      });
+
+      listContainer.appendChild(card);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initMap();
+  });
+</script>
+</body>
+</html>

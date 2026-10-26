@@ -1,0 +1,539 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mode Découverte - Piolo{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Container TikTok-like ── */
+body, html {
+  margin: 0;
+  padding: 0 !important;
+  height: 100%;
+  width: 100%;
+  background: #000;
+  overflow: hidden; /* Prevent default scrolling */
+}
+
+.decouverte-container {
+  height: 100vh;
+  width: 100%;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+
+/* Hide scrollbar for cleaner UI */
+.decouverte-container::-webkit-scrollbar {
+  display: none;
+}
+.decouverte-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.reel-item {
+  height: 100vh;
+  width: 100vw;
+  scroll-snap-align: start;
+  position: relative;
+  background: #111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.reel-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Cover the whole screen */
+  cursor: pointer;
+}
+
+/* ── UI Superposée ── */
+.reel-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 80px 20px 100px 20px;
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 40%, transparent 100%);
+  pointer-events: none; /* Let clicks pass through to video */
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.reel-info {
+  flex: 1;
+  pointer-events: auto;
+  padding-right: 20px;
+}
+
+.reel-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  pointer-events: auto;
+}
+
+/* Info texte */
+.r-title {
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+}
+.r-price {
+  color: #D4AF37;
+  font-family: 'Poppins', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+}
+.r-loc {
+  color: #ddd;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-view {
+  display: inline-block;
+  background: #D4AF37;
+  color: #000;
+  padding: 10px 24px;
+  border-radius: 24px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(212,175,55,0.4);
+}
+.reel-content {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Animation Cœur Géant au double tap */
+.giant-heart {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 120px;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  z-index: 100;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
+}
+.giant-heart.animate {
+  animation: popHeart 0.8s ease-out;
+}
+@keyframes popHeart {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  15% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+  30% { transform: translate(-50%, -50%) scale(0.9); opacity: 1; }
+  45% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+  80% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+}
+
+.r-av {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid #D4AF37;
+  background: #222;
+  color: #D4AF37;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+  /* Bouton d'action droite */
+  .r-action-btn {
+    background: transparent;
+    border: none;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    transition: transform 0.2s;
+  }
+  .r-action-btn:hover { transform: scale(1.1); }
+  .r-action-btn svg {
+    width: 28px;
+    height: 28px;
+    fill: rgba(255,255,255,0.9);
+    stroke: none;
+    filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.6));
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Bouton Like actif */
+  .btn-like.liked svg {
+    fill: #D4AF37; /* Or Piolo */
+    animation: popIcon 0.3s ease-out;
+  }
+  
+  /* Bouton Bookmark actif */
+  .btn-bookmark.saved svg {
+    fill: #D4AF37; /* Or Piolo */
+    animation: popIcon 0.3s ease-out;
+  }
+  
+  @keyframes popIcon {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+
+  /* ── Music Disc ── */
+  .music-disc {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #222;
+    border: 8px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: spin 4s linear infinite;
+    animation-play-state: paused;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  }
+  .music-disc.playing { animation-play-state: running; }
+  .music-disc svg { width: 14px; height: 14px; fill: #fff; }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+
+  /* ── Marquee (Texte défilant) ── */
+  .music-ticker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 180px;
+    overflow: hidden;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+  }
+  .music-ticker span {
+    white-space: nowrap;
+    animation: scrollText 6s linear infinite;
+    animation-play-state: paused;
+  }
+  .music-ticker.playing span { animation-play-state: running; }
+  @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
+  /* Mute/Unmute Overlay Icon */
+  .mute-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.6);
+    border-radius: 50%;
+    padding: 15px;
+    display: none;
+    color: #fff;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .mute-indicator svg { width: 30px; height: 30px; }
+
+/* ── Responsive Desktop ── */
+@media (min-width: 768px) {
+  .decouverte-container { background: #0a0a0a; }
+  .reel-item { width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center; scroll-snap-align: start; background: transparent; }
+  .reel-content { width: 400px; height: calc(100vh - 40px); margin: 20px auto; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+  .reel-video { border-radius: 16px; }
+  .reel-overlay { border-radius: 0 0 16px 16px; }
+}
+</style>
+{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+
+{% block content %}
+<div class="decouverte-header">
+  <a href="{% url 'core:home' %}">
+    <img src="{% static 'img/logo-piolo-clean.png' %}" alt="Logo Piolo" style="height: 40px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+  </a>
+</div>
+
+<div class="decouverte-container" id="reelsContainer">
+  {% if properties %}
+    {% for prop in properties %}
+      <div class="reel-item" data-id="{{ prop.id }}" data-slug="{{ prop.slug }}">
+        
+        <div class="reel-content">
+          <!-- Animation de cœur géant bien placée dans reel-content -->
+          <svg class="giant-heart" viewBox="0 0 24 24" fill="#D4AF37"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg>
+          
+          <div class="mute-indicator" id="muteIndicator-{{ prop.id }}">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+          </div>
+
+          <!-- Vidéo (mutée par défaut pour autoplay, on permet l'unmute) -->
+          <video class="reel-video" src="{{ prop.video_reel.url }}" loop playsinline preload="metadata" muted onclick="handleVideoClick(this, '{{ prop.id }}')"></video>
+          
+          <div class="reel-overlay">
+            <div class="reel-info">
+              <a href="{% url 'properties:detail' prop.slug %}" style="text-decoration:none;">
+                <div class="r-title">@{{ prop.owner.first_name|lower }}{{ prop.owner.last_name|lower|default:"piolohost" }}</div>
+                <div class="r-price">{{ prop.price|floatformat:0 }} FCFA{% if prop.listing_type == 'LOUER' %}/mois{% endif %}</div>
+                <div class="r-loc" style="margin-bottom:8px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                  {{ prop.city }}{% if prop.neighborhood %}, {{ prop.neighborhood }}{% endif %}
+                </div>
+                {% if prop.reel_description %}
+                <div style="color:#fff; font-family:'DM Sans', sans-serif; font-size:14px; margin-bottom:12px; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); line-height: 1.4; max-height:40px; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">
+                  {{ prop.reel_description }}
+                </div>
+                {% endif %}
+              </a>
+              
+              <!-- Music Ticker -->
+              <div class="music-ticker" style="margin-bottom: 12px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                <span>Son original - Piolo Immobilier • Visite Guidée • </span>
+              </div>
+              
+              <a href="{% url 'properties:detail' prop.slug %}" class="btn-view">Voir les détails</a>
+            </div>
+            
+            <div class="reel-actions">
+              <!-- Profil (ancienne version restaurée) -->
+              <div class="r-av">{{ prop.owner.first_name|first|upper }}{{ prop.owner.last_name|first|upper }}</div>
+              
+              <!-- Like (Coeur) = Favoris Piolo -->
+              <button class="r-action-btn btn-like {% if prop.id in favoris_ids %}liked{% endif %}" onclick="toggleLike(this, '{{ prop.id }}')" id="btn-like-{{ prop.id }}">
+                <svg viewBox="0 0 24 24"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg>
+                <span id="like-count-{{ prop.id }}">{{ prop.favorites_count|default:"0" }}</span>
+              </button>
+              
+              <!-- Partager -->
+              <button class="r-action-btn" onclick="shareProperty('{{ prop.get_absolute_url }}', '{{ prop.title|escapejs }}')">
+                <svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                <span>Partager</span>
+              </button>
+              
+              <!-- Music Disc -->
+              <div class="music-disc" style="margin-top:15px;">
+                <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-msg">
+      <h2>Aucune vidéo Découverte disponible pour le moment.</h2>
+      <p>Revenez plus tard !</p>
+      <a href="{% url 'core:home' %}" class="btn-view" style="margin-top:20px;">Retour à l'accueil</a>
+    </div>
+  {% endif %}
+</div>
+
+<script>
+// Token CSRF pour les requêtes AJAX
+function getCsrfCookie() {
+  let token = document.querySelector('input[name=csrfmiddlewaretoken]');
+  if (token) return token.value;
+  for (const c of document.cookie.split(';')) {
+    const [k, v] = c.trim().split('=');
+    if (k === 'csrftoken') return decodeURIComponent(v);
+  }
+  return '';
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  const videos = document.querySelectorAll('.reel-video');
+  
+  const observerOptions = {
+    root: document.getElementById('reelsContainer'),
+    rootMargin: '0px',
+    threshold: 0.6
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const vid = entry.target;
+      const container = vid.closest('.reel-item');
+      const disc = container.querySelector('.music-disc');
+      const ticker = container.querySelector('.music-ticker');
+      
+      if (entry.isIntersecting) {
+        vid.currentTime = 0;
+        let playPromise = vid.play();
+        if (playPromise !== undefined) {
+          playPromise.then(_ => {
+            disc.classList.add('playing');
+            ticker.classList.add('playing');
+          }).catch(e => {
+            console.log('Play prevent', e);
+            disc.classList.remove('playing');
+            ticker.classList.remove('playing');
+          });
+        }
+      } else {
+        vid.pause();
+        disc.classList.remove('playing');
+        ticker.classList.remove('playing');
+      }
+    });
+  }, observerOptions);
+
+  videos.forEach(vid => observer.observe(vid));
+});
+
+let clickTimer = null;
+let lastClickTime = 0;
+
+function handleVideoClick(video, propId) {
+  const container = video.closest('.reel-item');
+  const heartAnim = container.querySelector('.giant-heart');
+  const likeBtn = container.querySelector('#btn-like-' + propId);
+  const muteIndicator = container.querySelector('#muteIndicator-' + propId);
+  
+  const currentTime = new Date().getTime();
+  const timeDiff = currentTime - lastClickTime;
+  lastClickTime = currentTime;
+  
+  if (timeDiff < 300) {
+    // === DOUBLE TAP ===
+    clearTimeout(clickTimer);
+    
+    // Animation Cœur Géant
+    heartAnim.classList.remove('animate');
+    void heartAnim.offsetWidth; 
+    heartAnim.classList.add('animate');
+    
+    // Liker côté serveur si pas déjà liké
+    if (!likeBtn.classList.contains('liked')) {
+      toggleLike(likeBtn, propId, false, true);
+    }
+  } else {
+    // === SINGLE TAP ===
+    clickTimer = setTimeout(() => {
+      // Si la vidéo est mutée (par défaut), un premier clic la dé-mute, ou met en pause
+      if (video.muted) {
+        video.muted = false;
+        showMuteIndicator(muteIndicator, false);
+      } else {
+        if (video.paused) {
+          video.play();
+          container.querySelector('.music-disc').classList.add('playing');
+          container.querySelector('.music-ticker').classList.add('playing');
+        } else {
+          video.pause();
+          container.querySelector('.music-disc').classList.remove('playing');
+          container.querySelector('.music-ticker').classList.remove('playing');
+        }
+      }
+    }, 300);
+  }
+}
+
+function showMuteIndicator(element, isMuted) {
+  element.style.display = 'block';
+  element.innerHTML = isMuted ? 
+    '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>' : 
+    '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
+  
+  setTimeout(() => { element.style.display = 'none'; }, 800);
+}
+
+// Fonction AJAX pour persister le Like/Favori
+function toggleLike(btn, propId, isBookmarkBtn = false, forceLike = false) {
+  {% if not request.user.is_authenticated %}
+    window.location.href = "{% url 'accounts:auth' %}?next=" + window.location.pathname;
+    return;
+  {% endif %}
+  
+  const likeBtn = document.getElementById('btn-like-' + propId);
+  const countSpan = document.getElementById('like-count-' + propId);
+  const currentlyLiked = likeBtn.classList.contains('liked');
+  
+  if (forceLike && currentlyLiked) return; // Déjà liké par double-tap
+
+  // Requête AJAX pour ajouter/supprimer aux favoris Piolo
+  fetch(`/properties/favorite/${propId}/`, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': getCsrfCookie() }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      if (data.is_favorite) {
+        // Liké !
+        likeBtn.classList.add('liked');
+        let currentCount = parseInt(countSpan.innerText) || 0;
+        if (!currentlyLiked) countSpan.innerText = currentCount + 1;
+      } else {
+        // Disliké !
+        likeBtn.classList.remove('liked');
+        let currentCount = parseInt(countSpan.innerText) || 0;
+        if (currentlyLiked && currentCount > 0) countSpan.innerText = currentCount - 1;
+      }
+    }
+  })
+  .catch(err => console.error("Erreur d'ajout aux favoris :", err));
+}
+
+// Partage natif Web Share API
+function shareProperty(urlPath, title) {
+  const fullUrl = window.location.origin + urlPath;
+  if (navigator.share) {
+    navigator.share({
+      title: title,
+      text: 'Découvrez ce bien incroyable sur Piolo !',
+      url: fullUrl
+    }).catch(console.error);
+  } else {
+    // Fallback : copier dans le presse-papier
+    navigator.clipboard.writeText(fullUrl).then(() => {
+      alert("Lien copié dans le presse-papier !");
+    });
+  }
+}
+
+// === Scroll automatique vers le bon bien (ex: depuis le dashboard bailleur "Voir le Reel") ===
+const TARGET_SLUG = "{{ target_slug }}";
+if (TARGET_SLUG) {
+  window.addEventListener('load', () => {
+    const targetItem = document.querySelector(`.reel-item[data-slug="${TARGET_SLUG}"]`);
+    if (targetItem) {
+      setTimeout(() => {
+        targetItem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
+  });
+}
+</script>
+{% endblock %}

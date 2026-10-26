@@ -1,0 +1,232 @@
+<!-- templates/properties/virtual_tour.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Visite virtuelle - {{ property.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
+<style>
+  #panorama {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+  }
+  
+  .tour-controls {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    padding: 15px 25px;
+    border-radius: 50px;
+    display: flex;
+    gap: 15px;
+    z-index: 100;
+  }
+  
+  .scene-selector {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0,0,0,0.8);
+    padding: 15px;
+    border-radius: 12px;
+    max-height: 70vh;
+    overflow-y: auto;
+    z-index: 100;
+    min-width: 200px;
+  }
+  
+  .scene-item {
+    padding: 10px;
+    color: white;
+    cursor: pointer;
+    border-radius: 6px;
+    margin-bottom: 5px;
+    transition: background 0.2s;
+  }
+  
+  .scene-item:hover, .scene-item.active {
+    background: var(--or);
+    color: var(--noir);
+  }
+  
+  .tour-info {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    z-index: 100;
+  }
+  
+  .tour-info h2 {
+    margin: 0 0 5px 0;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .back-btn {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(212,175,55,0.95);
+    color: var(--noir);
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 700;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .hotspot-label {
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="panorama"></div>
+
+<a href="{% url 'property_detail' property.id %}" class="back-btn">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+  </svg>
+  Retour à l'annonce
+</a>
+
+<div class="tour-info">
+  <h2>{{ property.title }}</h2>
+  <div>{{ tour.name }}</div>
+  <div style="font-size: 12px; opacity: 0.8; margin-top: 5px;">
+    {{ scenes.count }} pièce{{ scenes.count|pluralize }}
+  </div>
+</div>
+
+<div class="scene-selector">
+  <div style="color: white; font-weight: 700; margin-bottom: 10px; font-family: 'Poppins';">
+    📍 Pièces
+  </div>
+  {% for scene in scenes %}
+  <div class="scene-item {% if scene == first_scene %}active{% endif %}" 
+       onclick="loadScene('{{ scene.id }}')">
+    {{ scene.name }}
+  </div>
+  {% endfor %}
+</div>
+
+<div class="tour-controls">
+  <button onclick="toggleFullscreen()" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">
+    ⛶
+  </button>
+  <button onclick="toggleAutoplay()" id="autoplay-btn" style="background: none; border: none; color: white; cursor: pointer; font-size: 16px;">
+    ▶ Auto
+  </button>
+  <div style="color: white; align-self: center; font-size: 14px;">
+    {{ scenes|length }} pièces
+  </div>
+</div>
+
+<script>
+// Configuration des scènes
+const scenes = {
+  {% for scene in scenes %}
+  '{{ scene.id }}': {
+    type: 'equirectangular',
+    panorama: '{{ scene.image.url }}',
+    title: '{{ scene.name|escapejs }}',
+    hotSpots: [
+      {% for hotspot in scene.hotspots.all %}
+      {
+        pitch: {{ hotspot.pitch }},
+        yaw: {{ hotspot.yaw }},
+        type: 'scene',
+        text: '{{ hotspot.label|escapejs }}',
+        sceneId: '{{ hotspot.target_scene.id }}'
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }{% if not forloop.last %},{% endif %}
+  {% endfor %}
+};
+
+// Initialiser Pannellum
+let viewer = pannellum.viewer('panorama', {
+  default: {
+    firstScene: '{{ first_scene.id }}',
+    autoLoad: true,
+    showZoomCtrl: true,
+    showFullscreenCtrl: false,
+    keyboardZoom: true,
+    mouseZoom: true,
+    draggable: true,
+    dragLoad: true,
+    autoRotate: false,
+    autoRotateInactivityDelay: 5000,
+  },
+  scenes: scenes
+});
+
+// Fonction pour charger une scène
+function loadScene(sceneId) {
+  viewer.loadScene(sceneId);
+  
+  // Mettre à jour l'UI
+  document.querySelectorAll('.scene-item').forEach(item => {
+    item.classList.remove('active');
+    if (item.textContent.includes(scenes[sceneId].title)) {
+      item.classList.add('active');
+    }
+  });
+}
+
+// Plein écran
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.getElementById('panorama').requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+// Auto-rotation
+let autoRotate = false;
+function toggleAutoplay() {
+  autoRotate = !autoRotate;
+  viewer.set('autoRotate', autoRotate);
+  document.getElementById('autoplay-btn').textContent = autoRotate ? '⏸ Pause' : '▶ Auto';
+}
+
+// Gérer les clics sur les hotspots personnalisés
+viewer.on('scenechange', function(sceneId) {
+  // Mettre à jour l'UI active
+  document.querySelectorAll('.scene-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  
+  // Trouver et activer la bonne scène
+  const items = document.querySelectorAll('.scene-item');
+  items.forEach(item => {
+    if (item.textContent === scenes[sceneId].title) {
+      item.classList.add('active');
+    }
+  });
+});
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+{% endblock %}

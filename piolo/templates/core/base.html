@@ -1,0 +1,118 @@
+<!-- /var/www/html/piolo/templates/core/base.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}Piolo - Plateforme Immobilière Numérique du Cameroun{% endblock %}">
+    <title>{% block title %}Piolo - Immobilier Cameroun{% endblock %}</title>
+    
+    <!-- Preconnect for speed -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Fonts with display=swap -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Data Saver & Fast Navigation Engine -->
+    <script src="{% static 'js/data_saver.js' %}"></script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+    
+    <!-- CSRF Token for AJAX -->
+    <meta name="csrf-token" content="{{ csrf_token }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <!-- Page Loader -->
+  <div id="page-loader-overlay" class="page-loader-overlay">
+    <div class="piolo-loader"></div>
+  </div>
+  <script>
+    function showPioloLoader() {
+      let loader = document.getElementById('page-loader-overlay');
+      if (!loader) {
+        loader = document.createElement('div');
+        loader.id = 'page-loader-overlay';
+        loader.className = 'page-loader-overlay';
+        loader.innerHTML = '<div class="piolo-loader"></div>';
+        document.body.appendChild(loader);
+      } else {
+        document.body.appendChild(loader);
+      }
+      loader.style.opacity = '1';
+      loader.style.visibility = 'visible';
+    }
+
+    // Cache le loader au chargement ET au retour en arrière (BFCache)
+    window.addEventListener('pageshow', function(event) {
+      const loader = document.getElementById('page-loader-overlay');
+      if (loader) {
+        // Si retour en arrière (cache), on cache instantanément. Sinon on garde le petit délai fluide.
+        const delay = event.persisted ? 0 : 250;
+        setTimeout(() => {
+          loader.style.opacity = '0';
+          loader.style.visibility = 'hidden';
+        }, delay);
+      }
+    });
+
+    window.addEventListener('beforeunload', showPioloLoader);
+
+    document.addEventListener('click', function(e) {
+      const link = e.target.closest('a');
+      if (link) {
+        const href = link.getAttribute('href');
+        // Si c'est un vrai lien vers une autre page (pas une ancre, pas du js, pas un nouvel onglet)
+        if (href && !href.startsWith('#') && !href.startsWith('javascript:') && link.target !== '_blank') {
+          showPioloLoader();
+        }
+      }
+    });
+  </script>
+    
+    <!-- Navigation -->
+    {% block header %}
+    {% include 'includes/navbar.html' %}
+    {% endblock %}
+    
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    {% block footer %}
+    {% include 'includes/footer.html' %}
+    {% endblock %}
+    
+    <!-- Bottom Navbar Mobile (PWA) -->
+    {% block bottom_nav %}
+    {% include 'includes/bottom_navbar.html' %}
+    {% endblock %}
+    
+    <!-- Scripts -->
+    <script src="{% static 'js/main.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
+    
+    <!-- Messages -->
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+</body>
+</html>

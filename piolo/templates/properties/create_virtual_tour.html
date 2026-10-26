@@ -1,0 +1,74 @@
+<!-- templates/properties/create_virtual_tour.html -->
+{% extends "base.html" %}
+
+{% block title %}Créer une visite virtuelle - {{ property.title }}{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px; margin: 40px auto; padding: 20px;">
+  <h1>Créer une visite virtuelle 360°</h1>
+  
+  <div style="background: white; padding: 30px; border-radius: 12px; margin-top: 20px;">
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      
+      <div style="margin-bottom: 20px;">
+        <h3>📸 Upload des photos 360°</h3>
+        <p style="color: #666; font-size: 14px;">
+          Sélectionnez toutes les photos 360° de votre bien (une photo par pièce)
+        </p>
+        
+        <input type="file" name="scenes" multiple accept="image/*" 
+               style="width: 100%; padding: 15px; border: 2px dashed #ddd; border-radius: 8px; margin-top: 10px;">
+      </div>
+      
+      <div id="scene-names" style="margin-bottom: 20px;">
+        <h3>🏷️ Nommez chaque pièce</h3>
+        <div id="name-inputs"></div>
+      </div>
+      
+      <div style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <strong>💡 Conseils :</strong>
+        <ul style="margin: 10px 0 0 20px; color: #555;">
+          <li>Prenez les photos au centre de chaque pièce</li>
+          <li>Assurez-vous que l'éclairage est bon</li>
+          <li>Évitez les reflets dans les miroirs</li>
+          <li>Utilisez un trépied pour plus de stabilité</li>
+        </ul>
+      </div>
+      
+      <div style="display: flex; gap: 10px;">
+        <button type="submit" class="btn btn-primary" style="flex: 1;">
+          🚀 Créer la visite virtuelle
+        </button>
+        <!-- ✅ APRÈS -->
+        <a href="{% url 'properties:detail' property.slug %}" class="btn btn-secondary">
+        Annuler
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Générer automatiquement des champs pour nommer les pièces
+document.querySelector('input[name="scenes"]').addEventListener('change', function(e) {
+  const container = document.getElementById('name-inputs');
+  container.innerHTML = '';
+  
+  const files = e.target.files;
+  for (let i = 0; i < files.length; i++) {
+    const div = document.createElement('div');
+    div.style.marginBottom = '10px';
+    div.innerHTML = `
+      <label style="display: block; margin-bottom: 5px; font-weight: 600;">
+        Photo ${i + 1}: ${files[i].name}
+      </label>
+      <input type="text" name="scene_names" 
+             placeholder="Nom de la pièce (ex: Salon, Cuisine, Chambre 1...)"
+             style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+    `;
+    container.appendChild(div);
+  }
+});
+</script>
+{% endblock %}
